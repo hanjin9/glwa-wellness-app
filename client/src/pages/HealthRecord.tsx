@@ -316,16 +316,101 @@ export default function HealthRecord() {
                   ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-[10px]">스트레스 (1-10)</Label>
-                  <Input type="range" min="1" max="10" value={form.stressLevel} onChange={(e) => setForm({...form, stressLevel: e.target.value})} className="mt-1" />
-                  <p className="text-center text-xs text-muted-foreground">{form.stressLevel}/10</p>
+              {/* 스트레스 - 무지개 그라데이션 점 클릭 */}
+              <div>
+                <Label className="text-[10px] mb-2 block">스트레스 정도 ({form.stressLevel}/10)</Label>
+                <div className="relative mt-2">
+                  <div
+                    className="h-3 rounded-full w-full"
+                    style={{
+                      background: 'linear-gradient(to right, #FEFCBF, #FDE68A, #BEF264, #4ADE80, #166534, #92400E, #78350F, #60A5FA, #3B82F6, #FB923C, #EF4444)',
+                    }}
+                  />
+                  <div className="absolute top-0 left-0 w-full" style={{ height: '12px' }}>
+                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => {
+                      const isActive = form.stressLevel === level.toString();
+                      const position = (level / 10) * 100;
+                      return (
+                        <button
+                          key={level}
+                          type="button"
+                          className="absolute"
+                          style={{ left: `${position}%`, transform: 'translateX(-50%)', top: '-2px' }}
+                          onClick={() => setForm({...form, stressLevel: level.toString()})}
+                        >
+                          <div className={`w-4 h-4 rounded-full border-2 transition-all ${
+                            isActive
+                              ? 'bg-white border-gray-800 shadow-lg scale-150 ring-2 ring-gray-400'
+                              : 'bg-white/80 border-white/60 hover:scale-125 hover:bg-white'
+                          }`} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-4 relative" style={{ height: '14px' }}>
+                    {[0, 2, 4, 6, 8, 10].map((level) => {
+                      const position = (level / 10) * 100;
+                      return (
+                        <span key={level} className="text-[8px] text-muted-foreground absolute" style={{ left: `${position}%`, transform: 'translateX(-50%)' }}>
+                          {level}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div>
-                  <Label className="text-[10px]">통증 (0-10)</Label>
-                  <Input type="range" min="0" max="10" value={form.painLevel} onChange={(e) => setForm({...form, painLevel: e.target.value})} className="mt-1" />
-                  <p className="text-center text-xs text-muted-foreground">{form.painLevel}/10</p>
+                <div className="flex justify-between text-[8px] text-muted-foreground">
+                  <span>편안 ✨</span>
+                  <span>보통</span>
+                  <span>높음 🔥</span>
+                </div>
+              </div>
+
+              {/* 통증 - 무지개 그라데이션 점 클릭 */}
+              <div>
+                <Label className="text-[10px] mb-2 block">통증 정도 ({form.painLevel}/10)</Label>
+                <div className="relative mt-2">
+                  <div
+                    className="h-3 rounded-full w-full"
+                    style={{
+                      background: 'linear-gradient(to right, #FEFCBF, #FDE68A, #BEF264, #4ADE80, #166534, #92400E, #78350F, #60A5FA, #3B82F6, #FB923C, #EF4444)',
+                    }}
+                  />
+                  <div className="absolute top-0 left-0 w-full" style={{ height: '12px' }}>
+                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => {
+                      const isActive = form.painLevel === level.toString();
+                      const position = (level / 10) * 100;
+                      return (
+                        <button
+                          key={level}
+                          type="button"
+                          className="absolute"
+                          style={{ left: `${position}%`, transform: 'translateX(-50%)', top: '-2px' }}
+                          onClick={() => setForm({...form, painLevel: level.toString()})}
+                        >
+                          <div className={`w-4 h-4 rounded-full border-2 transition-all ${
+                            isActive
+                              ? 'bg-white border-gray-800 shadow-lg scale-150 ring-2 ring-gray-400'
+                              : 'bg-white/80 border-white/60 hover:scale-125 hover:bg-white'
+                          }`} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-4 relative" style={{ height: '14px' }}>
+                    {[0, 2, 4, 6, 8, 10].map((level) => {
+                      const position = (level / 10) * 100;
+                      return (
+                        <span key={level} className="text-[8px] text-muted-foreground absolute" style={{ left: `${position}%`, transform: 'translateX(-50%)' }}>
+                          {level}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="flex justify-between text-[8px] text-muted-foreground">
+                  <span>없음 😊</span>
+                  <span>중간</span>
+                  <span>심함 😖</span>
                 </div>
               </div>
               {parseInt(form.painLevel) > 0 && (

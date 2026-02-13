@@ -24,7 +24,7 @@ const CATEGORY_MAP: Record<string, string> = {
   exercise: "운동",
   nutrition: "영양",
   question: "질문",
-  success_story: "성공 스토리",
+  success_story: "명예의전당 스토리",
 };
 
 export default function Community() {
@@ -73,7 +73,7 @@ export default function Community() {
       utils.community.getStories.invalidate();
       setShowNewStory(false);
       setNewStoryContent("");
-      toast.success("스토리가 등록되었습니다");
+      toast.success("명예의전당 스토리가 등록되었습니다");
     },
   });
 
@@ -114,13 +114,13 @@ export default function Community() {
             <BookOpen className="w-4 h-4 mr-1" />게시판
           </TabsTrigger>
           <TabsTrigger value="chat" className="flex-1 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-emerald-700 data-[state=active]:text-emerald-700 h-full">
-            <MessageSquare className="w-4 h-4 mr-1" />공유방
+            <MessageSquare className="w-4 h-4 mr-1" />건강공유방
           </TabsTrigger>
           <TabsTrigger value="gallery" className="flex-1 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-emerald-700 data-[state=active]:text-emerald-700 h-full">
-            <Camera className="w-4 h-4 mr-1" />갤러리
+            <Camera className="w-4 h-4 mr-1" />나의 작은다락방
           </TabsTrigger>
           <TabsTrigger value="story" className="flex-1 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-emerald-700 data-[state=active]:text-emerald-700 h-full">
-            <Sparkles className="w-4 h-4 mr-1" />스토리
+            <Sparkles className="w-4 h-4 mr-1" />명예의전당
           </TabsTrigger>
         </TabsList>
 
@@ -211,7 +211,7 @@ export default function Community() {
                     <SelectItem value="exercise">운동</SelectItem>
                     <SelectItem value="nutrition">영양</SelectItem>
                     <SelectItem value="question">질문</SelectItem>
-                    <SelectItem value="success_story">성공 스토리</SelectItem>
+                    <SelectItem value="success_story">명예의전당 스토리</SelectItem>
                   </SelectContent>
                 </Select>
                 <Input placeholder="제목을 입력하세요" value={newPostTitle} onChange={e => setNewPostTitle(e.target.value)} />
@@ -228,7 +228,7 @@ export default function Community() {
           </Dialog>
         </TabsContent>
 
-        {/* ─── 정보공유방 ─── */}
+        {/* ─── 건강공유방 ─── */}
         <TabsContent value="chat" className="mt-0">
           <div className="flex flex-col h-[calc(100vh-220px)]">
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
@@ -292,13 +292,13 @@ export default function Community() {
           </div>
         </TabsContent>
 
-        {/* ─── 갤러리 ─── */}
+        {/* ─── 나의 작은다락방 갤러리 ─── */}
         <TabsContent value="gallery" className="mt-0">
           <div className="px-4 py-4">
             {!gallery || gallery.length === 0 ? (
               <div className="py-12 text-center">
                 <Camera className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-                <p className="text-muted-foreground">아직 갤러리가 비어있습니다</p>
+                <p className="text-muted-foreground">아직 다락방 갤러리가 비어있습니다</p>
                 <p className="text-sm text-muted-foreground">건강 여정의 사진을 공유해보세요!</p>
                 <Button
                   className="mt-4 bg-emerald-700 hover:bg-emerald-800"
@@ -336,13 +336,13 @@ export default function Community() {
           </Button>
         </TabsContent>
 
-        {/* ─── 스토리 ─── */}
+        {/* ─── 명예의전당 스토리 ─── */}
         <TabsContent value="story" className="mt-0">
           <div className="px-4 py-4 space-y-3">
             {!stories || stories.length === 0 ? (
               <div className="py-12 text-center">
                 <Sparkles className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-                <p className="text-muted-foreground">아직 스토리가 없습니다</p>
+                <p className="text-muted-foreground">아직 명예의전당 스토리가 없습니다</p>
                 <p className="text-sm text-muted-foreground">나의 건강 이야기를 나눠보세요!</p>
               </div>
             ) : (
@@ -389,7 +389,7 @@ export default function Community() {
             </DialogTrigger>
             <DialogContent className="max-w-md mx-auto">
               <DialogHeader>
-                <DialogTitle>나의 스토리</DialogTitle>
+                <DialogTitle>명예의전당 스토리</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <Textarea
@@ -403,7 +403,7 @@ export default function Community() {
                   disabled={!newStoryContent.trim() || createStory.isPending}
                   onClick={() => createStory.mutate({ content: newStoryContent })}
                 >
-                  {createStory.isPending ? "등록 중..." : "스토리 등록"}
+                  {createStory.isPending ? "등록 중..." : "명예의전당 스토리 등록"}
                 </Button>
               </div>
             </DialogContent>

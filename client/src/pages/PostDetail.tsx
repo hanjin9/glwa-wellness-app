@@ -12,7 +12,7 @@ import { getLoginUrl } from "@/const";
 
 const CATEGORY_MAP: Record<string, string> = {
   free: "자유게시판", health_tip: "건강 팁", exercise: "운동",
-  nutrition: "영양", question: "질문", success_story: "성공 스토리",
+  nutrition: "영양", question: "질문", success_story: "명예의전당 스토리",
 };
 
 export default function PostDetail() {

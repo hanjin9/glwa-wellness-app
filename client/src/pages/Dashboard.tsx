@@ -27,6 +27,24 @@ import {
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 
+// 무지개 그라데이션 색상 (0~10 레벨에 따른 색상 반환)
+function rainbowColor(level: number): string {
+  const colors = [
+    '#FEFCBF', // 0 - 연노랑
+    '#FDE68A', // 1 - 노랑
+    '#BEF264', // 2 - 연초록
+    '#4ADE80', // 3 - 초록
+    '#166534', // 4 - 진초록
+    '#92400E', // 5 - 밤색
+    '#78350F', // 6 - 진밤색
+    '#60A5FA', // 7 - 연파랑
+    '#3B82F6', // 8 - 파랑
+    '#FB923C', // 9 - 주황
+    '#EF4444', // 10 - 빨강
+  ];
+  return colors[Math.min(Math.max(level, 0), 10)];
+}
+
 // notes 필드에서 "식사: 7시, 12시, 18시" 형식의 식사 시간대를 파싱
 function parseMealTimesFromNotes(notes?: string | null): number[] {
   if (!notes) return [];
@@ -413,26 +431,131 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* 스트레스 레벨 */}
+          {/* 스트레스 레벨 - 무지개 그라데이션 점 클릭 */}
           <Card className="shadow-sm border-border/50">
             <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-3">
                 <Activity className="w-4 h-4 text-primary" />
                 <span className="text-xs font-semibold">스트레스</span>
-                {todayRecord?.stressLevel && (
-                  <span className="ml-auto text-[10px] text-primary font-medium">
+                {todayRecord?.stressLevel != null && (
+                  <span className="ml-auto text-[10px] font-medium" style={{ color: rainbowColor(todayRecord.stressLevel) }}>
                     {todayRecord.stressLevel}/10
                   </span>
                 )}
               </div>
               <div className="relative">
-                <div className="h-2 bg-muted rounded-full w-full" />
-                {todayRecord?.stressLevel && (
-                  <div
-                    className="absolute top-0 h-2 rounded-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500"
-                    style={{ width: `${(todayRecord.stressLevel / 10) * 100}%` }}
-                  />
+                <div
+                  className="h-3 rounded-full w-full"
+                  style={{
+                    background: 'linear-gradient(to right, #FEFCBF, #FDE68A, #BEF264, #4ADE80, #166534, #92400E, #78350F, #60A5FA, #3B82F6, #FB923C, #EF4444)',
+                  }}
+                />
+                <div className="absolute top-0 left-0 w-full" style={{ height: '12px' }}>
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => {
+                    const isActive = todayRecord?.stressLevel === level;
+                    const position = (level / 10) * 100;
+                    return (
+                      <button
+                        key={level}
+                        className="absolute"
+                        style={{ left: `${position}%`, transform: 'translateX(-50%)', top: '-2px' }}
+                        onClick={() => setLocation("/record")}
+                        title={`스트레스 ${level}`}
+                      >
+                        <div className={`w-4 h-4 rounded-full border-2 transition-all ${
+                          isActive
+                            ? 'bg-white border-gray-800 shadow-lg scale-150 ring-2 ring-gray-400'
+                            : 'bg-white/80 border-white/60 hover:scale-125 hover:bg-white'
+                        }`} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-4">
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => {
+                    const position = (level / 10) * 100;
+                    return (
+                      <span
+                        key={level}
+                        className="text-[8px] text-muted-foreground absolute"
+                        style={{ left: `${position}%`, transform: 'translateX(-50%)', top: '22px' }}
+                      >
+                        {level}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="h-5" />
+              <div className="flex justify-between text-[8px] text-muted-foreground mt-1">
+                <span>편안 ✨</span>
+                <span>보통</span>
+                <span>높음 🔥</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 통증 레벨 - 무지개 그라데이션 점 클릭 */}
+          <Card className="shadow-sm border-border/50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-4 h-4 text-orange-500" />
+                <span className="text-xs font-semibold">통증</span>
+                {todayRecord?.painLevel != null && (
+                  <span className="ml-auto text-[10px] font-medium" style={{ color: rainbowColor(todayRecord.painLevel) }}>
+                    {todayRecord.painLevel}/10
+                    {todayRecord.painLocation && ` (${todayRecord.painLocation})`}
+                  </span>
                 )}
+              </div>
+              <div className="relative">
+                <div
+                  className="h-3 rounded-full w-full"
+                  style={{
+                    background: 'linear-gradient(to right, #FEFCBF, #FDE68A, #BEF264, #4ADE80, #166534, #92400E, #78350F, #60A5FA, #3B82F6, #FB923C, #EF4444)',
+                  }}
+                />
+                <div className="absolute top-0 left-0 w-full" style={{ height: '12px' }}>
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => {
+                    const isActive = todayRecord?.painLevel === level;
+                    const position = (level / 10) * 100;
+                    return (
+                      <button
+                        key={level}
+                        className="absolute"
+                        style={{ left: `${position}%`, transform: 'translateX(-50%)', top: '-2px' }}
+                        onClick={() => setLocation("/record")}
+                        title={`통증 ${level}`}
+                      >
+                        <div className={`w-4 h-4 rounded-full border-2 transition-all ${
+                          isActive
+                            ? 'bg-white border-gray-800 shadow-lg scale-150 ring-2 ring-gray-400'
+                            : 'bg-white/80 border-white/60 hover:scale-125 hover:bg-white'
+                        }`} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-4">
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => {
+                    const position = (level / 10) * 100;
+                    return (
+                      <span
+                        key={level}
+                        className="text-[8px] text-muted-foreground absolute"
+                        style={{ left: `${position}%`, transform: 'translateX(-50%)', top: '22px' }}
+                      >
+                        {level}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="h-5" />
+              <div className="flex justify-between text-[8px] text-muted-foreground mt-1">
+                <span>없음 😊</span>
+                <span>중간</span>
+                <span>심함 😖</span>
               </div>
             </CardContent>
           </Card>
