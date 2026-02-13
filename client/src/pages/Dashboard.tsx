@@ -20,7 +20,7 @@ import { motion } from "framer-motion";
 
 const quickActions = [
   { icon: Plus, label: "건강 기록", path: "/record", color: "bg-primary/10 text-primary" },
-  { icon: Stethoscope, label: "건강 진단", path: "/diagnosis", color: "bg-chart-2/10 text-chart-2" },
+  { icon: Stethoscope, label: "체질체크", path: "/diagnosis", color: "bg-chart-2/10 text-chart-2" },
   { icon: Activity, label: "프로그램", path: "/programs", color: "bg-chart-3/10 text-chart-3" },
   { icon: Zap, label: "미션", path: "/missions", color: "bg-chart-1/10 text-chart-1" },
 ];

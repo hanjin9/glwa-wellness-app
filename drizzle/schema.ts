@@ -72,7 +72,7 @@ export type InsertHealthRecord = typeof healthRecords.$inferInsert;
 export const healthDiagnostics = mysqlTable("health_diagnostics", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
-  timePeriod: mysqlEnum("timePeriod", ["20years", "10years", "5years", "3years", "current"]).notNull(),
+  timePeriod: mysqlEnum("timePeriod", ["20years", "10years", "5years", "3years", "2years", "current"]).notNull(),
   checklistData: json("checklistData"),
   constitutionAnalysis: json("constitutionAnalysis"),
   inflammationScore: int("inflammationScore"),

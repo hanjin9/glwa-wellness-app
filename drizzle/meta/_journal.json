@@ -29,6 +29,13 @@
       "when": 1770996474791,
       "tag": "0003_outstanding_juggernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1771003328195,
+      "tag": "0004_exotic_maginty",
+      "breakpoints": true
     }
   ]
 }

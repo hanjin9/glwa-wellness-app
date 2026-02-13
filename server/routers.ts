@@ -86,7 +86,7 @@ export const appRouter = router({
     }),
     save: protectedProcedure
       .input(z.object({
-        timePeriod: z.enum(["20years", "10years", "5years", "3years", "current"]),
+        timePeriod: z.enum(["20years", "10years", "5years", "3years", "2years", "current"]),
         checklistData: z.record(z.string(), z.number()),
         inflammationScore: z.number().optional(),
         cardiopulmonaryScore: z.number().optional(),

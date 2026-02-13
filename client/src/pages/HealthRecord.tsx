@@ -3,12 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
-import { Plus, History, Heart, Droplets, Weight, Moon, Flame, Brain } from "lucide-react";
+import { Plus, History, Heart, Weight, Moon, Flame, Brain, Utensils, Cookie } from "lucide-react";
+
+// 식사 시간대 (6시~22시)
+const mealHours = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+
+// 수면 시간 (4~10시간)
+const sleepOptions = [4, 5, 6, 7, 8, 9, 10];
 
 export default function HealthRecord() {
   const utils = trpc.useUtils();
@@ -36,7 +41,6 @@ export default function HealthRecord() {
     exerciseType: "",
     sleepHours: "",
     sleepQuality: "3",
-    waterIntake: "",
     stressLevel: "5",
     painLevel: "0",
     painLocation: "",
@@ -44,7 +48,33 @@ export default function HealthRecord() {
     notes: "",
   });
 
+  // 식사 시간대 다중 선택 (최대 5번 클릭 가능)
+  const [mealTimes, setMealTimes] = useState<number[]>([]);
+  // 간식 시간대 다중 선택
+  const [snackTimes, setSnackTimes] = useState<number[]>([]);
+
+  const toggleMealTime = (hour: number) => {
+    setMealTimes((prev) =>
+      prev.includes(hour) ? prev.filter((h) => h !== hour) : [...prev, hour]
+    );
+  };
+
+  const toggleSnackTime = (hour: number) => {
+    setSnackTimes((prev) =>
+      prev.includes(hour) ? prev.filter((h) => h !== hour) : [...prev, hour]
+    );
+  };
+
   const handleSave = () => {
+    // 식사 정보를 notes에 포함
+    const mealInfo = mealTimes.length > 0
+      ? `식사: ${mealTimes.sort((a, b) => a - b).map(h => `${h}시`).join(", ")}`
+      : "";
+    const snackInfo = snackTimes.length > 0
+      ? `간식: ${snackTimes.sort((a, b) => a - b).map(h => `${h}시`).join(", ")}`
+      : "";
+    const fullNotes = [form.notes, mealInfo, snackInfo].filter(Boolean).join(" | ");
+
     addRecord.mutate({
       recordDate: date,
       systolicBP: form.systolicBP ? parseInt(form.systolicBP) : undefined,
@@ -57,17 +87,22 @@ export default function HealthRecord() {
       exerciseType: form.exerciseType || undefined,
       sleepHours: form.sleepHours ? parseFloat(form.sleepHours) : undefined,
       sleepQuality: parseInt(form.sleepQuality),
-      waterIntake: form.waterIntake ? parseFloat(form.waterIntake) : undefined,
       stressLevel: parseInt(form.stressLevel),
       painLevel: parseInt(form.painLevel),
       painLocation: form.painLocation || undefined,
       mood: form.mood,
-      notes: form.notes || undefined,
+      notes: fullNotes || undefined,
     });
   };
 
   const moodEmoji: Record<string, string> = {
     great: "😄", good: "🙂", neutral: "😐", bad: "😟", terrible: "😢",
+  };
+
+  const formatHour = (h: number) => {
+    if (h < 12) return `${h}시`;
+    if (h === 12) return "12시";
+    return `${h}시`;
   };
 
   return (
@@ -144,14 +179,14 @@ export default function HealthRecord() {
             </CardContent>
           </Card>
 
-          {/* Activity */}
+          {/* Activity - 운동 + 수면 */}
           <Card className="shadow-sm border-border/50">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-bold flex items-center gap-2">
                 <Flame className="w-4 h-4 text-orange-500" /> 활동
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-[10px]">운동 시간 (분)</Label>
@@ -162,15 +197,99 @@ export default function HealthRecord() {
                   <Input value={form.exerciseType} onChange={(e) => setForm({...form, exerciseType: e.target.value})} placeholder="걷기, 요가 등" className="mt-1 text-sm" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-[10px]">수면 시간</Label>
-                  <Input type="number" step="0.5" value={form.sleepHours} onChange={(e) => setForm({...form, sleepHours: e.target.value})} placeholder="7.5" className="mt-1 text-sm" />
+
+              {/* 수면 시간 - 점 클릭 방식 */}
+              <div>
+                <Label className="text-[10px] flex items-center gap-1.5 mb-2">
+                  <Moon className="w-3 h-3 text-indigo-400" /> 수면 시간
+                </Label>
+                <div className="flex items-center gap-1">
+                  {sleepOptions.map((h) => (
+                    <button
+                      key={h}
+                      onClick={() => setForm({ ...form, sleepHours: h.toString() })}
+                      className="flex flex-col items-center gap-1 flex-1"
+                    >
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-200 ${
+                          form.sleepHours === h.toString()
+                            ? "bg-indigo-500 text-white ring-2 ring-indigo-300 ring-offset-1 scale-110"
+                            : "bg-secondary text-muted-foreground hover:bg-indigo-100"
+                        }`}
+                      >
+                        {h}
+                      </div>
+                      <span className="text-[8px] text-muted-foreground">시간</span>
+                    </button>
+                  ))}
                 </div>
-                <div>
-                  <Label className="text-[10px]">수분 섭취 (L)</Label>
-                  <Input type="number" step="0.1" value={form.waterIntake} onChange={(e) => setForm({...form, waterIntake: e.target.value})} placeholder="2.0" className="mt-1 text-sm" />
+                {form.sleepHours && (
+                  <p className="text-center text-xs text-indigo-600 font-medium mt-1">
+                    {form.sleepHours}시간 수면
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 식사 - 시간대 클릭 + 간식 */}
+          <Card className="shadow-sm border-border/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-bold flex items-center gap-2">
+                <Utensils className="w-4 h-4 text-amber-600" /> 식사 (시간대 / 횟수)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* 식사 시간대 */}
+              <div>
+                <Label className="text-[10px] mb-2 block">식사 시간 (클릭하여 선택, 복수 선택 가능)</Label>
+                <div className="flex flex-wrap gap-1">
+                  {mealHours.map((h) => (
+                    <button
+                      key={h}
+                      onClick={() => toggleMealTime(h)}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-[10px] font-medium transition-all duration-200 ${
+                        mealTimes.includes(h)
+                          ? "bg-amber-500 text-white ring-2 ring-amber-300 ring-offset-1 scale-105"
+                          : "bg-secondary text-muted-foreground hover:bg-amber-100"
+                      }`}
+                    >
+                      {h}
+                    </button>
+                  ))}
                 </div>
+                {mealTimes.length > 0 && (
+                  <p className="text-xs text-amber-700 font-medium mt-2">
+                    식사 {mealTimes.length}회: {mealTimes.sort((a, b) => a - b).map(h => formatHour(h)).join(", ")}
+                  </p>
+                )}
+              </div>
+
+              {/* 간식 시간대 */}
+              <div>
+                <Label className="text-[10px] mb-2 flex items-center gap-1.5">
+                  <Cookie className="w-3 h-3 text-pink-400" /> 간식 시간 (클릭하여 선택)
+                </Label>
+                <div className="flex flex-wrap gap-1">
+                  {mealHours.map((h) => (
+                    <button
+                      key={h}
+                      onClick={() => toggleSnackTime(h)}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-[10px] font-medium transition-all duration-200 ${
+                        snackTimes.includes(h)
+                          ? "bg-pink-400 text-white ring-2 ring-pink-300 ring-offset-1 scale-105"
+                          : "bg-secondary text-muted-foreground hover:bg-pink-50"
+                      }`}
+                    >
+                      {h}
+                    </button>
+                  ))}
+                </div>
+                {snackTimes.length > 0 && (
+                  <p className="text-xs text-pink-600 font-medium mt-2">
+                    간식 {snackTimes.length}회: {snackTimes.sort((a, b) => a - b).map(h => formatHour(h)).join(", ")}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -243,8 +362,10 @@ export default function HealthRecord() {
                       {r.weight && <div><span className="text-muted-foreground">체중</span> <span className="font-medium">{r.weight}kg</span></div>}
                       {r.sleepHours && <div><span className="text-muted-foreground">수면</span> <span className="font-medium">{r.sleepHours}h</span></div>}
                       {r.exerciseMinutes && <div><span className="text-muted-foreground">운동</span> <span className="font-medium">{r.exerciseMinutes}분</span></div>}
-                      {r.waterIntake && <div><span className="text-muted-foreground">수분</span> <span className="font-medium">{r.waterIntake}L</span></div>}
                     </div>
+                    {r.notes && (
+                      <p className="text-[10px] text-muted-foreground mt-2 border-t border-border/30 pt-2">{r.notes}</p>
+                    )}
                   </CardContent>
                 </Card>
               ))

@@ -1,0 +1,1 @@
+ALTER TABLE `health_diagnostics` MODIFY COLUMN `timePeriod` enum('20years','10years','5years','3years','2years','current') NOT NULL;

@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import {
-  LayoutDashboard,
+  Home,
   ShoppingBag,
   MessageCircle,
   Users,
@@ -12,11 +12,11 @@ import {
 import { useLocation } from "wouter";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "홈", path: "/dashboard" },
+  { icon: Home, label: "홈", path: "/dashboard" },
+  { icon: User, label: "마이", path: "/profile" },
   { icon: ShoppingBag, label: "쇼핑", path: "/shop" },
   { icon: MessageCircle, label: "상담", path: "/chat" },
   { icon: Users, label: "커뮤니티", path: "/community" },
-  { icon: User, label: "MY", path: "/profile" },
 ];
 
 export default function MobileLayout({ children }: { children: React.ReactNode }) {
