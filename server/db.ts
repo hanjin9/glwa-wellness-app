@@ -132,12 +132,39 @@ export async function createMission(data: InsertHealthMission) {
   await db.insert(healthMissions).values(data);
 }
 
-export async function getUserMissions(userId: number) {
+export async function getUserMissions(userId: number, period?: string) {
   const db = await getDb();
   if (!db) return [];
+  if (period && period !== 'all') {
+    return db.select().from(healthMissions)
+      .where(and(eq(healthMissions.userId, userId), eq(healthMissions.missionPeriod, period as any)))
+      .orderBy(desc(healthMissions.createdAt));
+  }
   return db.select().from(healthMissions)
     .where(eq(healthMissions.userId, userId))
     .orderBy(desc(healthMissions.createdAt));
+}
+
+export async function getMissionStats(userId: number) {
+  const db = await getDb();
+  if (!db) return { total: 0, completed: 0, pending: 0, avgCompletion: 0, byPeriod: {}, byCategory: {} };
+  const all = await db.select().from(healthMissions).where(eq(healthMissions.userId, userId));
+  const completed = all.filter(m => m.status === 'completed');
+  const pending = all.filter(m => m.status !== 'completed' && m.status !== 'failed');
+  const avgCompletion = completed.length > 0 ? Math.round(completed.reduce((s, m) => s + (m.completionRate || 0), 0) / completed.length) : 0;
+  const byPeriod: Record<string, { total: number; completed: number }> = {};
+  const byCategory: Record<string, { total: number; completed: number }> = {};
+  for (const m of all) {
+    const p = m.missionPeriod || 'daily';
+    if (!byPeriod[p]) byPeriod[p] = { total: 0, completed: 0 };
+    byPeriod[p].total++;
+    if (m.status === 'completed') byPeriod[p].completed++;
+    const c = m.category;
+    if (!byCategory[c]) byCategory[c] = { total: 0, completed: 0 };
+    byCategory[c].total++;
+    if (m.status === 'completed') byCategory[c].completed++;
+  }
+  return { total: all.length, completed: completed.length, pending: pending.length, avgCompletion, byPeriod, byCategory };
 }
 
 export async function updateMission(missionId: number, data: Partial<InsertHealthMission>) {

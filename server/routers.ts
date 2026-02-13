@@ -106,10 +106,17 @@ export const appRouter = router({
 
   // ─── Missions ────────────────────────────────────────────────────
   missions: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
-      return db.getUserMissions(ctx.user.id);
+    list: protectedProcedure
+      .input(z.object({ period: z.string().optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        return db.getUserMissions(ctx.user.id, input?.period);
+      }),
+    stats: protectedProcedure.query(async ({ ctx }) => {
+      return db.getMissionStats(ctx.user.id);
     }),
-    generate: protectedProcedure.mutation(async ({ ctx }) => {
+    generate: protectedProcedure
+      .input(z.object({ period: z.string().optional() }).optional())
+      .mutation(async ({ ctx, input }) => {
       const profile = await db.getProfile(ctx.user.id);
       const grade = profile?.memberGrade || "silver";
       try {
@@ -133,14 +140,24 @@ export const appRouter = router({
         const content = result.choices[0]?.message?.content;
         const parsed = JSON.parse(typeof content === "string" ? content : "");
         const missions = parsed.missions || [];
-        const dueDate = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+        const periodDays: Record<string, number> = { daily: 1, weekly: 7, biweekly: 14, monthly: 30, quarterly: 90, semiannual: 180, annual: 365 };
+        const period = input?.period || 'daily';
+        const days = periodDays[period] || 1;
+        const dueDate = new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
+        const pointRewards: Record<string, number> = { daily: 10, weekly: 50, biweekly: 100, monthly: 200, quarterly: 500, semiannual: 1000, annual: 2000 };
+        const reward = pointRewards[period] || 10;
         for (const m of missions) {
-          await db.createMission({ userId: ctx.user.id, title: m.title, description: m.description, category: m.category as any, difficulty: m.difficulty as any, dueDate, status: "pending" });
+          await db.createMission({ userId: ctx.user.id, title: m.title, description: m.description, category: m.category as any, difficulty: m.difficulty as any, dueDate, status: "pending", missionPeriod: period as any, pointReward: reward });
         }
       } catch (e) {
-        const dueDate = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
-        await db.createMission({ userId: ctx.user.id, title: "5분 복식호흡 훈련", description: "편안한 자세에서 5분간 복식호흡을 실시하세요.", category: "breathing", difficulty: "beginner", dueDate, status: "pending" });
-        await db.createMission({ userId: ctx.user.id, title: "10분 스트레칭 루틴", description: "목, 어깨, 허리를 중심으로 10분간 스트레칭을 실시하세요.", category: "stretching", difficulty: "beginner", dueDate, status: "pending" });
+        const period = input?.period || 'daily';
+        const periodDays: Record<string, number> = { daily: 1, weekly: 7, biweekly: 14, monthly: 30, quarterly: 90, semiannual: 180, annual: 365 };
+        const days = periodDays[period] || 1;
+        const dueDate = new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
+        const pointRewards: Record<string, number> = { daily: 10, weekly: 50, biweekly: 100, monthly: 200, quarterly: 500, semiannual: 1000, annual: 2000 };
+        const reward = pointRewards[period] || 10;
+        await db.createMission({ userId: ctx.user.id, title: "5분 복식호흡 훈련", description: "편안한 자세에서 5분간 복식호흡을 실시하세요.", category: "breathing", difficulty: "beginner", dueDate, status: "pending", missionPeriod: period as any, pointReward: reward });
+        await db.createMission({ userId: ctx.user.id, title: "10분 스트레칭 루틴", description: "목, 어깨, 허리를 중심으로 10분간 스트레칭을 실시하세요.", category: "stretching", difficulty: "beginner", dueDate, status: "pending", missionPeriod: period as any, pointReward: reward });
       }
       return { success: true };
     }),

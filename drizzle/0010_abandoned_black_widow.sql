@@ -1,0 +1,2 @@
+ALTER TABLE `health_missions` ADD `missionPeriod` enum('daily','weekly','biweekly','monthly','quarterly','semiannual','annual') DEFAULT 'daily' NOT NULL;--> statement-breakpoint
+ALTER TABLE `health_missions` ADD `pointReward` int DEFAULT 0;

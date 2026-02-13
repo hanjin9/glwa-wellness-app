@@ -71,6 +71,13 @@
       "when": 1771008787690,
       "tag": "0009_mean_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1771013217331,
+      "tag": "0010_abandoned_black_widow",
+      "breakpoints": true
     }
   ]
 }

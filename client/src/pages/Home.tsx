@@ -276,6 +276,70 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══ Mission Center - Core Content Banner ═══ */}
+      <section className="py-16 px-6">
+        <div className="max-w-lg mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="mb-8 text-center">
+              <p className="text-muted-foreground/50 text-[10px] tracking-[0.3em] uppercase mb-2">Core Mission</p>
+              <h2 className="text-xl font-light text-foreground font-resort tracking-tight">
+                건강 <span className="italic">미션 센터</span>
+              </h2>
+              <div className="divider-resort w-12 mx-auto mt-4 mb-3" />
+              <p className="text-xs text-muted-foreground font-light">기간별 맞춤형 미션으로 건강한 습관을 만들어보세요</p>
+            </div>
+
+            {/* Mission Period Cards */}
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {[
+                { period: "오늘의 미션", icon: "⚡", color: "from-amber-400 to-orange-500", pts: "10P" },
+                { period: "주간 미션", icon: "📅", color: "from-blue-400 to-blue-600", pts: "50P" },
+                { period: "2주간 미션", icon: "🎯", color: "from-teal-400 to-emerald-600", pts: "100P" },
+              ].map((m) => (
+                <div key={m.period} className="text-center p-3 rounded-xl bg-card border border-border/40 hover:border-border/80 hover:shadow-sm transition-all cursor-pointer" onClick={() => setLocation('/missions')}>
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${m.color} flex items-center justify-center mx-auto mb-2 text-lg shadow-sm`}>
+                    {m.icon}
+                  </div>
+                  <p className="text-[11px] font-medium text-foreground">{m.period}</p>
+                  <p className="text-[9px] text-primary/70 font-medium mt-0.5">{m.pts}</p>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-4 gap-2 mb-5">
+              {[
+                { period: "1개월", icon: "🏆", color: "from-violet-400 to-purple-600", pts: "200P" },
+                { period: "3개월", icon: "💎", color: "from-pink-400 to-rose-600", pts: "500P" },
+                { period: "6개월", icon: "👑", color: "from-amber-500 to-yellow-600", pts: "1,000P" },
+                { period: "1년", icon: "⭐", color: "from-gray-700 to-gray-900", pts: "2,000P" },
+              ].map((m) => (
+                <div key={m.period} className="text-center p-3 rounded-xl bg-card border border-border/40 hover:border-border/80 hover:shadow-sm transition-all cursor-pointer" onClick={() => setLocation('/missions')}>
+                  <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${m.color} flex items-center justify-center mx-auto mb-2 text-base shadow-sm`}>
+                    {m.icon}
+                  </div>
+                  <p className="text-[10px] font-medium text-foreground">{m.period}</p>
+                  <p className="text-[9px] text-primary/70 font-medium mt-0.5">{m.pts}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA to Mission Page */}
+            <Button
+              onClick={() => setLocation('/missions')}
+              className="w-full gradient-warm text-white border-0 h-12 rounded-xl font-medium tracking-wide shadow-md"
+            >
+              <Target className="w-4 h-4 mr-2" />
+              미션 센터 바로가기
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ═══ Membership Tiers - Luxury Showcase ═══ */}
       <section className="py-16 px-6 max-w-lg mx-auto">
         <div className="mb-10 text-center">
