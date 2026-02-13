@@ -753,7 +753,7 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const result = await transcribeAudio({ audioUrl: input.audioUrl, language: input.language || "ko" });
         if ("error" in result) {
-          throw new TRPCError({ code: "BAD_REQUEST", message: result.error });
+          throw new TRPCError({ code: "BAD_REQUEST", message: `${result.error}${result.details ? ': ' + result.details : ''}` });
         }
         return { text: result.text, language: result.language };
       }),

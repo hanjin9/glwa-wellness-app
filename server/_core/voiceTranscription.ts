@@ -104,7 +104,10 @@ export async function transcribeAudio(
       }
       
       audioBuffer = Buffer.from(await response.arrayBuffer());
-      mimeType = response.headers.get('content-type') || 'audio/mpeg';
+      // Strip codec parameters (e.g., "audio/webm;codecs=opus" → "audio/webm")
+      // Whisper API rejects MIME types with codec suffixes
+      const rawContentType = response.headers.get('content-type') || 'audio/mpeg';
+      mimeType = rawContentType.split(';')[0].trim();
       
       // Check file size (16MB limit)
       const sizeMB = audioBuffer.length / (1024 * 1024);
@@ -165,7 +168,7 @@ export async function transcribeAudio(
       const errorText = await response.text().catch(() => "");
       return {
         error: "Transcription service request failed",
-        code: "TRANSCRIPTION_FAILED",
+        code: "TRANSCRIPTION_FAILED" as const,
         details: `${response.status} ${response.statusText}${errorText ? `: ${errorText}` : ""}`
       };
     }
