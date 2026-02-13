@@ -7,6 +7,9 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { getStripe, handleWebhookEvent } from "../stripe";
+import { updateOrderPayment } from "../db";
+import { ENV } from "./env";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -30,6 +33,30 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
+  // Stripe webhook (MUST be before express.json for signature verification)
+  app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+    try {
+      const stripe = getStripe();
+      if (!stripe) return res.status(500).json({ error: "Stripe not configured" });
+      const sig = req.headers["stripe-signature"] as string;
+      const event = stripe.webhooks.constructEvent(req.body, sig, ENV.stripeWebhookSecret);
+      if (event.id.startsWith("evt_test_")) {
+        console.log("[Webhook] Test event detected, returning verification response");
+        return res.json({ verified: true });
+      }
+      const result = await handleWebhookEvent(event);
+      // Update order status if checkout completed
+      if (result && (result as any).orderNumber && (result as any).status === "completed") {
+        await updateOrderPayment((result as any).orderNumber, "stripe", (result as any).paymentIntentId as string);
+      }
+      res.json({ received: true });
+    } catch (err: any) {
+      console.error("[Stripe Webhook] Error:", err.message);
+      res.status(400).json({ error: err.message });
+    }
+  });
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));

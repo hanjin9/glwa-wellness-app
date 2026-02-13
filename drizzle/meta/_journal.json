@@ -1,5 +1,34 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1770993478143,
+      "tag": "0000_red_master_mold",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1770994353690,
+      "tag": "0001_concerned_night_thrasher",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1770995991079,
+      "tag": "0002_flat_susan_delgado",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1770996474791,
+      "tag": "0003_outstanding_juggernaut",
+      "breakpoints": true
+    }
+  ]
 }

@@ -5,31 +5,78 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
+import HealthRecord from "./pages/HealthRecord";
+import Diagnosis from "./pages/Diagnosis";
+import Missions from "./pages/Missions";
+import Chat from "./pages/Chat";
+import Programs from "./pages/Programs";
+import Goals from "./pages/Goals";
+import Rank from "./pages/Rank";
+import Shop from "./pages/Shop";
+import Cart from "./pages/Cart";
+import Community from "./pages/Community";
+import PostDetail from "./pages/PostDetail";
+import SellerDashboard from "./pages/SellerDashboard";
+import MobileLayout from "./components/MobileLayout";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
+      <Route path="/" component={Home} />
+      <Route path="/dashboard">
+        <MobileLayout><Dashboard /></MobileLayout>
+      </Route>
+      <Route path="/profile">
+        <MobileLayout><Profile /></MobileLayout>
+      </Route>
+      <Route path="/record">
+        <MobileLayout><HealthRecord /></MobileLayout>
+      </Route>
+      <Route path="/diagnosis">
+        <MobileLayout><Diagnosis /></MobileLayout>
+      </Route>
+      <Route path="/missions">
+        <MobileLayout><Missions /></MobileLayout>
+      </Route>
+      <Route path="/chat">
+        <MobileLayout><Chat /></MobileLayout>
+      </Route>
+      <Route path="/programs">
+        <MobileLayout><Programs /></MobileLayout>
+      </Route>
+      <Route path="/goals">
+        <MobileLayout><Goals /></MobileLayout>
+      </Route>
+      <Route path="/rank">
+        <MobileLayout><Rank /></MobileLayout>
+      </Route>
+      <Route path="/shop">
+        <MobileLayout><Shop /></MobileLayout>
+      </Route>
+      <Route path="/cart">
+        <MobileLayout><Cart /></MobileLayout>
+      </Route>
+      <Route path="/community">
+        <MobileLayout><Community /></MobileLayout>
+      </Route>
+      <Route path="/community/post/:id">
+        <MobileLayout><PostDetail /></MobileLayout>
+      </Route>
+      <Route path="/seller">
+        <MobileLayout><SellerDashboard /></MobileLayout>
+      </Route>
+      <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />
