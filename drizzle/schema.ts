@@ -600,3 +600,37 @@ export const mileageTransactions = mysqlTable("mileage_transactions", {
 
 export type MileageTransaction = typeof mileageTransactions.$inferSelect;
 export type InsertMileageTransaction = typeof mileageTransactions.$inferInsert;
+
+// ─── User Wallet (통합 지갑 - 포인트/적립금/코인 결제) ──────────────────
+export const userWallets = mysqlTable("user_wallets", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  cardNumber: varchar("cardNumber", { length: 20 }).notNull(), // GLWA-XXXX-XXXX-XXXX
+  pointBalance: int("pointBalance").default(0).notNull(), // 포인트 잔액
+  cashBalance: int("cashBalance").default(0).notNull(), // 적립금/충전금 잔액 (원)
+  coinBalance: float("coinBalance").default(0).notNull(), // 코인 잔액
+  totalSpent: int("totalSpent").default(0).notNull(), // 총 사용 금액
+  totalCharged: int("totalCharged").default(0).notNull(), // 총 충전 금액
+  isActive: int("walletIsActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type UserWallet = typeof userWallets.$inferSelect;
+export type InsertUserWallet = typeof userWallets.$inferInsert;
+
+// ─── Wallet Transactions (지갑 거래 내역) ───────────────────────────────
+export const walletTransactions = mysqlTable("wallet_transactions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  walletId: int("walletId").notNull(),
+  type: mysqlEnum("walletTxType", ["charge", "payment", "transfer", "refund", "reward"]).notNull(),
+  currency: mysqlEnum("walletCurrency", ["point", "cash", "coin"]).notNull(),
+  amount: int("walletTxAmount").notNull(), // 양수=입금, 음수=출금
+  balanceAfter: int("walletBalanceAfter").notNull(),
+  description: varchar("walletTxDesc", { length: 300 }),
+  referenceId: varchar("walletTxRefId", { length: 100 }), // 주문/이벤트 ID
+  paymentMethod: varchar("walletPayMethod", { length: 50 }), // qr, card, coin, point, cash
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type WalletTransaction = typeof walletTransactions.$inferSelect;
+export type InsertWalletTransaction = typeof walletTransactions.$inferInsert;

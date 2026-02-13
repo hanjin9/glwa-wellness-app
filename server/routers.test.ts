@@ -446,3 +446,50 @@ describe("event router", () => {
     ).rejects.toThrow();
   });
 });
+
+// ─── Wallet Router Tests ────────────────────────────────────────────
+describe("wallet router", () => {
+  it("requires auth for getMyWallet", async () => {
+    const caller = appRouter.createCaller(createPublicContext());
+    await expect(caller.wallet.getMyWallet()).rejects.toThrow("Please login");
+  });
+
+  it("requires auth for getTransactions", async () => {
+    const caller = appRouter.createCaller(createPublicContext());
+    await expect(caller.wallet.getTransactions()).rejects.toThrow("Please login");
+  });
+
+  it("requires auth for charge", async () => {
+    const caller = appRouter.createCaller(createPublicContext());
+    await expect(caller.wallet.charge({ currency: "point", amount: 100 })).rejects.toThrow("Please login");
+  });
+
+  it("requires auth for pay", async () => {
+    const caller = appRouter.createCaller(createPublicContext());
+    await expect(caller.wallet.pay({ currency: "cash", amount: 50, description: "테스트 결제", paymentMethod: "qr" })).rejects.toThrow("Please login");
+  });
+
+  it("validates charge amount must be positive", async () => {
+    const { ctx } = createAuthContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.wallet.charge({ currency: "point", amount: -10 })).rejects.toThrow();
+  });
+
+  it("validates pay amount must be positive", async () => {
+    const { ctx } = createAuthContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.wallet.pay({ currency: "cash", amount: -5, description: "테스트", paymentMethod: "qr" })).rejects.toThrow();
+  });
+
+  it("validates currency enum for charge", async () => {
+    const { ctx } = createAuthContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.wallet.charge({ currency: "invalid" as any, amount: 100 })).rejects.toThrow();
+  });
+
+  it("validates currency enum for pay", async () => {
+    const { ctx } = createAuthContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.wallet.pay({ currency: "invalid" as any, amount: 50, description: "테스트", paymentMethod: "qr" })).rejects.toThrow();
+  });
+});

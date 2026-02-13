@@ -692,6 +692,39 @@ export const appRouter = router({
         return db.getMileageHistory(ctx.user.id, input?.limit || 50);
       }),
   }),
+
+  // ─── Wallet (통합 지갑) ──────────────────────────────────────────
+  wallet: router({
+    getMyWallet: protectedProcedure.query(async ({ ctx }) => {
+      return db.getOrCreateWallet(ctx.user.id);
+    }),
+    getTransactions: protectedProcedure
+      .input(z.object({ limit: z.number().optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        return db.getWalletTransactions(ctx.user.id, input?.limit || 20);
+      }),
+    charge: protectedProcedure
+      .input(z.object({
+        currency: z.enum(["point", "cash", "coin"]),
+        amount: z.number().positive(),
+        description: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const result = await db.chargeWallet(ctx.user.id, input.currency, input.amount, input.description || "충전");
+        return result;
+      }),
+    pay: protectedProcedure
+      .input(z.object({
+        currency: z.enum(["point", "cash", "coin"]),
+        amount: z.number().positive(),
+        description: z.string(),
+        paymentMethod: z.string(),
+        referenceId: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return db.payFromWallet(ctx.user.id, input.currency, input.amount, input.description, input.paymentMethod, input.referenceId);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

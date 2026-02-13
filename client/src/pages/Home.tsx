@@ -14,8 +14,8 @@ import {
   Crown,
   Diamond,
   Star,
-  ShoppingBag,
-  Users,
+  Gem,
+  ChevronRight,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -24,40 +24,48 @@ const features = [
   {
     icon: Heart,
     title: "365일 건강 관리",
-    desc: "매일 혈압, 혈당, 체중 등 핵심 건강 지표를 기록하고 추적합니다.",
+    desc: "매일의 건강 지표를 기록하고 추적하는 맞춤형 케어",
+    detail: "혈압 · 혈당 · 체중 · 수면 · 식사",
   },
   {
     icon: Brain,
     title: "건강 및 체질 체크",
-    desc: "10년 전부터 현재까지 시점별 건강 체크리스트와 체질 분석을 제공합니다.",
+    desc: "10년 전부터 현재까지 시점별 건강 변화 분석",
+    detail: "체질 분석 · 시점별 체크리스트",
   },
   {
     icon: Target,
-    title: "맞춤형 건강 미션",
-    desc: "개인 건강 상태에 맞춘 미션을 수행하고 AI가 분석합니다.",
-  },
-  {
-    icon: Shield,
-    title: "근골격계 집중 관리",
-    desc: "통증, 협착, 재활을 위한 맞춤 운동 프로그램을 제공합니다.",
+    title: "AI 맞춤 건강 미션",
+    desc: "개인 건강 상태에 맞춘 미션과 AI 분석",
+    detail: "사진 인증 · AI 피드백 · 포인트 적립",
   },
   {
     icon: Leaf,
-    title: "10단계 건강 수련 프로그램",
-    desc: "숨과 알아차림에서 시작하여 다시 숨으로 돌아오는 10단계 수련",
+    title: "10단계 수련 프로그램",
+    desc: "숨과 알아차림에서 시작하는 통합 웰니스",
+    detail: "호흡 · 명상 · 요가 · 식치 · 케어",
   },
   {
     icon: Award,
     title: "승급 시스템",
-    desc: "화이트벨트에서 그랜드마스터까지, 평생 건강 프로젝트를 추적합니다.",
+    desc: "화이트벨트에서 그랜드마스터까지",
+    detail: "9단계 벨트 · 10단 체계",
+  },
+  {
+    icon: Shield,
+    title: "1:1 전담 매니저",
+    desc: "전문 건강 매니저의 맞춤형 상담",
+    detail: "실시간 상담 · 맞춤 프로그램",
   },
 ];
 
-const grades = [
-  { name: "실버", price: "무료", payback: "50%", icon: Shield, color: "bg-gray-400" },
-  { name: "골드", price: "월 5만원", payback: "60%", icon: Star, color: "bg-amber-500" },
-  { name: "다이아몬드", price: "월 30만원", payback: "70%", icon: Diamond, color: "bg-blue-500" },
-  { name: "플래티넘", price: "월 300만원", payback: "최대 100%", icon: Crown, color: "bg-purple-600" },
+const tierShowcase = [
+  { name: "Silver", kr: "실버", icon: Shield, gradient: "from-gray-300 to-gray-400", text: "text-gray-700" },
+  { name: "Gold", kr: "골드", icon: Star, gradient: "from-amber-400 to-amber-600", text: "text-amber-800" },
+  { name: "Blue Sapphire", kr: "블루사파이어", icon: Gem, gradient: "from-blue-400 to-blue-600", text: "text-blue-800" },
+  { name: "Diamond", kr: "다이아몬드", icon: Diamond, gradient: "from-cyan-300 to-blue-500", text: "text-blue-800" },
+  { name: "Platinum", kr: "플래티넘", icon: Crown, gradient: "from-purple-400 to-purple-700", text: "text-purple-800" },
+  { name: "Black Platinum", kr: "블랙플래티넘", icon: Crown, gradient: "from-gray-800 to-black", text: "text-gray-200" },
 ];
 
 export default function Home() {
@@ -74,45 +82,59 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 gradient-warm opacity-95" />
-        <div className="absolute inset-0 opacity-10"
+      {/* ═══ Hero Section - Resort Style ═══ */}
+      <section className="relative overflow-hidden min-h-[85vh] flex items-end">
+        {/* Background layers */}
+        <div className="absolute inset-0 gradient-resort" />
+        <div className="absolute inset-0 opacity-[0.07]"
           style={{
-            backgroundImage: `radial-gradient(circle at 20% 50%, oklch(0.95 0.05 80) 0%, transparent 50%),
-                              radial-gradient(circle at 80% 20%, oklch(0.90 0.08 60) 0%, transparent 40%)`,
+            backgroundImage: `
+              radial-gradient(ellipse 80% 50% at 70% 20%, oklch(0.95 0.03 75) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 20% 80%, oklch(0.90 0.05 60) 0%, transparent 50%)
+            `,
           }}
         />
-        <div className="relative px-6 pt-12 pb-16 max-w-lg mx-auto">
+        {/* Subtle pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 40px, oklch(1 0 0 / 5%) 40px, oklch(1 0 0 / 5%) 41px)`,
+          }}
+        />
+
+        <div className="relative w-full px-6 pt-16 pb-12 max-w-lg mx-auto">
           {/* Logo */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex items-center gap-3 mb-10"
+            transition={{ duration: 0.8 }}
+            className="mb-16"
           >
-            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
-              <span className="text-xl font-bold text-white" style={{ fontFamily: "'Noto Serif KR', serif" }}>G</span>
-            </div>
-            <div>
-              <p className="text-white/80 text-xs font-medium tracking-wider">GLOBAL LEADERS WELLNESS</p>
-              <p className="text-white text-sm font-semibold">GLWA 웰니스 협회</p>
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/15">
+                <span className="text-lg font-semibold text-white/90 font-resort">G</span>
+              </div>
+              <div>
+                <p className="text-white/50 text-[10px] font-light tracking-[0.25em] uppercase">Global Leaders Wellness Association</p>
+                <p className="text-white/80 text-xs font-light tracking-wider mt-0.5">GLWA 웰니스 협회</p>
+              </div>
             </div>
           </motion.div>
 
-          {/* Hero Text */}
+          {/* Hero Text - Aman-style minimal */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mb-12"
           >
-            <h1 className="text-3xl font-bold text-white leading-tight mb-4" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-              365일<br />
+            <p className="text-white/40 text-[10px] tracking-[0.3em] uppercase mb-4 font-light">Your Personal Wellness Concierge</p>
+            <h1 className="text-4xl font-light text-white leading-[1.3] tracking-tight font-resort mb-6">
+              365일,<br />
               당신만의<br />
-              <span className="text-white/90">건강 주치의</span>
+              <span className="font-medium italic">건강 주치의</span>
             </h1>
-            <p className="text-white/80 text-sm leading-relaxed mb-8">
-              동양 철학과 현대 의학의 조화로운 만남.<br />
+            <p className="text-white/55 text-sm leading-relaxed font-light max-w-[280px]">
+              동양 철학과 현대 의학의 조화.<br />
               개인 맞춤형 헬스케어 매니저가<br />
               당신의 건강한 삶을 설계합니다.
             </p>
@@ -122,162 +144,216 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex gap-3"
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mb-10"
           >
             <Button
               onClick={handleStart}
               size="lg"
-              className="bg-white text-primary hover:bg-white/90 shadow-lg flex-1 font-semibold"
+              className="bg-white/95 text-foreground hover:bg-white shadow-lg font-medium tracking-wide px-8 h-12 rounded-xl"
             >
               {user ? "대시보드로 이동" : "시작하기"}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </motion.div>
 
-          {/* Stats */}
+          {/* Stats - minimal resort style */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-10 grid grid-cols-3 gap-4"
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="flex gap-8"
           >
             {[
-              { value: "365일", label: "건강 관리" },
-              { value: "10단계", label: "프로그램" },
-              { value: "1:1", label: "전담 매니저" },
+              { value: "365", unit: "일", label: "건강 관리" },
+              { value: "10", unit: "단계", label: "수련 프로그램" },
+              { value: "1:1", unit: "", label: "전담 매니저" },
             ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-white text-lg font-bold">{stat.value}</p>
-                <p className="text-white/60 text-xs">{stat.label}</p>
+              <div key={stat.label}>
+                <p className="text-white/90 text-xl font-light font-resort">
+                  {stat.value}<span className="text-sm text-white/50 ml-0.5">{stat.unit}</span>
+                </p>
+                <p className="text-white/35 text-[10px] tracking-wider mt-1">{stat.label}</p>
               </div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="px-6 py-12 max-w-lg mx-auto">
-        <div className="flex items-center gap-2 mb-6">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-            핵심 기능
+      {/* ═══ Philosophy Section ═══ */}
+      <section className="py-16 px-6 max-w-lg mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <p className="text-muted-foreground/50 text-[10px] tracking-[0.3em] uppercase mb-3">Philosophy</p>
+          <h2 className="text-2xl font-light text-foreground font-resort mb-4 tracking-tight">
+            진정한 <span className="italic">웰니스</span>의 시작
+          </h2>
+          <div className="divider-resort w-12 mx-auto mb-6" />
+          <p className="text-muted-foreground text-sm leading-relaxed font-light">
+            몸과 마음의 균형을 찾는 여정.<br />
+            숨과 알아차림에서 시작하여<br />
+            다시 깊고 고운 숨으로 돌아오는<br />
+            10단계 통합 웰니스 프로그램.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* ═══ Features Section - Resort Grid ═══ */}
+      <section className="py-12 px-6 max-w-lg mx-auto">
+        <div className="mb-8">
+          <p className="text-muted-foreground/50 text-[10px] tracking-[0.3em] uppercase mb-2">Services</p>
+          <h2 className="text-xl font-light text-foreground font-resort tracking-tight">
+            프리미엄 <span className="italic">서비스</span>
           </h2>
         </div>
-        <div className="grid grid-cols-1 gap-3">
+        <div className="space-y-3">
           {features.map((f, i) => (
             <motion.div
               key={f.title}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 * i }}
-              className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border/50 shadow-sm"
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.05 * i }}
+              className="group flex items-start gap-4 p-5 rounded-2xl bg-card border border-border/40 hover:border-border/80 hover:shadow-sm transition-all duration-300"
             >
-              <div className="w-10 h-10 rounded-xl gradient-warm flex items-center justify-center shrink-0">
+              <div className="w-11 h-11 rounded-xl gradient-warm flex items-center justify-center shrink-0 opacity-90 group-hover:opacity-100 transition-opacity">
                 <f.icon className="w-5 h-5 text-white" />
               </div>
-              <div>
-                <h3 className="font-semibold text-sm mb-1">{f.title}</h3>
+              <div className="flex-1">
+                <h3 className="font-medium text-sm mb-1 text-foreground">{f.title}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
+                <p className="text-[10px] text-muted-foreground/60 mt-1.5 tracking-wide">{f.detail}</p>
               </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground/30 mt-1 shrink-0 group-hover:text-muted-foreground/60 transition-colors" />
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Program Steps */}
-      <section className="px-6 py-12 bg-accent/30 max-w-lg mx-auto">
-        <div className="flex items-center gap-2 mb-6">
-          <Activity className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-            10단계 건강 수련 프로그램
-          </h2>
-        </div>
-        <div className="space-y-3">
-          {[
-            { step: 1, name: "숨과 알아차림", desc: "호흡을 통한 몸과 마음의 인지", icon: "🌬️" },
-            { step: 2, name: "숨과 진정한 쉰/정", desc: "호흡을 통한 깊은 이완과 고요", icon: "🕊️" },
-            { step: 3, name: "좋은 잠", desc: "양질의 수면으로 회복력 극대화", icon: "🌙" },
-            { step: 4, name: "스트레칭/요가", desc: "유연성과 균형 강화", icon: "🧘" },
-            { step: 5, name: "명상 (감사, 균형, 절제)", desc: "마음 수양을 통한 내면의 성장", icon: "☯️" },
-            { step: 6, name: "좋은 자세/건강 걸음", desc: "바른 자세와 건강한 보행", icon: "🚶" },
-            { step: 7, name: "운동/취미/교류", desc: "활동적인 삶과 사회적 교류", icon: "🏃" },
-            { step: 8, name: "식치 (염증 관리)", desc: "음식으로 다스리는 건강", icon: "🍃" },
-            { step: 9, name: "호르몬/골·관절 케어", desc: "호르몬 균형과 근골격 건강", icon: "💪" },
-            { step: 10, name: "다시 돌아온 깊고 고운 숨", desc: "모든 수련의 완성, 원점으로의 회귀", icon: "🌸" },
-          ].map((s) => (
-            <div key={s.step} className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border/50">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg shrink-0">
-                {s.icon}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                    STEP {s.step}
-                  </span>
-                  <h3 className="font-semibold text-sm">{s.name}</h3>
+      {/* ═══ 10-Step Program - Resort Timeline ═══ */}
+      <section className="py-16 gradient-sand">
+        <div className="px-6 max-w-lg mx-auto">
+          <div className="mb-10 text-center">
+            <p className="text-muted-foreground/50 text-[10px] tracking-[0.3em] uppercase mb-2">Program</p>
+            <h2 className="text-xl font-light text-foreground font-resort tracking-tight">
+              10단계 <span className="italic">수련 프로그램</span>
+            </h2>
+            <div className="divider-resort w-12 mx-auto mt-4" />
+          </div>
+          <div className="relative">
+            {/* Timeline line */}
+            <div className="absolute left-[22px] top-0 bottom-0 w-px bg-border/60" />
+            <div className="space-y-4">
+              {[
+                { step: 1, name: "숨과 알아차림", icon: "🌬️" },
+                { step: 2, name: "숨과 진정한 쉼/정", icon: "🕊️" },
+                { step: 3, name: "좋은 잠", icon: "🌙" },
+                { step: 4, name: "스트레칭/요가", icon: "🧘" },
+                { step: 5, name: "명상", icon: "☯️" },
+                { step: 6, name: "좋은 자세/건강 걸음", icon: "🚶" },
+                { step: 7, name: "운동/취미/교류", icon: "🏃" },
+                { step: 8, name: "식치 (염증 관리)", icon: "🍃" },
+                { step: 9, name: "호르몬/골·관절 케어", icon: "💪" },
+                { step: 10, name: "다시 돌아온 깊고 고운 숨", icon: "🌸" },
+              ].map((s) => (
+                <div key={s.step} className="flex items-center gap-4 relative">
+                  <div className="w-11 h-11 rounded-full bg-card border border-border/60 flex items-center justify-center text-base shrink-0 z-10 shadow-sm">
+                    {s.icon}
+                  </div>
+                  <div className="flex-1 py-2">
+                    <span className="text-[9px] font-medium text-primary/60 tracking-[0.2em] uppercase">Step {s.step}</span>
+                    <p className="text-sm font-medium text-foreground mt-0.5">{s.name}</p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{s.desc}</p>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
-      {/* Membership Grades */}
-      <section className="px-6 py-12 max-w-lg mx-auto">
-        <div className="flex items-center gap-2 mb-6">
-          <Award className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-            회원 등급
+      {/* ═══ Membership Tiers - Luxury Showcase ═══ */}
+      <section className="py-16 px-6 max-w-lg mx-auto">
+        <div className="mb-10 text-center">
+          <p className="text-muted-foreground/50 text-[10px] tracking-[0.3em] uppercase mb-2">Membership</p>
+          <h2 className="text-xl font-light text-foreground font-resort tracking-tight">
+            프리미엄 <span className="italic">멤버십</span>
           </h2>
+          <div className="divider-resort w-12 mx-auto mt-4 mb-4" />
+          <p className="text-xs text-muted-foreground font-light">8등급 프리미엄 멤버십으로 차별화된 혜택을 경험하세요</p>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          {grades.map((g) => (
-            <div key={g.name} className="p-4 rounded-xl bg-card border border-border/50 shadow-sm text-center cursor-pointer hover:shadow-md transition-shadow" onClick={() => setLocation("/membership")}>
-              <div className={`w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center ${g.color}`}>
-                <g.icon className="w-5 h-5 text-white" />
+
+        {/* Tier cards - horizontal scroll */}
+        <div className="flex gap-3 overflow-x-auto pb-4 -mx-2 px-2 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {tierShowcase.map((tier, i) => (
+            <motion.div
+              key={tier.name}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.05 * i }}
+              className="snap-center shrink-0 w-[140px]"
+            >
+              <div className={`h-[180px] rounded-2xl bg-gradient-to-br ${tier.gradient} p-4 flex flex-col justify-between shadow-lg`}>
+                <tier.icon className={`w-6 h-6 ${tier.name === 'Black Platinum' ? 'text-white/70' : 'text-white/80'}`} />
+                <div>
+                  <p className={`text-[9px] tracking-[0.15em] uppercase ${tier.name === 'Black Platinum' ? 'text-white/50' : 'text-white/60'}`}>{tier.name}</p>
+                  <p className={`text-sm font-medium mt-0.5 ${tier.name === 'Black Platinum' ? 'text-white' : 'text-white'}`}>{tier.kr}</p>
+                </div>
               </div>
-              <h3 className="font-bold text-sm mb-1">{g.name}</h3>
-              <p className="text-xs text-muted-foreground mb-2">{g.price}</p>
-              <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full">
-                페이백 {g.payback}
-              </span>
-            </div>
+            </motion.div>
           ))}
         </div>
-        <Button variant="outline" className="w-full mt-4" onClick={() => setLocation("/membership")}>
-          멤버십 센터 바로가기 <ArrowRight className="w-4 h-4 ml-1" />
+
+        <Button
+          variant="outline"
+          className="w-full mt-6 h-11 rounded-xl border-border/60 text-sm font-light tracking-wide"
+          onClick={() => setLocation("/membership")}
+        >
+          멤버십 센터 바로가기
+          <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </section>
 
-      {/* CTA Footer */}
-      <section className="px-6 py-12 max-w-lg mx-auto">
-        <div className="gradient-warm rounded-2xl p-6 text-center">
-          <h2 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-            건강한 삶의 시작
-          </h2>
-          <p className="text-white/80 text-sm mb-6">
-            지금 GLWA 웰니스와 함께<br />평생 건강 프로젝트를 시작하세요.
-          </p>
-          <Button
-            onClick={handleStart}
-            size="lg"
-            className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold"
-          >
-            {user ? "대시보드로 이동" : "무료로 시작하기"}
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+      {/* ═══ CTA Footer - Resort Style ═══ */}
+      <section className="py-16 px-6 max-w-lg mx-auto">
+        <div className="gradient-resort rounded-3xl p-8 text-center relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.05]"
+            style={{
+              backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 30px, oklch(1 0 0 / 8%) 30px, oklch(1 0 0 / 8%) 31px)`,
+            }}
+          />
+          <div className="relative">
+            <p className="text-white/40 text-[10px] tracking-[0.3em] uppercase mb-3">Begin Your Journey</p>
+            <h2 className="text-2xl font-light text-white font-resort mb-3 tracking-tight">
+              건강한 삶의 <span className="italic">시작</span>
+            </h2>
+            <p className="text-white/50 text-sm mb-8 font-light">
+              지금 GLWA 웰니스와 함께<br />평생 건강 프로젝트를 시작하세요.
+            </p>
+            <Button
+              onClick={handleStart}
+              size="lg"
+              className="bg-white/95 text-foreground hover:bg-white shadow-lg font-medium tracking-wide px-8 h-12 rounded-xl"
+            >
+              {user ? "대시보드로 이동" : "무료로 시작하기"}
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="px-6 py-8 border-t border-border/50 max-w-lg mx-auto">
+      {/* ═══ Footer ═══ */}
+      <footer className="py-10 border-t border-border/30 max-w-lg mx-auto px-6">
         <div className="text-center">
-          <p className="text-xs text-muted-foreground">
-            GLWA 글로벌 리더스 웰니스 멤버 협회
+          <p className="text-[10px] text-muted-foreground/40 tracking-[0.2em] uppercase">
+            GLWA Global Leaders Wellness Association
           </p>
-          <p className="text-[10px] text-muted-foreground/60 mt-1">
+          <p className="text-[9px] text-muted-foreground/30 mt-2 font-light">
             본 서비스는 의료 행위가 아닌 생활 건강 관리 서비스입니다.
           </p>
         </div>

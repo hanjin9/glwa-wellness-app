@@ -41,78 +41,79 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: 'Noto Sans KR', system-ui, sans-serif;
-  --font-serif: 'Noto Serif KR', serif;
+  --font-serif: 'Cormorant Garamond', 'Noto Serif KR', serif;
+  --font-display: 'Playfair Display', 'Noto Serif KR', serif;
 }
 
 :root {
-  /* GLWA Oriental Wellness Theme - Warm Earth & Gold */
-  --primary: oklch(0.45 0.08 50);
-  --primary-foreground: oklch(0.98 0.005 60);
+  /* GLWA Resort Luxury Theme - Inspired by Aman/Banyan Tree/Six Senses */
+  --primary: oklch(0.38 0.04 55);
+  --primary-foreground: oklch(0.98 0.003 60);
   --radius: 0.75rem;
-  --background: oklch(0.985 0.005 80);
-  --foreground: oklch(0.20 0.02 50);
-  --card: oklch(0.995 0.003 80);
-  --card-foreground: oklch(0.20 0.02 50);
-  --popover: oklch(0.995 0.003 80);
-  --popover-foreground: oklch(0.20 0.02 50);
-  --secondary: oklch(0.96 0.01 80);
-  --secondary-foreground: oklch(0.35 0.03 50);
-  --muted: oklch(0.955 0.008 80);
-  --muted-foreground: oklch(0.50 0.02 50);
-  --accent: oklch(0.94 0.015 75);
-  --accent-foreground: oklch(0.25 0.02 50);
+  --background: oklch(0.975 0.004 75);
+  --foreground: oklch(0.18 0.015 50);
+  --card: oklch(0.995 0.002 75);
+  --card-foreground: oklch(0.18 0.015 50);
+  --popover: oklch(0.995 0.002 75);
+  --popover-foreground: oklch(0.18 0.015 50);
+  --secondary: oklch(0.955 0.008 75);
+  --secondary-foreground: oklch(0.30 0.02 50);
+  --muted: oklch(0.945 0.006 75);
+  --muted-foreground: oklch(0.48 0.015 50);
+  --accent: oklch(0.935 0.012 70);
+  --accent-foreground: oklch(0.22 0.015 50);
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.90 0.01 75);
-  --input: oklch(0.90 0.01 75);
-  --ring: oklch(0.55 0.10 55);
-  --sidebar: oklch(0.97 0.008 80);
-  --sidebar-foreground: oklch(0.20 0.02 50);
-  --sidebar-primary: oklch(0.45 0.08 50);
-  --sidebar-primary-foreground: oklch(0.98 0.005 60);
-  --sidebar-accent: oklch(0.94 0.015 75);
-  --sidebar-accent-foreground: oklch(0.25 0.02 50);
-  --sidebar-border: oklch(0.90 0.01 75);
-  --sidebar-ring: oklch(0.55 0.10 55);
-  /* Chart colors - warm earth palette */
-  --chart-1: oklch(0.65 0.12 55);
-  --chart-2: oklch(0.55 0.10 145);
-  --chart-3: oklch(0.60 0.08 30);
-  --chart-4: oklch(0.50 0.06 250);
-  --chart-5: oklch(0.70 0.10 85);
+  --border: oklch(0.91 0.008 70);
+  --input: oklch(0.91 0.008 70);
+  --ring: oklch(0.48 0.06 55);
+  --sidebar: oklch(0.965 0.006 75);
+  --sidebar-foreground: oklch(0.18 0.015 50);
+  --sidebar-primary: oklch(0.38 0.04 55);
+  --sidebar-primary-foreground: oklch(0.98 0.003 60);
+  --sidebar-accent: oklch(0.935 0.012 70);
+  --sidebar-accent-foreground: oklch(0.22 0.015 50);
+  --sidebar-border: oklch(0.91 0.008 70);
+  --sidebar-ring: oklch(0.48 0.06 55);
+  /* Chart colors - resort earth palette */
+  --chart-1: oklch(0.55 0.08 55);
+  --chart-2: oklch(0.50 0.07 145);
+  --chart-3: oklch(0.52 0.06 30);
+  --chart-4: oklch(0.45 0.05 250);
+  --chart-5: oklch(0.60 0.08 85);
 }
 
 .dark {
-  --primary: oklch(0.70 0.10 55);
-  --primary-foreground: oklch(0.15 0.02 50);
-  --background: oklch(0.15 0.015 50);
-  --foreground: oklch(0.90 0.01 70);
-  --card: oklch(0.20 0.015 50);
-  --card-foreground: oklch(0.90 0.01 70);
-  --popover: oklch(0.20 0.015 50);
-  --popover-foreground: oklch(0.90 0.01 70);
-  --secondary: oklch(0.25 0.015 50);
-  --secondary-foreground: oklch(0.80 0.01 70);
-  --muted: oklch(0.28 0.015 50);
-  --muted-foreground: oklch(0.65 0.015 70);
-  --accent: oklch(0.28 0.02 55);
-  --accent-foreground: oklch(0.92 0.01 70);
+  --primary: oklch(0.70 0.08 55);
+  --primary-foreground: oklch(0.12 0.015 50);
+  --background: oklch(0.12 0.012 50);
+  --foreground: oklch(0.92 0.008 70);
+  --card: oklch(0.17 0.012 50);
+  --card-foreground: oklch(0.92 0.008 70);
+  --popover: oklch(0.17 0.012 50);
+  --popover-foreground: oklch(0.92 0.008 70);
+  --secondary: oklch(0.22 0.012 50);
+  --secondary-foreground: oklch(0.82 0.008 70);
+  --muted: oklch(0.25 0.012 50);
+  --muted-foreground: oklch(0.62 0.012 70);
+  --accent: oklch(0.25 0.015 55);
+  --accent-foreground: oklch(0.94 0.008 70);
   --destructive: oklch(0.65 0.20 22);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.65 0.12 55);
-  --chart-1: oklch(0.70 0.12 55);
-  --chart-2: oklch(0.60 0.10 145);
-  --chart-3: oklch(0.65 0.08 30);
-  --chart-4: oklch(0.55 0.06 250);
-  --chart-5: oklch(0.75 0.10 85);
-  --sidebar: oklch(0.20 0.015 50);
-  --sidebar-foreground: oklch(0.90 0.01 70);
-  --sidebar-accent: oklch(0.28 0.02 55);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.60 0.08 55);
+  --chart-1: oklch(0.65 0.08 55);
+  --chart-2: oklch(0.55 0.07 145);
+  --chart-3: oklch(0.58 0.06 30);
+  --chart-4: oklch(0.50 0.05 250);
+  --chart-5: oklch(0.68 0.08 85);
+  --sidebar: oklch(0.17 0.012 50);
+  --sidebar-foreground: oklch(0.92 0.008 70);
+  --sidebar-accent: oklch(0.25 0.015 55);
   --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.65 0.12 55);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.60 0.08 55);
 }
 
 @layer base {
@@ -124,6 +125,7 @@
     font-family: 'Noto Sans KR', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    letter-spacing: 0.01em;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -136,7 +138,6 @@
   input[type="radio"]:not(:disabled) {
     @apply cursor-pointer;
   }
-  /* Smooth scrolling for mobile */
   html {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
@@ -172,26 +173,79 @@
     }
   }
 
-  /* Oriental wellness gradient backgrounds */
+  /* ═══ Resort Luxury Gradients ═══ */
   .gradient-warm {
-    background: linear-gradient(135deg, oklch(0.45 0.08 50) 0%, oklch(0.55 0.12 55) 50%, oklch(0.65 0.10 65) 100%);
+    background: linear-gradient(135deg, oklch(0.32 0.04 48) 0%, oklch(0.42 0.06 52) 40%, oklch(0.50 0.07 58) 100%);
   }
   .gradient-earth {
-    background: linear-gradient(180deg, oklch(0.985 0.005 80) 0%, oklch(0.96 0.015 75) 100%);
+    background: linear-gradient(180deg, oklch(0.975 0.004 75) 0%, oklch(0.955 0.010 70) 100%);
   }
   .gradient-gold {
-    background: linear-gradient(135deg, oklch(0.70 0.12 75) 0%, oklch(0.60 0.10 55) 100%);
+    background: linear-gradient(135deg, oklch(0.65 0.10 75) 0%, oklch(0.55 0.08 55) 100%);
+  }
+  .gradient-resort {
+    background: linear-gradient(160deg, oklch(0.25 0.02 48) 0%, oklch(0.35 0.04 52) 35%, oklch(0.42 0.06 58) 70%, oklch(0.50 0.08 65) 100%);
+  }
+  .gradient-resort-light {
+    background: linear-gradient(180deg, oklch(0.96 0.008 70) 0%, oklch(0.975 0.004 75) 100%);
+  }
+  .gradient-luxury {
+    background: linear-gradient(135deg, oklch(0.20 0.015 45) 0%, oklch(0.28 0.025 50) 50%, oklch(0.22 0.02 55) 100%);
+  }
+  .gradient-sand {
+    background: linear-gradient(180deg, oklch(0.92 0.015 70) 0%, oklch(0.96 0.008 75) 100%);
   }
 
-  /* Glass morphism for cards */
+  /* ═══ Glass morphism ═══ */
   .glass-card {
-    background: oklch(0.995 0.003 80 / 80%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid oklch(0.90 0.01 75 / 50%);
+    background: oklch(0.995 0.002 75 / 85%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid oklch(0.91 0.008 70 / 40%);
+  }
+  .glass-dark {
+    background: oklch(0.15 0.01 50 / 60%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid oklch(1 0 0 / 8%);
   }
 
-  /* Belt rank colors */
+  /* ═══ Resort Typography ═══ */
+  .font-resort {
+    font-family: 'Playfair Display', 'Noto Serif KR', serif;
+  }
+  .font-resort-body {
+    font-family: 'Cormorant Garamond', 'Noto Serif KR', serif;
+  }
+  .text-resort-heading {
+    font-family: 'Playfair Display', 'Noto Serif KR', serif;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+  }
+
+  /* ═══ Premium Card Styles ═══ */
+  .card-premium {
+    background: linear-gradient(135deg, oklch(0.22 0.02 48) 0%, oklch(0.30 0.03 52) 40%, oklch(0.25 0.025 55) 100%);
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px oklch(0 0 0 / 30%), 0 8px 20px oklch(0 0 0 / 15%);
+  }
+  .card-gold {
+    background: linear-gradient(135deg, oklch(0.55 0.10 70) 0%, oklch(0.65 0.12 75) 40%, oklch(0.58 0.11 65) 100%);
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px oklch(0.5 0.08 60 / 25%), 0 8px 20px oklch(0 0 0 / 10%);
+  }
+  .card-platinum {
+    background: linear-gradient(135deg, oklch(0.40 0.02 250) 0%, oklch(0.50 0.03 260) 40%, oklch(0.45 0.025 255) 100%);
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px oklch(0.4 0.03 250 / 25%), 0 8px 20px oklch(0 0 0 / 10%);
+  }
+  .card-black {
+    background: linear-gradient(135deg, oklch(0.10 0.005 50) 0%, oklch(0.18 0.01 48) 40%, oklch(0.12 0.008 52) 100%);
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px oklch(0 0 0 / 40%), 0 8px 20px oklch(0 0 0 / 20%);
+  }
+
+  /* ═══ Belt rank colors ═══ */
   .belt-white { color: oklch(0.85 0.01 80); }
   .belt-yellow { color: oklch(0.80 0.15 95); }
   .belt-green { color: oklch(0.60 0.15 145); }
@@ -199,17 +253,42 @@
   .belt-red { color: oklch(0.55 0.20 25); }
   .belt-black { color: oklch(0.25 0.02 50); }
 
-  /* Mobile bottom navigation */
+  /* ═══ Mobile bottom navigation ═══ */
   .mobile-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 50;
-    background: oklch(0.995 0.003 80 / 95%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid oklch(0.90 0.01 75);
+    background: oklch(0.995 0.002 75 / 95%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid oklch(0.91 0.008 70 / 60%);
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* ═══ Resort Section Dividers ═══ */
+  .divider-resort {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, oklch(0.80 0.02 60 / 40%) 50%, transparent 100%);
+  }
+
+  /* ═══ Luxury Shimmer Animation ═══ */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, transparent 0%, oklch(1 0 0 / 10%) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  /* ═══ QR Code Container ═══ */
+  .qr-container {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    box-shadow: 0 4px 12px oklch(0 0 0 / 10%);
   }
 }

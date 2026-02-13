@@ -12,6 +12,8 @@ import {
   programProgress, InsertProgramProgress,
   sellers, InsertSeller,
   sellerSettlements,
+  userWallets, InsertUserWallet,
+  walletTransactions, InsertWalletTransaction,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -893,4 +895,58 @@ export async function getMileageHistory(userId: number, limit: number = 50) {
     .where(eq(mileageTransactions.userId, userId))
     .orderBy(desc(mileageTransactions.createdAt))
     .limit(limit);
+}
+
+// ─── Wallet Helpers ────────────────────────────────────────────────────
+function generateCardNumber(): string {
+  const seg = () => Math.floor(1000 + Math.random() * 9000).toString();
+  return `GLWA-${seg()}-${seg()}-${seg()}`;
+}
+
+export async function getOrCreateWallet(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const existing = await db.select().from(userWallets).where(eq(userWallets.userId, userId)).limit(1);
+  if (existing.length > 0) return existing[0];
+  // Create new wallet
+  const cardNumber = generateCardNumber();
+  await db.insert(userWallets).values({ userId, cardNumber, pointBalance: 0, cashBalance: 0, coinBalance: 0, totalSpent: 0, totalCharged: 0, isActive: 1 });
+  const created = await db.select().from(userWallets).where(eq(userWallets.userId, userId)).limit(1);
+  return created[0] || null;
+}
+
+export async function getWalletTransactions(userId: number, limit = 20) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(walletTransactions).where(eq(walletTransactions.userId, userId)).orderBy(desc(walletTransactions.createdAt)).limit(limit);
+}
+
+export async function chargeWallet(userId: number, currency: "point" | "cash" | "coin", amount: number, description: string, referenceId?: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const wallet = await getOrCreateWallet(userId);
+  if (!wallet) return null;
+  const balanceField = currency === "point" ? "pointBalance" : currency === "cash" ? "cashBalance" : "coinBalance";
+  const newBalance = (wallet[balanceField] as number) + amount;
+  await db.update(userWallets).set({ [balanceField]: newBalance, totalCharged: wallet.totalCharged + (currency === "cash" ? amount : 0) }).where(eq(userWallets.id, wallet.id));
+  await db.insert(walletTransactions).values({
+    userId, walletId: wallet.id, type: "charge", currency, amount, balanceAfter: newBalance, description, referenceId: referenceId || null,
+  });
+  return { ...wallet, [balanceField]: newBalance };
+}
+
+export async function payFromWallet(userId: number, currency: "point" | "cash" | "coin", amount: number, description: string, paymentMethod: string, referenceId?: string) {
+  const db = await getDb();
+  if (!db) return { success: false, message: "DB 연결 실패" };
+  const wallet = await getOrCreateWallet(userId);
+  if (!wallet) return { success: false, message: "지갑 없음" };
+  const balanceField = currency === "point" ? "pointBalance" : currency === "cash" ? "cashBalance" : "coinBalance";
+  const currentBalance = wallet[balanceField] as number;
+  if (currentBalance < amount) return { success: false, message: "잔액 부족" };
+  const newBalance = currentBalance - amount;
+  await db.update(userWallets).set({ [balanceField]: newBalance, totalSpent: wallet.totalSpent + (currency === "cash" ? amount : 0) }).where(eq(userWallets.id, wallet.id));
+  await db.insert(walletTransactions).values({
+    userId, walletId: wallet.id, type: "payment", currency, amount: -amount, balanceAfter: newBalance, description, paymentMethod, referenceId: referenceId || null,
+  });
+  return { success: true, newBalance };
 }

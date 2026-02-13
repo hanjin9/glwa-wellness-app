@@ -22,6 +22,9 @@ const PAYMENT_METHODS = [
   { id: "tosspay", name: "토스페이", icon: Wallet, desc: "토스 간편결제", region: "kr" },
   { id: "phone", name: "휴대폰결제", icon: Smartphone, desc: "통신사 소액결제", region: "kr" },
   { id: "paypal", name: "PayPal", icon: Globe, desc: "PayPal 글로벌 결제", region: "global" },
+  { id: "glwa_point", name: "포인트 결제", icon: Coins, desc: "GLWA 포인트 사용", region: "wallet" },
+  { id: "glwa_cash", name: "적립금 결제", icon: Wallet, desc: "GLWA 적립금 사용", region: "wallet" },
+  { id: "glwa_coin", name: "코인 결제", icon: Coins, desc: "암호화폐 결제", region: "wallet" },
 ];
 
 const tierDiscounts: Record<string, number> = {
@@ -120,7 +123,12 @@ export default function Cart() {
     }
     const unsupportedMethods = ["kakaopay", "naverpay", "tosspay", "phone", "paypal"];
     if (unsupportedMethods.includes(paymentMethod)) {
-      toast.info(`${PAYMENT_METHODS.find(m => m.id === paymentMethod)?.name} 결제는 곧 지원됩니다`, { description: "현재는 카드결제(Stripe)를 이용해주세요" });
+      toast.info(`${PAYMENT_METHODS.find(m => m.id === paymentMethod)?.name} 결제는 곳 지원됩니다`, { description: "현재는 카드결제(Stripe)를 이용해주세요" });
+      return;
+    }
+    // GLWA 지갑 결제 (포인트/적립금/코인)
+    if (["glwa_point", "glwa_cash", "glwa_coin"].includes(paymentMethod)) {
+      toast.info(`${PAYMENT_METHODS.find(m => m.id === paymentMethod)?.name} 기능이 곳 출시됩니다`, { description: "My > 지갑에서 잔액을 확인하세요" });
       return;
     }
     placeOrder.mutate({
@@ -351,6 +359,22 @@ export default function Cart() {
                   >
                     <RadioGroupItem value={method.id} />
                     <method.icon className="w-5 h-5 text-emerald-700" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{method.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{method.desc}</p>
+                    </div>
+                  </label>
+                ))}
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mt-3">GLWA 지갑</p>
+                {PAYMENT_METHODS.filter(m => m.region === "wallet").map(method => (
+                  <label
+                    key={method.id}
+                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      paymentMethod === method.id ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+                    }`}
+                  >
+                    <RadioGroupItem value={method.id} />
+                    <method.icon className="w-5 h-5 text-primary" />
                     <div className="flex-1">
                       <p className="text-sm font-medium">{method.name}</p>
                       <p className="text-[10px] text-muted-foreground">{method.desc}</p>
