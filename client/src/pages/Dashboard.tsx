@@ -20,9 +20,24 @@ import {
   Shield,
   Star,
   Diamond,
+  UtensilsCrossed,
+  Clock,
+  Hash,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
+
+// notes 필드에서 "식사: 7시, 12시, 18시" 형식의 식사 시간대를 파싱
+function parseMealTimesFromNotes(notes?: string | null): number[] {
+  if (!notes) return [];
+  const match = notes.match(/\uc2dd\uc0ac:\s*([\d\uc2dc,\s]+)/);
+  if (!match) return [];
+  return match[1]
+    .split(",")
+    .map((s) => parseInt(s.trim()))
+    .filter((n) => !isNaN(n))
+    .sort((a, b) => a - b);
+}
 
 const quickActions = [
   { icon: Plus, label: "건강 기록", path: "/record", color: "bg-primary/10 text-primary" },
@@ -162,7 +177,9 @@ export default function Dashboard() {
             기록하기 <ChevronRight className="w-3 h-3 ml-1" />
           </Button>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+
+        {/* 기본 건강 수치 - 2열 그리드 */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <Card className="shadow-sm border-border/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
@@ -204,18 +221,6 @@ export default function Dashboard() {
           <Card className="shadow-sm border-border/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Moon className="w-4 h-4 text-indigo-500" />
-                <span className="text-xs text-muted-foreground">수면</span>
-              </div>
-              <p className="text-lg font-bold">
-                {todayRecord?.sleepHours ? `${todayRecord.sleepHours}` : "—"}
-              </p>
-              <p className="text-[10px] text-muted-foreground">시간</p>
-            </CardContent>
-          </Card>
-          <Card className="shadow-sm border-border/50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
                 <Flame className="w-4 h-4 text-orange-500" />
                 <span className="text-xs text-muted-foreground">운동</span>
               </div>
@@ -225,16 +230,210 @@ export default function Dashboard() {
               <p className="text-[10px] text-muted-foreground">분</p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* 가로 막대형 지표: 식사시간대 / 식사횟수 / 수면시간 */}
+        <div className="space-y-3">
+          {/* 식사 시간대 */}
+          <Card className="shadow-sm border-border/50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Clock className="w-4 h-4 text-amber-600" />
+                <span className="text-xs font-semibold">식사 시간대</span>
+                {parseMealTimesFromNotes(todayRecord?.notes).length > 0 && (
+                  <span className="ml-auto text-[10px] text-amber-600 font-medium">
+                    {parseMealTimesFromNotes(todayRecord?.notes).map(h => `${h}시`).join(", ")}
+                  </span>
+                )}
+              </div>
+              <div className="relative">
+                <div className="h-2 bg-muted rounded-full w-full" />
+                <div className="absolute top-0 left-0 w-full flex justify-between items-center" style={{ height: '8px' }}>
+                  {[7, 9, 12, 14, 18, 20, 22].map((hour) => {
+                    const isActive = parseMealTimesFromNotes(todayRecord?.notes).includes(hour);
+                    const position = ((hour - 6) / (22 - 6)) * 100;
+                    return (
+                      <button
+                        key={hour}
+                        className="absolute flex flex-col items-center"
+                        style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+                        onClick={() => setLocation("/record")}
+                        title={`${hour}시`}
+                      >
+                        <div className={`w-4 h-4 rounded-full border-2 transition-all ${
+                          isActive
+                            ? 'bg-amber-500 border-amber-600 shadow-md shadow-amber-200 scale-110'
+                            : 'bg-background border-muted-foreground/30 hover:border-amber-400 hover:scale-110'
+                        }`} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-3 px-0">
+                  {[7, 9, 12, 14, 18, 20, 22].map((hour) => {
+                    const position = ((hour - 6) / (22 - 6)) * 100;
+                    return (
+                      <span
+                        key={hour}
+                        className="text-[9px] text-muted-foreground absolute"
+                        style={{ left: `${position}%`, transform: 'translateX(-50%)', top: '20px' }}
+                      >
+                        {hour}시
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="h-4" />
+            </CardContent>
+          </Card>
+
+          {/* 식사 횟수 */}
+          <Card className="shadow-sm border-border/50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <UtensilsCrossed className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs font-semibold">식사 횟수</span>
+                {parseMealTimesFromNotes(todayRecord?.notes).length > 0 && (
+                  <span className="ml-auto text-[10px] text-emerald-600 font-medium">
+                    {parseMealTimesFromNotes(todayRecord?.notes).length}회
+                  </span>
+                )}
+              </div>
+              <div className="relative">
+                <div className="h-2 bg-muted rounded-full w-full" />
+                <div className="absolute top-0 left-0 w-full flex justify-between items-center" style={{ height: '8px' }}>
+                  {[2, 3, 4, 5].map((count) => {
+                    const mealCount = parseMealTimesFromNotes(todayRecord?.notes).length;
+                    const isActive = mealCount >= count;
+                    const isCurrent = mealCount === count;
+                    const position = ((count - 1) / (5 - 1)) * 100;
+                    return (
+                      <button
+                        key={count}
+                        className="absolute flex flex-col items-center"
+                        style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+                        onClick={() => setLocation("/record")}
+                        title={`${count}회`}
+                      >
+                        <div className={`w-4 h-4 rounded-full border-2 transition-all ${
+                          isCurrent
+                            ? 'bg-emerald-500 border-emerald-600 shadow-md shadow-emerald-200 scale-125'
+                            : isActive
+                            ? 'bg-emerald-400 border-emerald-500 scale-105'
+                            : 'bg-background border-muted-foreground/30 hover:border-emerald-400 hover:scale-110'
+                        }`} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-3 px-0">
+                  {[2, 3, 4, 5].map((count) => {
+                    const position = ((count - 1) / (5 - 1)) * 100;
+                    return (
+                      <span
+                        key={count}
+                        className="text-[9px] text-muted-foreground absolute"
+                        style={{ left: `${position}%`, transform: 'translateX(-50%)', top: '20px' }}
+                      >
+                        {count}회
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="h-4" />
+            </CardContent>
+          </Card>
+
+          {/* 수면 시간 */}
+          <Card className="shadow-sm border-border/50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Moon className="w-4 h-4 text-indigo-500" />
+                <span className="text-xs font-semibold">수면 시간</span>
+                {todayRecord?.sleepHours && (
+                  <span className="ml-auto text-[10px] text-indigo-500 font-medium">
+                    {todayRecord.sleepHours}시간
+                  </span>
+                )}
+              </div>
+              <div className="relative">
+                <div className="h-2 bg-muted rounded-full w-full" />
+                {/* 적정 수면 범위 표시 (7~8시간) */}
+                <div
+                  className="absolute top-0 h-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-full"
+                  style={{
+                    left: `${((7 - 4) / (10 - 4)) * 100}%`,
+                    width: `${((8 - 7) / (10 - 4)) * 100}%`,
+                  }}
+                />
+                <div className="absolute top-0 left-0 w-full flex justify-between items-center" style={{ height: '8px' }}>
+                  {[4, 5, 6, 7, 8, 9, 10].map((hour) => {
+                    const isActive = todayRecord?.sleepHours === hour;
+                    const position = ((hour - 4) / (10 - 4)) * 100;
+                    return (
+                      <button
+                        key={hour}
+                        className="absolute flex flex-col items-center"
+                        style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+                        onClick={() => setLocation("/record")}
+                        title={`${hour}시간`}
+                      >
+                        <div className={`w-4 h-4 rounded-full border-2 transition-all ${
+                          isActive
+                            ? 'bg-indigo-500 border-indigo-600 shadow-md shadow-indigo-200 scale-125'
+                            : 'bg-background border-muted-foreground/30 hover:border-indigo-400 hover:scale-110'
+                        }`} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-3 px-0">
+                  {[4, 5, 6, 7, 8, 9, 10].map((hour) => {
+                    const position = ((hour - 4) / (10 - 4)) * 100;
+                    return (
+                      <span
+                        key={hour}
+                        className="text-[9px] text-muted-foreground absolute"
+                        style={{ left: `${position}%`, transform: 'translateX(-50%)', top: '20px' }}
+                      >
+                        {hour}h
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="h-4" />
+              {/* 적정 범위 범례 */}
+              <div className="flex items-center gap-1 mt-1">
+                <div className="w-3 h-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30" />
+                <span className="text-[9px] text-muted-foreground">적정 수면 7~8시간</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 스트레스 레벨 */}
           <Card className="shadow-sm border-border/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Activity className="w-4 h-4 text-primary" />
-                <span className="text-xs text-muted-foreground">스트레스</span>
+                <span className="text-xs font-semibold">스트레스</span>
+                {todayRecord?.stressLevel && (
+                  <span className="ml-auto text-[10px] text-primary font-medium">
+                    {todayRecord.stressLevel}/10
+                  </span>
+                )}
               </div>
-              <p className="text-lg font-bold">
-                {todayRecord?.stressLevel ? `${todayRecord.stressLevel}/10` : "—"}
-              </p>
-              <p className="text-[10px] text-muted-foreground">레벨</p>
+              <div className="relative">
+                <div className="h-2 bg-muted rounded-full w-full" />
+                {todayRecord?.stressLevel && (
+                  <div
+                    className="absolute top-0 h-2 rounded-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500"
+                    style={{ width: `${(todayRecord.stressLevel / 10) * 100}%` }}
+                  />
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
