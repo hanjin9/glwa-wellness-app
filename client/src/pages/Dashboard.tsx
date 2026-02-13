@@ -14,6 +14,12 @@ import {
   ChevronRight,
   Stethoscope,
   Zap,
+  Crown,
+  Coins,
+  Ticket,
+  Shield,
+  Star,
+  Diamond,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -31,6 +37,15 @@ export default function Dashboard() {
   const { data: profile } = trpc.profile.get.useQuery(undefined, { retry: false });
   const { data: todayRecord } = trpc.health.getToday.useQuery(undefined, { retry: false });
   const { data: recentRecords } = trpc.health.getRecent.useQuery({ limit: 7 }, { retry: false });
+  const { data: membershipData } = trpc.membership.getMyMembership.useQuery(undefined, { retry: false });
+  const { data: pointsData } = trpc.points.getBalance.useQuery(undefined, { retry: false });
+  const { data: couponsData } = trpc.coupon.getMyCoupons.useQuery(undefined, { retry: false });
+
+  const tierIcons: Record<string, any> = { silver: Shield, gold: Star, diamond: Diamond, platinum: Crown };
+  const tierNames: Record<string, string> = { silver: "실버", gold: "골드", diamond: "다이아몬드", platinum: "플래티넘" };
+  const tierColors: Record<string, string> = { silver: "from-gray-400 to-gray-500", gold: "from-amber-400 to-amber-600", diamond: "from-sky-400 to-blue-600", platinum: "from-purple-500 to-indigo-700" };
+  const currentMemberTier = membershipData?.membership?.tier || "silver";
+  const MemberTierIcon = tierIcons[currentMemberTier] || Shield;
 
   const beltInfo: Record<string, { label: string; emoji: string }> = {
     white: { label: "화이트벨트", emoji: "⬜" },
@@ -74,6 +89,37 @@ export default function Dashboard() {
           <span className="text-xs text-white/90">
             누적 {profile?.totalDays || 0}일째 건강 관리 중
           </span>
+        </div>
+      </motion.div>
+
+      {/* Membership & Points Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="flex items-center gap-2 cursor-pointer"
+        onClick={() => setLocation("/membership")}
+      >
+        <div className={`flex-1 flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r ${tierColors[currentMemberTier]} text-white`}>
+          <MemberTierIcon className="w-5 h-5" />
+          <div className="flex-1">
+            <p className="text-[10px] text-white/70">멤버십</p>
+            <p className="text-sm font-bold">{tierNames[currentMemberTier]}</p>
+          </div>
+        </div>
+        <div className="flex-1 flex items-center gap-3 p-3 rounded-xl bg-card border border-border/50 shadow-sm">
+          <Coins className="w-5 h-5 text-amber-500" />
+          <div className="flex-1">
+            <p className="text-[10px] text-muted-foreground">포인트</p>
+            <p className="text-sm font-bold">{(pointsData?.currentPoints || 0).toLocaleString()}P</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/50 shadow-sm">
+          <Ticket className="w-5 h-5 text-purple-500" />
+          <div>
+            <p className="text-[10px] text-muted-foreground">쿠폰</p>
+            <p className="text-sm font-bold">{couponsData?.length || 0}</p>
+          </div>
         </div>
       </motion.div>
 

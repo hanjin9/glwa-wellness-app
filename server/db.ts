@@ -672,3 +672,225 @@ export async function updateOrderPayment(orderNumber: string, paymentMethod: str
     status: "paid",
   }).where(eq(orders.orderNumber, orderNumber));
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// 멤버십 시스템 쿼리 헬퍼
+// ═══════════════════════════════════════════════════════════════════════
+import {
+  membershipTiers,
+  userMemberships, InsertUserMembership,
+  pointsTransactions, InsertPointsTransaction,
+  coupons, InsertCoupon,
+  userCoupons, InsertUserCoupon,
+  events, InsertEvent,
+  eventParticipations, InsertEventParticipation,
+  mileageTransactions, InsertMileageTransaction,
+} from "../drizzle/schema";
+
+// ─── Membership Tiers ──────────────────────────────────────────────
+export async function getMembershipTiers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(membershipTiers).orderBy(membershipTiers.monthlyFee);
+}
+
+export async function getMembershipTierByName(tier: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(membershipTiers)
+    .where(eq(membershipTiers.tier, tier as any)).limit(1);
+  return result[0] || null;
+}
+
+// ─── User Memberships ──────────────────────────────────────────────
+export async function getUserMembership(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(userMemberships)
+    .where(and(eq(userMemberships.userId, userId), eq(userMemberships.isActive, 1)))
+    .limit(1);
+  return result[0] || null;
+}
+
+export async function upsertUserMembership(userId: number, data: Partial<InsertUserMembership>) {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await getUserMembership(userId);
+  if (existing) {
+    await db.update(userMemberships).set(data).where(eq(userMemberships.id, existing.id));
+  } else {
+    await db.insert(userMemberships).values({ userId, ...data } as InsertUserMembership);
+  }
+}
+
+export async function updateUserPoints(userId: number, pointsDelta: number) {
+  const db = await getDb();
+  if (!db) return;
+  const membership = await getUserMembership(userId);
+  if (membership) {
+    const newPoints = Math.max(0, (membership.currentPoints || 0) + pointsDelta);
+    const earned = pointsDelta > 0 ? (membership.totalPointsEarned || 0) + pointsDelta : membership.totalPointsEarned;
+    const used = pointsDelta < 0 ? (membership.totalPointsUsed || 0) + Math.abs(pointsDelta) : membership.totalPointsUsed;
+    await db.update(userMemberships).set({
+      currentPoints: newPoints,
+      totalPointsEarned: earned,
+      totalPointsUsed: used,
+    }).where(eq(userMemberships.id, membership.id));
+  }
+}
+
+// ─── Points Transactions ───────────────────────────────────────────
+export async function addPointsTransaction(data: InsertPointsTransaction) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(pointsTransactions).values(data);
+  await updateUserPoints(data.userId, data.amount);
+}
+
+export async function getPointsHistory(userId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(pointsTransactions)
+    .where(eq(pointsTransactions.userId, userId))
+    .orderBy(desc(pointsTransactions.createdAt))
+    .limit(limit);
+}
+
+// ─── Coupons ───────────────────────────────────────────────────────
+export async function getActiveCoupons() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(coupons)
+    .where(eq(coupons.isActive, 1))
+    .orderBy(desc(coupons.createdAt));
+}
+
+export async function createCoupon(data: InsertCoupon) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(coupons).values(data);
+}
+
+export async function getCouponByCode(code: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(coupons)
+    .where(and(eq(coupons.code, code), eq(coupons.isActive, 1)))
+    .limit(1);
+  return result[0] || null;
+}
+
+// ─── User Coupons ──────────────────────────────────────────────────
+export async function getUserCoupons(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const userCouponList = await db.select().from(userCoupons)
+    .where(eq(userCoupons.userId, userId))
+    .orderBy(desc(userCoupons.acquiredAt));
+  // Enrich with coupon details
+  const enriched = [];
+  for (const uc of userCouponList) {
+    const couponDetail = await db.select().from(coupons)
+      .where(eq(coupons.id, uc.couponId)).limit(1);
+    enriched.push({ ...uc, coupon: couponDetail[0] || null });
+  }
+  return enriched;
+}
+
+export async function grantCouponToUser(userId: number, couponId: number, expiresAt?: Date) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(userCoupons).values({
+    userId,
+    couponId,
+    expiresAt: expiresAt || null,
+  } as InsertUserCoupon);
+}
+
+export async function useCoupon(userCouponId: number, orderId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(userCoupons).set({
+    status: "used",
+    usedAt: new Date(),
+    usedOrderId: orderId,
+  }).where(eq(userCoupons.id, userCouponId));
+}
+
+// ─── Events ────────────────────────────────────────────────────────
+export async function getActiveEvents() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(events)
+    .where(eq(events.isActive, 1))
+    .orderBy(desc(events.createdAt));
+}
+
+export async function getFeaturedEvents() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(events)
+    .where(and(eq(events.isActive, 1), eq(events.isFeatured, 1)))
+    .orderBy(desc(events.createdAt));
+}
+
+export async function getEventById(eventId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(events).where(eq(events.id, eventId)).limit(1);
+  return result[0] || null;
+}
+
+export async function createEvent(data: InsertEvent) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(events).values(data);
+}
+
+export async function joinEvent(eventId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await db.select().from(eventParticipations)
+    .where(and(eq(eventParticipations.eventId, eventId), eq(eventParticipations.userId, userId)))
+    .limit(1);
+  if (existing.length > 0) return; // already joined
+  await db.insert(eventParticipations).values({ eventId, userId } as InsertEventParticipation);
+  // increment participant count
+  const event = await getEventById(eventId);
+  if (event) {
+    await db.update(events).set({
+      currentParticipants: (event.currentParticipants || 0) + 1,
+    }).where(eq(events.id, eventId));
+  }
+}
+
+export async function getUserEventParticipations(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(eventParticipations)
+    .where(eq(eventParticipations.userId, userId))
+    .orderBy(desc(eventParticipations.createdAt));
+}
+
+// ─── Mileage ───────────────────────────────────────────────────────
+export async function addMileageTransaction(data: InsertMileageTransaction) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(mileageTransactions).values(data);
+  // update user membership total mileage
+  const membership = await getUserMembership(data.userId);
+  if (membership) {
+    const newMileage = (membership.totalMileage || 0) + data.amount;
+    await db.update(userMemberships).set({ totalMileage: newMileage })
+      .where(eq(userMemberships.id, membership.id));
+  }
+}
+
+export async function getMileageHistory(userId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(mileageTransactions)
+    .where(eq(mileageTransactions.userId, userId))
+    .orderBy(desc(mileageTransactions.createdAt))
+    .limit(limit);
+}

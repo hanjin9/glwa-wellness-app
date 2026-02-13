@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { User, Heart, Shield, Award, ChevronRight, LogOut } from "lucide-react";
+import { User, Heart, Shield, Award, ChevronRight, LogOut, Crown, Diamond, Star, Coins } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function Profile() {
@@ -66,14 +66,18 @@ export default function Profile() {
     });
   };
 
-  const gradeInfo: Record<string, { label: string; color: string }> = {
-    free: { label: "평회원", color: "bg-secondary text-secondary-foreground" },
-    standard: { label: "정회원", color: "gradient-warm text-white" },
-    vip: { label: "VIP", color: "gradient-gold text-white" },
-    platinum: { label: "플래티넘", color: "gradient-warm text-white" },
+  const membershipQuery = trpc.membership.getMyMembership.useQuery(undefined, { retry: false });
+  const pointsQuery = trpc.points.getBalance.useQuery(undefined, { retry: false });
+
+  const tierInfo: Record<string, { label: string; color: string; icon: any }> = {
+    silver: { label: "실버", color: "bg-gray-400 text-white", icon: Shield },
+    gold: { label: "골드", color: "bg-amber-500 text-white", icon: Star },
+    diamond: { label: "다이아몬드", color: "bg-blue-500 text-white", icon: Diamond },
+    platinum: { label: "플래티넘", color: "bg-purple-600 text-white", icon: Crown },
   };
 
-  const grade = gradeInfo[profile?.memberGrade || "free"] || gradeInfo.free;
+  const currentTier = membershipQuery.data?.membership?.tier || "silver";
+  const grade = tierInfo[currentTier] || tierInfo.silver;
 
   return (
     <div className="space-y-6">
@@ -86,7 +90,10 @@ export default function Profile() {
           <h1 className="text-lg font-bold">{user?.name || "회원"}</h1>
           <p className="text-xs text-muted-foreground">{user?.email || ""}</p>
           <span className={`inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${grade.color}`}>
-            {grade.label}
+            {grade.label} 멤버
+          </span>
+          <span className="inline-block mt-1 ml-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+            {(pointsQuery.data?.currentPoints || 0).toLocaleString()}P
           </span>
         </div>
       </div>
@@ -96,7 +103,7 @@ export default function Profile() {
         {[
           { icon: Heart, label: "건강 진단 결과", path: "/diagnosis" },
           { icon: Award, label: "승급 현황", path: "/rank" },
-          { icon: Shield, label: "회원 등급 관리", path: "/dashboard" },
+          { icon: Crown, label: "멤버십 센터", path: "/membership" },
         ].map((item) => (
           <button
             key={item.label}

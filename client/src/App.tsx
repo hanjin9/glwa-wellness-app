@@ -19,6 +19,7 @@ import Cart from "./pages/Cart";
 import Community from "./pages/Community";
 import PostDetail from "./pages/PostDetail";
 import SellerDashboard from "./pages/SellerDashboard";
+import Membership from "./pages/Membership";
 import MobileLayout from "./components/MobileLayout";
 
 function Router() {
@@ -66,6 +67,9 @@ function Router() {
       </Route>
       <Route path="/seller">
         <MobileLayout><SellerDashboard /></MobileLayout>
+      </Route>
+      <Route path="/membership">
+        <MobileLayout><Membership /></MobileLayout>
       </Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

@@ -472,6 +472,219 @@ export const appRouter = router({
       .input(z.object({ sellerId: z.number(), status: z.enum(["approved", "rejected", "suspended"]) }))
       .mutation(async ({ input }) => { await db.updateSellerStatus(input.sellerId, input.status); return { success: true }; }),
   }),
+
+  // ═══════════════════════════════════════════════════════════════════
+  // 멤버십 시스템
+  // ═══════════════════════════════════════════════════════════════════
+  membership: router({
+    // 멤버십 등급 목록
+    getTiers: publicProcedure.query(async () => {
+      return db.getMembershipTiers();
+    }),
+    // 내 멤버십 현황
+    getMyMembership: protectedProcedure.query(async ({ ctx }) => {
+      let membership = await db.getUserMembership(ctx.user.id);
+      if (!membership) {
+        // 자동으로 실버(무료) 멤버십 생성
+        await db.upsertUserMembership(ctx.user.id, { tier: "silver" });
+        membership = await db.getUserMembership(ctx.user.id);
+      }
+      const tierInfo = membership ? await db.getMembershipTierByName(membership.tier) : null;
+      return { membership, tierInfo };
+    }),
+    // 멤버십 업그레이드
+    upgrade: protectedProcedure
+      .input(z.object({ tier: z.enum(["gold", "diamond", "platinum"]) }))
+      .mutation(async ({ ctx, input }) => {
+        await db.upsertUserMembership(ctx.user.id, { tier: input.tier });
+        // 업그레이드 보너스 포인트
+        const bonusPoints = input.tier === "gold" ? 1000 : input.tier === "diamond" ? 3000 : 10000;
+        const membership = await db.getUserMembership(ctx.user.id);
+        const balance = (membership?.currentPoints || 0) + bonusPoints;
+        await db.addPointsTransaction({
+          userId: ctx.user.id,
+          type: "earn",
+          amount: bonusPoints,
+          balance,
+          source: "tier_bonus",
+          description: `${input.tier} 멤버십 업그레이드 보너스`,
+        });
+        return { success: true };
+      }),
+  }),
+
+  // ─── 포인트 ─────────────────────────────────────────────────────
+  points: router({
+    getBalance: protectedProcedure.query(async ({ ctx }) => {
+      const membership = await db.getUserMembership(ctx.user.id);
+      return {
+        currentPoints: membership?.currentPoints || 0,
+        totalEarned: membership?.totalPointsEarned || 0,
+        totalUsed: membership?.totalPointsUsed || 0,
+        totalMileage: membership?.totalMileage || 0,
+      };
+    }),
+    getHistory: protectedProcedure
+      .input(z.object({ limit: z.number().optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        return db.getPointsHistory(ctx.user.id, input?.limit || 50);
+      }),
+    // 포인트 적립 (관리자 또는 시스템)
+    earn: protectedProcedure
+      .input(z.object({
+        amount: z.number().min(1),
+        source: z.enum(["purchase", "mission", "event", "referral", "review", "attendance", "signup_bonus", "tier_bonus", "admin"]),
+        description: z.string().optional(),
+        referenceId: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const membership = await db.getUserMembership(ctx.user.id);
+        const tierInfo = membership ? await db.getMembershipTierByName(membership.tier) : null;
+        const multiplier = tierInfo?.pointMultiplier || 1.0;
+        const finalAmount = Math.round(input.amount * multiplier);
+        const balance = (membership?.currentPoints || 0) + finalAmount;
+        await db.addPointsTransaction({
+          userId: ctx.user.id,
+          type: "earn",
+          amount: finalAmount,
+          balance,
+          source: input.source,
+          description: input.description || `${input.source} 포인트 적립`,
+          referenceId: input.referenceId,
+        });
+        return { earned: finalAmount, balance };
+      }),
+    // 포인트 사용
+    use: protectedProcedure
+      .input(z.object({
+        amount: z.number().min(1),
+        description: z.string().optional(),
+        referenceId: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const membership = await db.getUserMembership(ctx.user.id);
+        const currentPoints = membership?.currentPoints || 0;
+        if (currentPoints < input.amount) {
+          throw new Error("포인트가 부족합니다.");
+        }
+        const balance = currentPoints - input.amount;
+        await db.addPointsTransaction({
+          userId: ctx.user.id,
+          type: "use",
+          amount: -input.amount,
+          balance,
+          source: "shop_payment",
+          description: input.description || "포인트 사용",
+          referenceId: input.referenceId,
+        });
+        return { used: input.amount, balance };
+      }),
+  }),
+
+  // ─── 쿠폰 ─────────────────────────────────────────────────────
+  coupon: router({
+    getMyCoupons: protectedProcedure.query(async ({ ctx }) => {
+      return db.getUserCoupons(ctx.user.id);
+    }),
+    getAvailable: publicProcedure.query(async () => {
+      return db.getActiveCoupons();
+    }),
+    // 쿠폰 코드로 등록
+    register: protectedProcedure
+      .input(z.object({ code: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const coupon = await db.getCouponByCode(input.code);
+        if (!coupon) throw new Error("유효하지 않은 쿠폰 코드입니다.");
+        if (coupon.requiredTier) {
+          const membership = await db.getUserMembership(ctx.user.id);
+          const tierOrder = ["silver", "gold", "diamond", "platinum"];
+          const userTierIdx = tierOrder.indexOf(membership?.tier || "silver");
+          const requiredIdx = tierOrder.indexOf(coupon.requiredTier);
+          if (userTierIdx < requiredIdx) throw new Error(`${coupon.requiredTier} 등급 이상만 사용 가능합니다.`);
+        }
+        const expiresAt = coupon.endDate || undefined;
+        await db.grantCouponToUser(ctx.user.id, coupon.id, expiresAt);
+        return { success: true, couponName: coupon.name };
+      }),
+    // 관리자: 쿠폰 생성
+    create: adminProcedure
+      .input(z.object({
+        code: z.string(),
+        name: z.string(),
+        description: z.string().optional(),
+        discountType: z.enum(["percentage", "fixed"]),
+        discountValue: z.number(),
+        minOrderAmount: z.number().optional(),
+        maxDiscountAmount: z.number().optional(),
+        requiredTier: z.enum(["silver", "gold", "diamond", "platinum"]).optional(),
+        totalQuantity: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createCoupon(input as any);
+        return { success: true };
+      }),
+  }),
+
+  // ─── 이벤트 ────────────────────────────────────────────────────
+  event: router({
+    getActive: publicProcedure.query(async () => {
+      return db.getActiveEvents();
+    }),
+    getFeatured: publicProcedure.query(async () => {
+      return db.getFeaturedEvents();
+    }),
+    getById: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return db.getEventById(input.id);
+      }),
+    join: protectedProcedure
+      .input(z.object({ eventId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const event = await db.getEventById(input.eventId);
+        if (!event) throw new Error("이벤트를 찾을 수 없습니다.");
+        if (event.requiredTier) {
+          const membership = await db.getUserMembership(ctx.user.id);
+          const tierOrder = ["silver", "gold", "diamond", "platinum"];
+          const userTierIdx = tierOrder.indexOf(membership?.tier || "silver");
+          const requiredIdx = tierOrder.indexOf(event.requiredTier);
+          if (userTierIdx < requiredIdx) throw new Error(`${event.requiredTier} 등급 이상만 참여 가능합니다.`);
+        }
+        await db.joinEvent(input.eventId, ctx.user.id);
+        return { success: true };
+      }),
+    getMyParticipations: protectedProcedure.query(async ({ ctx }) => {
+      return db.getUserEventParticipations(ctx.user.id);
+    }),
+    // 관리자: 이벤트 생성
+    create: adminProcedure
+      .input(z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        content: z.string().optional(),
+        eventType: z.enum(["promotion", "seasonal", "tier_exclusive", "referral", "challenge", "special"]),
+        requiredTier: z.enum(["silver", "gold", "diamond", "platinum"]).optional(),
+        rewardType: z.enum(["points", "coupon", "product", "mileage", "badge"]).optional(),
+        rewardValue: z.number().optional(),
+        startDate: z.date(),
+        endDate: z.date().optional(),
+        maxParticipants: z.number().optional(),
+        isFeatured: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createEvent(input as any);
+        return { success: true };
+      }),
+  }),
+
+  // ─── 마일리지 ──────────────────────────────────────────────────
+  mileage: router({
+    getHistory: protectedProcedure
+      .input(z.object({ limit: z.number().optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        return db.getMileageHistory(ctx.user.id, input?.limit || 50);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

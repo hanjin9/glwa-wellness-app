@@ -7,6 +7,7 @@ import {
   ShoppingCart, Star, Package, Search, ChevronRight, ChevronLeft,
   Sparkles, Heart, Leaf, Pill, Dumbbell, Activity,
   TrendingUp, Clock, Eye, Filter, X, ArrowUpDown,
+  Crown, Shield, Diamond,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
@@ -107,6 +108,15 @@ export default function Shop() {
     onSuccess: () => toast.success("장바구니에 추가되었습니다"),
     onError: () => toast.error("장바구니 추가에 실패했습니다"),
   });
+
+  const { data: membershipData } = trpc.membership.getMyMembership.useQuery(undefined, { retry: false });
+  const { data: pointsData } = trpc.points.getBalance.useQuery(undefined, { retry: false });
+  const currentTier = membershipData?.membership?.tier || "silver";
+  const tierDiscounts: Record<string, number> = { silver: 0, gold: 3, diamond: 5, platinum: 10 };
+  const tierPointRates: Record<string, number> = { silver: 1, gold: 2, diamond: 3, platinum: 5 };
+  const tierNames: Record<string, string> = { silver: "실버", gold: "골드", diamond: "다이아몬드", platinum: "플래티넘" };
+  const tierIcons: Record<string, any> = { silver: Shield, gold: Star, diamond: Diamond, platinum: Crown };
+  const TierIcon = tierIcons[currentTier] || Shield;
 
   const selectedCategory = MAIN_CATEGORIES.find(c => c.id === selectedCategoryId);
 
@@ -217,6 +227,9 @@ export default function Shop() {
             )}
             <p className="text-2xl font-bold tracking-tight">{formatPrice(p.salePrice || p.price)}</p>
             <p className="text-[11px] text-muted-foreground mt-1">GLWA 회원 특별가 · 무료배송</p>
+            {tierDiscounts[currentTier] > 0 && (
+              <p className="text-[11px] text-amber-600 font-semibold mt-1">🌟 {tierNames[currentTier]} 멤버 추가 {tierDiscounts[currentTier]}% 할인 적용 가능</p>
+            )}
           </div>
 
           {/* 배송/혜택 정보 */}
@@ -225,7 +238,7 @@ export default function Shop() {
               { icon: "🚚", label: "배송", value: "무료배송 · 오늘 출발" },
               { icon: "🔄", label: "교환/반품", value: "30일 이내 무료 반품" },
               { icon: "💳", label: "결제혜택", value: "카드 최대 5% 추가 할인" },
-              { icon: "🎁", label: "적립", value: "구매 시 1% GLWA 포인트 적립" },
+              { icon: "🎁", label: "적립", value: `구매 시 ${tierPointRates[currentTier]}% GLWA 포인트 적립` },
             ].map(info => (
               <div key={info.label} className="flex items-center gap-3 text-xs">
                 <span className="text-base">{info.icon}</span>
@@ -444,6 +457,20 @@ export default function Shop() {
             <ShoppingCart className="w-5 h-5" />
           </Button>
         </div>
+
+        {/* 멤버십 혜택 배너 */}
+        {isAuthenticated && (
+          <button
+            onClick={() => navigate("/membership")}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/10 border border-white/15 mb-4"
+          >
+            <TierIcon className="w-4 h-4 text-amber-400" />
+            <span className="text-xs text-amber-300 font-semibold">{tierNames[currentTier]} 멤버</span>
+            <span className="text-[10px] text-gray-400 ml-auto">
+              {tierDiscounts[currentTier] > 0 ? `추가 ${tierDiscounts[currentTier]}% 할인` : "골드 승급 시 할인 혜택"} · {tierPointRates[currentTier]}% 적립
+            </span>
+          </button>
+        )}
 
         {/* 검색 */}
         <div className="relative">

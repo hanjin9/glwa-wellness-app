@@ -50,6 +50,13 @@
       "when": 1771004735345,
       "tag": "0006_magenta_blockbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1771006188659,
+      "tag": "0007_mean_squadron_supreme",
+      "breakpoints": true
     }
   ]
 }

@@ -11,6 +11,11 @@ import {
   Activity,
   Brain,
   Leaf,
+  Crown,
+  Diamond,
+  Star,
+  ShoppingBag,
+  Users,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -49,10 +54,10 @@ const features = [
 ];
 
 const grades = [
-  { name: "평회원", price: "무료", payback: "50%", color: "bg-secondary" },
-  { name: "정회원", price: "월 3~10만원", payback: "60%", color: "gradient-warm" },
-  { name: "VIP", price: "월 30~100만원", payback: "70%", color: "gradient-gold" },
-  { name: "플래티넘", price: "월 300만원", payback: "최대 100%", color: "gradient-warm" },
+  { name: "실버", price: "무료", payback: "50%", icon: Shield, color: "bg-gray-400" },
+  { name: "골드", price: "월 5만원", payback: "60%", icon: Star, color: "bg-amber-500" },
+  { name: "다이아몬드", price: "월 30만원", payback: "70%", icon: Diamond, color: "bg-blue-500" },
+  { name: "플래티넘", price: "월 300만원", payback: "최대 100%", icon: Crown, color: "bg-purple-600" },
 ];
 
 export default function Home() {
@@ -229,9 +234,9 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-2 gap-3">
           {grades.map((g) => (
-            <div key={g.name} className="p-4 rounded-xl bg-card border border-border/50 shadow-sm text-center">
+            <div key={g.name} className="p-4 rounded-xl bg-card border border-border/50 shadow-sm text-center cursor-pointer hover:shadow-md transition-shadow" onClick={() => setLocation("/membership")}>
               <div className={`w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center ${g.color}`}>
-                <Award className="w-5 h-5 text-white" />
+                <g.icon className="w-5 h-5 text-white" />
               </div>
               <h3 className="font-bold text-sm mb-1">{g.name}</h3>
               <p className="text-xs text-muted-foreground mb-2">{g.price}</p>
@@ -241,6 +246,9 @@ export default function Home() {
             </div>
           ))}
         </div>
+        <Button variant="outline" className="w-full mt-4" onClick={() => setLocation("/membership")}>
+          멤버십 센터 바로가기 <ArrowRight className="w-4 h-4 ml-1" />
+        </Button>
       </section>
 
       {/* CTA Footer */}

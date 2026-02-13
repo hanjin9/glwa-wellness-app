@@ -7,9 +7,10 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   ArrowLeft, ShoppingCart, Trash2, Plus, Minus, Package,
-  CreditCard, Smartphone, Wallet, Globe,
+  CreditCard, Smartphone, Wallet, Globe, Crown, Shield, Star, Diamond,
+  Ticket, Coins, ChevronDown, ChevronUp, Check, Gift,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
@@ -23,12 +24,25 @@ const PAYMENT_METHODS = [
   { id: "paypal", name: "PayPal", icon: Globe, desc: "PayPal 글로벌 결제", region: "global" },
 ];
 
+const tierDiscounts: Record<string, number> = { silver: 0, gold: 3, diamond: 5, platinum: 10 };
+const tierPointRates: Record<string, number> = { silver: 1, gold: 2, diamond: 3, platinum: 5 };
+const tierNames: Record<string, string> = { silver: "실버", gold: "골드", diamond: "다이아몬드", platinum: "플래티넘" };
+const tierIcons: Record<string, any> = { silver: Shield, gold: Star, diamond: Diamond, platinum: Crown };
+const tierGradients: Record<string, string> = {
+  silver: "from-gray-400 to-gray-500", gold: "from-amber-400 to-amber-600",
+  diamond: "from-sky-400 to-blue-600", platinum: "from-purple-500 to-indigo-700",
+};
+
 export default function Cart() {
   const { user, isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
   const [step, setStep] = useState<"cart" | "checkout">("cart");
   const [paymentMethod, setPaymentMethod] = useState("stripe");
   const [shipping, setShipping] = useState({ name: "", phone: "", address: "", memo: "" });
+  const [usePoints, setUsePoints] = useState(0);
+  const [selectedCouponId, setSelectedCouponId] = useState<number | null>(null);
+  const [showCoupons, setShowCoupons] = useState(false);
+  const [showPoints, setShowPoints] = useState(false);
 
   if (!isAuthenticated) {
     window.location.href = getLoginUrl();
@@ -37,6 +51,14 @@ export default function Cart() {
 
   const utils = trpc.useUtils();
   const { data: cartItems, isLoading } = trpc.shop.getCart.useQuery();
+  const { data: membershipData } = trpc.membership.getMyMembership.useQuery(undefined, { retry: false });
+  const { data: pointsData } = trpc.points.getBalance.useQuery(undefined, { retry: false });
+  const { data: couponsData } = trpc.coupon.getMyCoupons.useQuery(undefined, { retry: false });
+
+  const currentTier = membershipData?.membership?.tier || "silver";
+  const TierIcon = tierIcons[currentTier] || Shield;
+  const availablePoints = pointsData?.currentPoints || 0;
+  const availableCoupons = (couponsData as any[])?.filter((c: any) => c.status === "active") || [];
 
   const updateItem = trpc.shop.updateCartItem.useMutation({
     onSuccess: () => utils.shop.getCart.invalidate(),
@@ -58,10 +80,22 @@ export default function Cart() {
     onError: (err) => toast.error(err.message),
   });
 
-  const totalAmount = cartItems?.reduce((sum: number, item: any) => {
+  const subtotal = cartItems?.reduce((sum: number, item: any) => {
     const price = item.product?.salePrice || item.product?.price || 0;
     return sum + price * item.quantity;
   }, 0) || 0;
+
+  const memberDiscount = Math.round(subtotal * (tierDiscounts[currentTier] / 100));
+  const selectedCoupon = availableCoupons.find((c: any) => c.id === selectedCouponId);
+  const couponDiscount = selectedCoupon
+    ? selectedCoupon.discountType === "percent"
+      ? Math.min(Math.round(subtotal * (selectedCoupon.discountValue / 100)), selectedCoupon.maxDiscount || Infinity)
+      : Math.min(selectedCoupon.discountValue, subtotal)
+    : 0;
+  const pointDiscount = Math.min(usePoints, subtotal - memberDiscount - couponDiscount);
+  const totalDiscount = memberDiscount + couponDiscount + pointDiscount;
+  const totalAmount = Math.max(subtotal - totalDiscount, 0);
+  const earnPoints = Math.round(totalAmount * (tierPointRates[currentTier] / 100));
 
   const formatPrice = (price: number) => price.toLocaleString() + "원";
 
@@ -104,6 +138,17 @@ export default function Cart() {
 
       {step === "cart" && (
         <>
+          {/* 멤버십 혜택 배너 */}
+          {tierDiscounts[currentTier] > 0 && (
+            <div className={`mx-4 mt-4 p-3 rounded-xl bg-gradient-to-r ${tierGradients[currentTier]} text-white flex items-center gap-3`}>
+              <TierIcon className="w-5 h-5" />
+              <div className="flex-1">
+                <p className="text-xs font-bold">{tierNames[currentTier]} 멤버 혜택</p>
+                <p className="text-[10px] opacity-90">추가 {tierDiscounts[currentTier]}% 할인 + {tierPointRates[currentTier]}% 포인트 적립</p>
+              </div>
+            </div>
+          )}
+
           {!cartItems || cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
               <ShoppingCart className="w-16 h-16 mb-4 opacity-30" />
@@ -184,6 +229,99 @@ export default function Cart() {
             </div>
           </div>
 
+          {/* 쿠폰 적용 */}
+          <div className="border rounded-xl overflow-hidden">
+            <button
+              onClick={() => setShowCoupons(!showCoupons)}
+              className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Ticket className="w-4 h-4 text-amber-600" />
+                <span className="font-semibold text-sm">쿠폰 적용</span>
+                {selectedCouponId && <span className="text-xs text-emerald-600 font-bold">-{formatPrice(couponDiscount)}</span>}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">{availableCoupons.length}장 보유</span>
+                {showCoupons ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </div>
+            </button>
+            {showCoupons && (
+              <div className="border-t px-4 py-3 space-y-2 bg-muted/20">
+                {availableCoupons.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-3">사용 가능한 쿠폰이 없습니다</p>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setSelectedCouponId(null)}
+                      className={`w-full p-3 rounded-lg border text-left text-xs transition-all ${
+                        !selectedCouponId ? "border-emerald-500 bg-emerald-50" : "hover:bg-muted/50"
+                      }`}
+                    >
+                      쿠폰 미적용
+                    </button>
+                    {availableCoupons.map((coupon: any) => (
+                      <button
+                        key={coupon.id}
+                        onClick={() => setSelectedCouponId(coupon.id === selectedCouponId ? null : coupon.id)}
+                        className={`w-full p-3 rounded-lg border text-left transition-all ${
+                          coupon.id === selectedCouponId ? "border-emerald-500 bg-emerald-50" : "hover:bg-muted/50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-sm">{coupon.name}</span>
+                          {coupon.id === selectedCouponId && <Check className="w-4 h-4 text-emerald-600" />}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {coupon.discountType === "percent" ? `${coupon.discountValue}% 할인` : `${formatPrice(coupon.discountValue)} 할인`}
+                          {coupon.minOrderAmount > 0 && ` · ${formatPrice(coupon.minOrderAmount)} 이상 주문 시`}
+                        </p>
+                      </button>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* 포인트 사용 */}
+          <div className="border rounded-xl overflow-hidden">
+            <button
+              onClick={() => setShowPoints(!showPoints)}
+              className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Coins className="w-4 h-4 text-amber-600" />
+                <span className="font-semibold text-sm">포인트 사용</span>
+                {usePoints > 0 && <span className="text-xs text-emerald-600 font-bold">-{formatPrice(pointDiscount)}</span>}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">{availablePoints.toLocaleString()}P 보유</span>
+                {showPoints ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </div>
+            </button>
+            {showPoints && (
+              <div className="border-t px-4 py-3 bg-muted/20">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    placeholder="사용할 포인트"
+                    value={usePoints || ""}
+                    onChange={e => setUsePoints(Math.min(Number(e.target.value) || 0, availablePoints))}
+                    className="flex-1"
+                  />
+                  <Button
+                    variant="outline" size="sm"
+                    onClick={() => setUsePoints(Math.min(availablePoints, subtotal - memberDiscount - couponDiscount))}
+                    className="shrink-0 text-xs"
+                  >
+                    전액 사용
+                  </Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-2">사용 가능: {availablePoints.toLocaleString()}P (1P = 1원)</p>
+              </div>
+            )}
+          </div>
+
           {/* 결제 수단 */}
           <div>
             <h2 className="font-bold text-sm mb-3">결제 수단</h2>
@@ -227,20 +365,63 @@ export default function Cart() {
           </div>
 
           {/* 주문 요약 */}
-          <div className="p-4 rounded-xl bg-muted/50 border">
-            <h2 className="font-bold text-sm mb-3">주문 요약</h2>
+          <div className="p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white border shadow-sm">
+            <h2 className="font-bold text-sm mb-3 flex items-center gap-2">
+              <Gift className="w-4 h-4 text-amber-600" />
+              주문 요약
+            </h2>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">상품 금액</span>
-                <span>{formatPrice(totalAmount)}</span>
+                <span>{formatPrice(subtotal)}</span>
               </div>
+              {memberDiscount > 0 && (
+                <div className="flex justify-between text-emerald-600">
+                  <span className="flex items-center gap-1">
+                    <TierIcon className="w-3 h-3" />
+                    {tierNames[currentTier]} 할인 ({tierDiscounts[currentTier]}%)
+                  </span>
+                  <span>-{formatPrice(memberDiscount)}</span>
+                </div>
+              )}
+              {couponDiscount > 0 && (
+                <div className="flex justify-between text-emerald-600">
+                  <span className="flex items-center gap-1">
+                    <Ticket className="w-3 h-3" />
+                    쿠폰 할인
+                  </span>
+                  <span>-{formatPrice(couponDiscount)}</span>
+                </div>
+              )}
+              {pointDiscount > 0 && (
+                <div className="flex justify-between text-emerald-600">
+                  <span className="flex items-center gap-1">
+                    <Coins className="w-3 h-3" />
+                    포인트 사용
+                  </span>
+                  <span>-{formatPrice(pointDiscount)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-muted-foreground">배송비</span>
                 <span className="text-emerald-600">무료</span>
               </div>
+              {totalDiscount > 0 && (
+                <div className="flex justify-between text-xs text-emerald-600 bg-emerald-50 rounded-lg px-2 py-1.5">
+                  <span className="font-medium">총 할인 금액</span>
+                  <span className="font-bold">-{formatPrice(totalDiscount)}</span>
+                </div>
+              )}
               <div className="border-t pt-2 flex justify-between font-bold">
                 <span>총 결제 금액</span>
                 <span className="text-emerald-800 text-lg">{formatPrice(totalAmount)}</span>
+              </div>
+              <div className="flex justify-between text-xs text-amber-600 bg-amber-50 rounded-lg px-2 py-1.5">
+                <span className="flex items-center gap-1">
+                  <Coins className="w-3 h-3" />
+                  적립 예정 포인트
+                </span>
+                <span className="font-bold">+{earnPoints.toLocaleString()}P</span>
               </div>
             </div>
           </div>
@@ -249,10 +430,17 @@ export default function Cart() {
 
       {/* Bottom Bar */}
       {cartItems && cartItems.length > 0 && (
-        <div className="fixed bottom-16 left-0 right-0 bg-white border-t px-4 py-3 max-w-lg mx-auto">
+        <div className="fixed bottom-16 left-0 right-0 bg-white/95 backdrop-blur-md border-t px-4 py-3 max-w-lg mx-auto">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">총 {cartItems.length}개 상품</span>
-            <span className="text-lg font-bold text-emerald-800">{formatPrice(totalAmount)}</span>
+            <div>
+              <span className="text-xs text-muted-foreground">총 {cartItems.length}개 상품</span>
+              {totalDiscount > 0 && step === "checkout" && (
+                <span className="text-[10px] text-emerald-600 ml-2 font-semibold">(-{formatPrice(totalDiscount)} 할인)</span>
+              )}
+            </div>
+            <span className="text-lg font-bold text-emerald-800">
+              {step === "checkout" ? formatPrice(totalAmount) : formatPrice(subtotal)}
+            </span>
           </div>
           {step === "cart" ? (
             <Button
@@ -263,7 +451,7 @@ export default function Cart() {
             </Button>
           ) : (
             <Button
-              className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold h-12"
+              className="w-full bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-800 hover:to-emerald-900 text-white font-semibold h-12 shadow-lg"
               onClick={handlePlaceOrder}
               disabled={placeOrder.isPending}
             >

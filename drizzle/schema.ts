@@ -427,3 +427,162 @@ export const userStories = mysqlTable("user_stories", {
 
 export type UserStory = typeof userStories.$inferSelect;
 export type InsertUserStory = typeof userStories.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════
+// 멤버십 시스템 (앱 전체 기반)
+// ═══════════════════════════════════════════════════════════════════════
+
+// ─── Membership Tiers (멤버십 등급 설정) ────────────────────────────────
+export const membershipTiers = mysqlTable("membership_tiers", {
+  id: int("id").autoincrement().primaryKey(),
+  tier: mysqlEnum("tier", ["silver", "gold", "diamond", "platinum"]).notNull(),
+  name: varchar("name", { length: 50 }).notNull(), // 실버, 골드, 다이아몬드, 플래티넘
+  monthlyFee: int("monthlyFee").default(0), // 월 구독료 (0=무료)
+  shopDiscountRate: int("shopDiscountRate").default(0), // 쇼핑 할인율 %
+  paybackRate: int("paybackRate").default(50), // 미션 페이백 비율 %
+  pointMultiplier: float("pointMultiplier").default(1.0), // 포인트 적립 배율
+  consultPriority: int("consultPriority").default(0), // 상담 우선 순위 (높을수록 우선)
+  premiumContent: int("premiumContent").default(0), // 프리미엄 콘텐츠 접근 (0=불가, 1=가능)
+  exclusiveEvents: int("exclusiveEvents").default(0), // 전용 이벤트 접근
+  monthlyFreeCoupons: int("monthlyFreeCoupons").default(0), // 월 자동 발급 쿠폰 수
+  description: text("description"),
+  benefits: json("benefits"), // 상세 혜택 목록 JSON
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MembershipTier = typeof membershipTiers.$inferSelect;
+export type InsertMembershipTier = typeof membershipTiers.$inferInsert;
+
+// ─── User Memberships (회원 멤버십 현황) ────────────────────────────────
+export const userMemberships = mysqlTable("user_memberships", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  tier: mysqlEnum("memberTier", ["silver", "gold", "diamond", "platinum"]).default("silver").notNull(),
+  startDate: timestamp("startDate").defaultNow().notNull(),
+  endDate: timestamp("endDate"),
+  isActive: int("isActive").default(1),
+  autoRenew: int("autoRenew").default(1),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 200 }),
+  totalPointsEarned: int("totalPointsEarned").default(0),
+  totalPointsUsed: int("totalPointsUsed").default(0),
+  currentPoints: int("currentPoints").default(0),
+  totalMileage: int("totalMileage").default(0), // 누적 마일리지
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserMembership = typeof userMemberships.$inferSelect;
+export type InsertUserMembership = typeof userMemberships.$inferInsert;
+
+// ─── Points Transactions (포인트 적립/사용 내역) ────────────────────────
+export const pointsTransactions = mysqlTable("points_transactions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  type: mysqlEnum("pointType", ["earn", "use", "expire", "refund"]).notNull(),
+  amount: int("amount").notNull(), // 양수=적립, 음수=사용
+  balance: int("balance").notNull(), // 거래 후 잔액
+  source: mysqlEnum("pointSource", [
+    "purchase", "mission", "event", "referral", "review",
+    "attendance", "signup_bonus", "tier_bonus", "admin",
+    "shop_payment", "coupon_exchange", "expiry"
+  ]).notNull(),
+  description: varchar("description", { length: 300 }),
+  referenceId: varchar("referenceId", { length: 100 }), // 관련 주문/미션 ID
+  expiresAt: timestamp("expiresAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PointsTransaction = typeof pointsTransactions.$inferSelect;
+export type InsertPointsTransaction = typeof pointsTransactions.$inferInsert;
+
+// ─── Coupons (쿠폰 정의) ───────────────────────────────────────────────
+export const coupons = mysqlTable("coupons", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 50 }).notNull(),
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description"),
+  discountType: mysqlEnum("discountType", ["percentage", "fixed"]).notNull(), // 정률/정액
+  discountValue: int("discountValue").notNull(), // 할인율(%) 또는 할인금액(원)
+  minOrderAmount: int("minOrderAmount").default(0), // 최소 주문 금액
+  maxDiscountAmount: int("maxDiscountAmount"), // 최대 할인 금액 (정률일 때)
+  applicableCategory: varchar("applicableCategory", { length: 50 }), // 적용 카테고리 (null=전체)
+  requiredTier: mysqlEnum("couponTier", ["silver", "gold", "diamond", "platinum"]), // 필요 등급 (null=전체)
+  totalQuantity: int("totalQuantity"), // 총 발급 수량 (null=무제한)
+  usedQuantity: int("usedQuantity").default(0),
+  startDate: timestamp("couponStartDate").defaultNow().notNull(),
+  endDate: timestamp("couponEndDate"),
+  isActive: int("couponIsActive").default(1),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Coupon = typeof coupons.$inferSelect;
+export type InsertCoupon = typeof coupons.$inferInsert;
+
+// ─── User Coupons (회원 보유 쿠폰) ─────────────────────────────────────
+export const userCoupons = mysqlTable("user_coupons", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  couponId: int("couponId").notNull(),
+  status: mysqlEnum("couponStatus", ["available", "used", "expired"]).default("available").notNull(),
+  usedAt: timestamp("usedAt"),
+  usedOrderId: int("usedOrderId"),
+  acquiredAt: timestamp("acquiredAt").defaultNow().notNull(),
+  expiresAt: timestamp("couponExpiresAt"),
+});
+
+export type UserCoupon = typeof userCoupons.$inferSelect;
+export type InsertUserCoupon = typeof userCoupons.$inferInsert;
+
+// ─── Events (이벤트) ───────────────────────────────────────────────────
+export const events = mysqlTable("events", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 300 }).notNull(),
+  description: text("description"),
+  content: text("eventContent"), // 상세 내용 (마크다운)
+  imageUrl: text("eventImageUrl"),
+  eventType: mysqlEnum("eventType", ["promotion", "seasonal", "tier_exclusive", "referral", "challenge", "special"]).notNull(),
+  requiredTier: mysqlEnum("eventTier", ["silver", "gold", "diamond", "platinum"]), // 필요 등급 (null=전체)
+  rewardType: mysqlEnum("rewardType", ["points", "coupon", "product", "mileage", "badge"]),
+  rewardValue: int("rewardValue"), // 보상 값
+  startDate: timestamp("eventStartDate").notNull(),
+  endDate: timestamp("eventEndDate"),
+  maxParticipants: int("maxParticipants"), // null=무제한
+  currentParticipants: int("currentParticipants").default(0),
+  isActive: int("eventIsActive").default(1),
+  isFeatured: int("isFeatured").default(0), // 본사 추천
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = typeof events.$inferInsert;
+
+// ─── Event Participations (이벤트 참여) ─────────────────────────────────
+export const eventParticipations = mysqlTable("event_participations", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  userId: int("userId").notNull(),
+  status: mysqlEnum("participationStatus", ["joined", "completed", "rewarded"]).default("joined").notNull(),
+  rewardGiven: int("rewardGiven").default(0),
+  completedAt: timestamp("participationCompletedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EventParticipation = typeof eventParticipations.$inferSelect;
+export type InsertEventParticipation = typeof eventParticipations.$inferInsert;
+
+// ─── Mileage Transactions (마일리지 내역) ───────────────────────────────
+export const mileageTransactions = mysqlTable("mileage_transactions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  type: mysqlEnum("mileageType", ["earn", "use"]).notNull(),
+  amount: int("mileageAmount").notNull(),
+  balance: int("mileageBalance").notNull(),
+  source: varchar("mileageSource", { length: 100 }).notNull(), // purchase, event, tier_bonus 등
+  description: varchar("mileageDescription", { length: 300 }),
+  referenceId: varchar("mileageReferenceId", { length: 100 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MileageTransaction = typeof mileageTransactions.$inferSelect;
+export type InsertMileageTransaction = typeof mileageTransactions.$inferInsert;
