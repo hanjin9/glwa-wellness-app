@@ -16,6 +16,7 @@ import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
+import { MediaInputToolbar, type MediaFile } from "@/components/MediaInputToolbar";
 
 const CATEGORY_MAP: Record<string, string> = {
   all: "전체",
@@ -39,6 +40,12 @@ export default function Community() {
   const [newPostCategory, setNewPostCategory] = useState<string>("free");
   const [newStoryContent, setNewStoryContent] = useState("");
   const [infoMessage, setInfoMessage] = useState("");
+  const [postMedia, setPostMedia] = useState<MediaFile[]>([]);
+  const [storyMedia, setStoryMedia] = useState<MediaFile[]>([]);
+  const [chatMedia, setChatMedia] = useState<MediaFile[]>([]);
+  const [galleryMedia, setGalleryMedia] = useState<MediaFile[]>([]);
+  const [galleryCaption, setGalleryCaption] = useState("");
+  const [showGalleryUpload, setShowGalleryUpload] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -79,6 +86,13 @@ export default function Community() {
 
   const toggleLike = trpc.community.toggleLike.useMutation({
     onSuccess: () => utils.community.getPosts.invalidate(),
+  });
+
+  const createGallery = trpc.community.addGalleryItem.useMutation({
+    onSuccess: () => {
+      utils.community.getGallery.invalidate();
+      toast.success("갤러리에 업로드되었습니다");
+    },
   });
 
   const requireAuth = () => {
@@ -216,10 +230,19 @@ export default function Community() {
                 </Select>
                 <Input placeholder="제목을 입력하세요" value={newPostTitle} onChange={e => setNewPostTitle(e.target.value)} />
                 <Textarea placeholder="내용을 입력하세요" value={newPostContent} onChange={e => setNewPostContent(e.target.value)} rows={6} />
+                <MediaInputToolbar
+                  onTextFromVoice={(text) => setNewPostContent(prev => prev ? prev + " " + text : text)}
+                  attachedMedia={postMedia}
+                  onMediaAttached={setPostMedia}
+                  onRemoveMedia={(idx) => setPostMedia(prev => prev.filter((_, i) => i !== idx))}
+                />
                 <Button
                   className="w-full bg-emerald-700 hover:bg-emerald-800"
                   disabled={!newPostTitle.trim() || !newPostContent.trim() || createPost.isPending}
-                  onClick={() => createPost.mutate({ category: newPostCategory as any, title: newPostTitle, content: newPostContent })}
+                  onClick={() => {
+                    const mediaText = postMedia.length > 0 ? "\n\n" + postMedia.map(m => m.type === "image" ? `![${m.name}](${m.url})` : `[🎥 ${m.name}](${m.url})`).join("\n") : "";
+                    createPost.mutate({ category: newPostCategory as any, title: newPostTitle, content: newPostContent + mediaText });
+                  }}
                 >
                   {createPost.isPending ? "작성 중..." : "게시하기"}
                 </Button>
@@ -262,6 +285,14 @@ export default function Community() {
 
             {/* Message Input */}
             <div className="border-t bg-white px-4 py-3">
+              <MediaInputToolbar
+                compact
+                className="mb-2"
+                onTextFromVoice={(text) => setInfoMessage(prev => prev ? prev + " " + text : text)}
+                attachedMedia={chatMedia}
+                onMediaAttached={setChatMedia}
+                onRemoveMedia={(idx) => setChatMedia(prev => prev.filter((_, i) => i !== idx))}
+              />
               <div className="flex gap-2">
                 <Input
                   placeholder="건강 정보를 공유해보세요..."
@@ -271,7 +302,9 @@ export default function Community() {
                     if (e.key === "Enter" && !e.shiftKey && infoMessage.trim()) {
                       e.preventDefault();
                       if (!requireAuth()) return;
-                      sendInfoMsg.mutate({ content: infoMessage });
+                      const mediaText = chatMedia.length > 0 ? " " + chatMedia.map(m => m.url).join(" ") : "";
+                      sendInfoMsg.mutate({ content: infoMessage + mediaText });
+                      setChatMedia([]);
                     }
                   }}
                   className="flex-1"
@@ -282,7 +315,9 @@ export default function Community() {
                   disabled={!infoMessage.trim() || sendInfoMsg.isPending}
                   onClick={() => {
                     if (!requireAuth()) return;
-                    sendInfoMsg.mutate({ content: infoMessage });
+                    const mediaText = chatMedia.length > 0 ? " " + chatMedia.map(m => m.url).join(" ") : "";
+                    sendInfoMsg.mutate({ content: infoMessage + mediaText });
+                    setChatMedia([]);
                   }}
                 >
                   <Send className="w-4 h-4" />
@@ -328,12 +363,45 @@ export default function Community() {
             )}
           </div>
 
-          <Button
-            className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-emerald-700 hover:bg-emerald-800 shadow-lg z-50"
-            onClick={() => toast.info("사진 업로드 기능 준비 중", { description: "곧 오픈됩니다!" })}
-          >
-            <Camera className="w-6 h-6" />
-          </Button>
+          {/* Gallery Upload Dialog */}
+          <Dialog open={showGalleryUpload} onOpenChange={setShowGalleryUpload}>
+            <DialogTrigger asChild>
+              <Button
+                className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-emerald-700 hover:bg-emerald-800 shadow-lg z-50"
+                onClick={() => { if (!requireAuth()) return; setShowGalleryUpload(true); }}
+              >
+                <Camera className="w-6 h-6" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md mx-auto">
+              <DialogHeader>
+                <DialogTitle>나의 작은다락방에 사진/영상 올리기</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Input placeholder="사진 설명을 입력하세요..." value={galleryCaption} onChange={e => setGalleryCaption(e.target.value)} />
+                <MediaInputToolbar
+                  onTextFromVoice={(text) => setGalleryCaption(prev => prev ? prev + " " + text : text)}
+                  attachedMedia={galleryMedia}
+                  onMediaAttached={setGalleryMedia}
+                  onRemoveMedia={(idx) => setGalleryMedia(prev => prev.filter((_, i) => i !== idx))}
+                />
+                <Button
+                  className="w-full bg-emerald-700 hover:bg-emerald-800"
+                  disabled={galleryMedia.length === 0}
+                  onClick={() => {
+                    galleryMedia.forEach(m => {
+                      createGallery.mutate({ mediaUrl: m.url, caption: galleryCaption, mediaType: m.type === "video" ? "video" : "photo" });
+                    });
+                    setGalleryMedia([]);
+                    setGalleryCaption("");
+                    setShowGalleryUpload(false);
+                  }}
+                >
+                  업로드
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         {/* ─── 명예의전당 스토리 ─── */}
@@ -398,10 +466,20 @@ export default function Community() {
                   onChange={e => setNewStoryContent(e.target.value)}
                   rows={4}
                 />
+                <MediaInputToolbar
+                  onTextFromVoice={(text) => setNewStoryContent(prev => prev ? prev + " " + text : text)}
+                  attachedMedia={storyMedia}
+                  onMediaAttached={setStoryMedia}
+                  onRemoveMedia={(idx) => setStoryMedia(prev => prev.filter((_, i) => i !== idx))}
+                />
                 <Button
                   className="w-full bg-emerald-700 hover:bg-emerald-800"
                   disabled={!newStoryContent.trim() || createStory.isPending}
-                  onClick={() => createStory.mutate({ content: newStoryContent })}
+                  onClick={() => {
+                    const imageUrl = storyMedia.find(m => m.type === "image")?.url;
+                    createStory.mutate({ content: newStoryContent, imageUrl });
+                    setStoryMedia([]);
+                  }}
                 >
                   {createStory.isPending ? "등록 중..." : "명예의전당 스토리 등록"}
                 </Button>

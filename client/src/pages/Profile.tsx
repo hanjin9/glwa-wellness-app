@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useState, useEffect, useMemo } from "react";
+import { MediaInputToolbar, type MediaFile } from "@/components/MediaInputToolbar";
 import {
   User, Heart, Shield, Award, ChevronRight, LogOut, Crown, Diamond, Star, Gem,
   Wallet, QrCode, CreditCard, Coins, ArrowRight, Copy, Eye, EyeOff, Sparkles,
@@ -460,6 +461,14 @@ export default function Profile() {
               <div>
                 <Label className="text-xs text-muted-foreground">병력 (쉼표로 구분)</Label>
                 <Textarea value={form.medicalHistory} onChange={(e) => setForm({ ...form, medicalHistory: e.target.value })} placeholder="고혈압, 당뇨 등" className="mt-1 text-sm min-h-[60px] rounded-xl" />
+                <MediaInputToolbar
+                  compact
+                  className="mt-1"
+                  onTextFromVoice={(text) => setForm(prev => ({ ...prev, medicalHistory: prev.medicalHistory ? prev.medicalHistory + ", " + text : text }))}
+                  attachedMedia={[]}
+                  onMediaAttached={() => {}}
+                  onRemoveMedia={() => {}}
+                />
               </div>
               <div>
                 <Label className="text-xs text-muted-foreground">알레르기 (쉼표로 구분)</Label>

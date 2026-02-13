@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
 import { Plus, History, Heart, Weight, Moon, Flame, Brain, Utensils, Cookie } from "lucide-react";
+import { MediaInputToolbar, type MediaFile } from "@/components/MediaInputToolbar";
 
 // 식사 시간대 (6시~22시)
 const mealHours = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
@@ -52,6 +53,7 @@ export default function HealthRecord() {
   const [mealTimes, setMealTimes] = useState<number[]>([]);
   // 간식 시간대 다중 선택
   const [snackTimes, setSnackTimes] = useState<number[]>([]);
+  const [memoMedia, setMemoMedia] = useState<MediaFile[]>([]);
 
   const toggleMealTime = (hour: number) => {
     setMealTimes((prev) =>
@@ -73,7 +75,10 @@ export default function HealthRecord() {
     const snackInfo = snackTimes.length > 0
       ? `간식: ${snackTimes.sort((a, b) => a - b).map(h => `${h}시`).join(", ")}`
       : "";
-    const fullNotes = [form.notes, mealInfo, snackInfo].filter(Boolean).join(" | ");
+    const mediaInfo = memoMedia.length > 0
+      ? `[첨부: ${memoMedia.map(m => m.url).join(", ")}]`
+      : "";
+    const fullNotes = [form.notes, mealInfo, snackInfo, mediaInfo].filter(Boolean).join(" | ");
 
     addRecord.mutate({
       recordDate: date,
@@ -422,6 +427,14 @@ export default function HealthRecord() {
               <div>
                 <Label className="text-[10px]">메모</Label>
                 <Textarea value={form.notes} onChange={(e) => setForm({...form, notes: e.target.value})} placeholder="오늘의 건강 상태 메모..." className="mt-1 text-sm min-h-[60px]" />
+                <MediaInputToolbar
+                  compact
+                  className="mt-2"
+                  onTextFromVoice={(text) => setForm({...form, notes: form.notes ? form.notes + " " + text : text})}
+                  attachedMedia={memoMedia}
+                  onMediaAttached={setMemoMedia}
+                  onRemoveMedia={(idx) => setMemoMedia(prev => prev.filter((_, i) => i !== idx))}
+                />
               </div>
             </CardContent>
           </Card>

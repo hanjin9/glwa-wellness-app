@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
+import { MediaInputToolbar, type MediaFile } from "@/components/MediaInputToolbar";
 
 const CATEGORY_MAP: Record<string, string> = {
   free: "자유게시판", health_tip: "건강 팁", exercise: "운동",
@@ -138,6 +139,14 @@ export default function PostDetail() {
 
       {/* Comment Input */}
       <div className="fixed bottom-16 left-0 right-0 bg-white border-t px-4 py-3 max-w-lg mx-auto">
+        <MediaInputToolbar
+          compact
+          className="mb-2"
+          onTextFromVoice={(text) => setComment(prev => prev ? prev + " " + text : text)}
+          attachedMedia={[]}
+          onMediaAttached={() => {}}
+          onRemoveMedia={() => {}}
+        />
         <div className="flex gap-2">
           <Input
             placeholder="댓글을 입력하세요..."
