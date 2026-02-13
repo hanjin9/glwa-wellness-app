@@ -191,7 +191,7 @@ export const appRouter = router({
   programs: router({
     getProgress: protectedProcedure.query(async ({ ctx }) => { return db.getUserProgramProgress(ctx.user.id); }),
     startLesson: protectedProcedure
-      .input(z.object({ stage: z.enum(["breathing", "rest", "posture", "stretching", "mental"]), lessonId: z.number() }))
+      .input(z.object({ stage: z.enum(["breathing", "rest", "posture", "stretching", "mental", "breathing_awareness", "rest_peace", "good_sleep", "stretching_yoga", "meditation", "posture_walking", "exercise_social", "food_therapy", "hormone_bone", "return_breath"]), lessonId: z.number() }))
       .mutation(async ({ ctx, input }) => { await db.upsertProgramProgress(ctx.user.id, input.stage, input.lessonId); return { success: true }; }),
   }),
 

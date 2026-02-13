@@ -34,6 +34,8 @@ export const memberProfiles = mysqlTable("member_profiles", {
   beltRank: varchar("beltRank", { length: 50 }).default("white"),
   beltStartDate: timestamp("beltStartDate"),
   totalDays: int("totalDays").default(0),
+  totalMissions: int("totalMissions").default(0),
+  totalParticipation: int("totalParticipation").default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -162,7 +164,7 @@ export type InsertReminder = typeof reminders.$inferInsert;
 export const programProgress = mysqlTable("program_progress", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
-  stage: mysqlEnum("stage", ["breathing", "rest", "posture", "stretching", "mental"]).notNull(),
+  stage: mysqlEnum("stage", ["breathing", "rest", "posture", "stretching", "mental", "breathing_awareness", "rest_peace", "good_sleep", "stretching_yoga", "meditation", "posture_walking", "exercise_social", "food_therapy", "hormone_bone", "return_breath"]).notNull(),
   lessonId: int("lessonId").default(0),
   progress: int("progress").default(0),
   isCompleted: int("isCompleted").default(0),

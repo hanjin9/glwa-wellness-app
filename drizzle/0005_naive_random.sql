@@ -1,0 +1,1 @@
+ALTER TABLE `program_progress` MODIFY COLUMN `stage` enum('breathing','rest','posture','stretching','mental','breathing_awareness','rest_peace','good_sleep','stretching_yoga','meditation','posture_walking','exercise_social','food_therapy','hormone_bone','return_breath') NOT NULL;

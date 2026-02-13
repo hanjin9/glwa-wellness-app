@@ -36,6 +36,20 @@
       "when": 1771003328195,
       "tag": "0004_exotic_maginty",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1771004626652,
+      "tag": "0005_naive_random",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1771004735345,
+      "tag": "0006_magenta_blockbuster",
+      "breakpoints": true
     }
   ]
 }

@@ -38,8 +38,8 @@ const features = [
   },
   {
     icon: Leaf,
-    title: "5단계 건강 프로그램",
-    desc: "숨 → 쉼 → 자세 → 스트레칭 → 정신건강 단계별 커리큘럼",
+    title: "10단계 건강 수련 프로그램",
+    desc: "숨과 알아차림에서 시작하여 다시 숨으로 돌아오는 10단계 수련",
   },
   {
     icon: Award,
@@ -139,7 +139,7 @@ export default function Home() {
           >
             {[
               { value: "365일", label: "건강 관리" },
-              { value: "5단계", label: "프로그램" },
+              { value: "10단계", label: "프로그램" },
               { value: "1:1", label: "전담 매니저" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
@@ -185,16 +185,21 @@ export default function Home() {
         <div className="flex items-center gap-2 mb-6">
           <Activity className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-            5단계 건강 프로그램
+            10단계 건강 수련 프로그램
           </h2>
         </div>
         <div className="space-y-3">
           {[
-            { step: 1, name: "숨 (呼吸)", desc: "호흡 인지 → 호흡 훈련", icon: "🌬️" },
-            { step: 2, name: "쉼 (休息)", desc: "수면과 휴식의 질 향상", icon: "🌙" },
-            { step: 3, name: "자세 (姿勢)", desc: "앉기, 서기, 걷기 교정", icon: "🧘" },
-            { step: 4, name: "스트레칭/요가", desc: "유연성과 균형 강화", icon: "🌿" },
-            { step: 5, name: "정신건강 (精神)", desc: "균형, 절제, 감사, 선(善)", icon: "☯️" },
+            { step: 1, name: "숨과 알아차림", desc: "호흡을 통한 몸과 마음의 인지", icon: "🌬️" },
+            { step: 2, name: "숨과 진정한 쉰/정", desc: "호흡을 통한 깊은 이완과 고요", icon: "🕊️" },
+            { step: 3, name: "좋은 잠", desc: "양질의 수면으로 회복력 극대화", icon: "🌙" },
+            { step: 4, name: "스트레칭/요가", desc: "유연성과 균형 강화", icon: "🧘" },
+            { step: 5, name: "명상 (감사, 균형, 절제)", desc: "마음 수양을 통한 내면의 성장", icon: "☯️" },
+            { step: 6, name: "좋은 자세/건강 걸음", desc: "바른 자세와 건강한 보행", icon: "🚶" },
+            { step: 7, name: "운동/취미/교류", desc: "활동적인 삶과 사회적 교류", icon: "🏃" },
+            { step: 8, name: "식치 (염증 관리)", desc: "음식으로 다스리는 건강", icon: "🍃" },
+            { step: 9, name: "호르몬/골·관절 케어", desc: "호르몬 균형과 근골격 건강", icon: "💪" },
+            { step: 10, name: "다시 돌아온 깊고 고운 숨", desc: "모든 수련의 완성, 원점으로의 회귀", icon: "🌸" },
           ].map((s) => (
             <div key={s.step} className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border/50">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg shrink-0">
