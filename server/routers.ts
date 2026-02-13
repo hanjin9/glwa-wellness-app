@@ -108,7 +108,7 @@ export const appRouter = router({
     }),
     generate: protectedProcedure.mutation(async ({ ctx }) => {
       const profile = await db.getProfile(ctx.user.id);
-      const grade = profile?.memberGrade || "free";
+      const grade = profile?.memberGrade || "silver";
       try {
         const result = await invokeLLM({
           messages: [
@@ -145,8 +145,11 @@ export const appRouter = router({
       .input(z.object({ missionId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         const profile = await db.getProfile(ctx.user.id);
-        const gradePayback: Record<string, number> = { free: 50, standard: 60, vip: 70, platinum: 100 };
-        const maxPayback = gradePayback[profile?.memberGrade || "free"] || 50;
+        const gradePayback: Record<string, number> = {
+          silver: 50, gold: 55, blue_sapphire: 60, green_emerald: 65,
+          diamond: 70, blue_diamond: 80, platinum: 90, black_platinum: 100,
+        };
+        const maxPayback = gradePayback[profile?.memberGrade || "silver"] || 50;
         const completionRate = Math.floor(Math.random() * 30) + 70;
         const paybackRate = Math.round((completionRate / 100) * maxPayback);
         await db.updateMission(input.missionId, { status: "completed", completionRate, paybackRate });
@@ -494,11 +497,15 @@ export const appRouter = router({
     }),
     // 멤버십 업그레이드
     upgrade: protectedProcedure
-      .input(z.object({ tier: z.enum(["gold", "diamond", "platinum"]) }))
+      .input(z.object({ tier: z.enum(["gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"]) }))
       .mutation(async ({ ctx, input }) => {
         await db.upsertUserMembership(ctx.user.id, { tier: input.tier });
-        // 업그레이드 보너스 포인트
-        const bonusPoints = input.tier === "gold" ? 1000 : input.tier === "diamond" ? 3000 : 10000;
+        // 업그레이드 보너스 포인트 (등급별 차등)
+        const bonusMap: Record<string, number> = {
+          gold: 1000, blue_sapphire: 3000, green_emerald: 5000,
+          diamond: 10000, blue_diamond: 20000, platinum: 50000, black_platinum: 100000,
+        };
+        const bonusPoints = bonusMap[input.tier] || 1000;
         const membership = await db.getUserMembership(ctx.user.id);
         const balance = (membership?.currentPoints || 0) + bonusPoints;
         await db.addPointsTransaction({
@@ -597,7 +604,7 @@ export const appRouter = router({
         if (!coupon) throw new Error("유효하지 않은 쿠폰 코드입니다.");
         if (coupon.requiredTier) {
           const membership = await db.getUserMembership(ctx.user.id);
-          const tierOrder = ["silver", "gold", "diamond", "platinum"];
+          const tierOrder = ["silver", "gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"];
           const userTierIdx = tierOrder.indexOf(membership?.tier || "silver");
           const requiredIdx = tierOrder.indexOf(coupon.requiredTier);
           if (userTierIdx < requiredIdx) throw new Error(`${coupon.requiredTier} 등급 이상만 사용 가능합니다.`);
@@ -616,7 +623,7 @@ export const appRouter = router({
         discountValue: z.number(),
         minOrderAmount: z.number().optional(),
         maxDiscountAmount: z.number().optional(),
-        requiredTier: z.enum(["silver", "gold", "diamond", "platinum"]).optional(),
+        requiredTier: z.enum(["silver", "gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"]).optional(),
         totalQuantity: z.number().optional(),
       }))
       .mutation(async ({ input }) => {
@@ -645,7 +652,7 @@ export const appRouter = router({
         if (!event) throw new Error("이벤트를 찾을 수 없습니다.");
         if (event.requiredTier) {
           const membership = await db.getUserMembership(ctx.user.id);
-          const tierOrder = ["silver", "gold", "diamond", "platinum"];
+          const tierOrder = ["silver", "gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"];
           const userTierIdx = tierOrder.indexOf(membership?.tier || "silver");
           const requiredIdx = tierOrder.indexOf(event.requiredTier);
           if (userTierIdx < requiredIdx) throw new Error(`${event.requiredTier} 등급 이상만 참여 가능합니다.`);
@@ -663,7 +670,7 @@ export const appRouter = router({
         description: z.string().optional(),
         content: z.string().optional(),
         eventType: z.enum(["promotion", "seasonal", "tier_exclusive", "referral", "challenge", "special"]),
-        requiredTier: z.enum(["silver", "gold", "diamond", "platinum"]).optional(),
+        requiredTier: z.enum(["silver", "gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"]).optional(),
         rewardType: z.enum(["points", "coupon", "product", "mileage", "badge"]).optional(),
         rewardValue: z.number().optional(),
         startDate: z.date(),

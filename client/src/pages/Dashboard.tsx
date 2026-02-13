@@ -41,9 +41,20 @@ export default function Dashboard() {
   const { data: pointsData } = trpc.points.getBalance.useQuery(undefined, { retry: false });
   const { data: couponsData } = trpc.coupon.getMyCoupons.useQuery(undefined, { retry: false });
 
-  const tierIcons: Record<string, any> = { silver: Shield, gold: Star, diamond: Diamond, platinum: Crown };
-  const tierNames: Record<string, string> = { silver: "실버", gold: "골드", diamond: "다이아몬드", platinum: "플래티넘" };
-  const tierColors: Record<string, string> = { silver: "from-gray-400 to-gray-500", gold: "from-amber-400 to-amber-600", diamond: "from-sky-400 to-blue-600", platinum: "from-purple-500 to-indigo-700" };
+  const tierIcons: Record<string, any> = {
+    silver: Shield, gold: Star, blue_sapphire: Diamond, green_emerald: Diamond,
+    diamond: Diamond, blue_diamond: Diamond, platinum: Crown, black_platinum: Crown,
+  };
+  const tierNames: Record<string, string> = {
+    silver: "실버", gold: "골드", blue_sapphire: "블루사파이어", green_emerald: "그린에메랄드",
+    diamond: "다이아몬드", blue_diamond: "블루다이아몬드", platinum: "플래티넘", black_platinum: "블랙플래티넘",
+  };
+  const tierColors: Record<string, string> = {
+    silver: "from-gray-400 to-gray-500", gold: "from-amber-400 to-amber-600",
+    blue_sapphire: "from-blue-400 to-indigo-600", green_emerald: "from-emerald-400 to-teal-600",
+    diamond: "from-sky-400 to-blue-600", blue_diamond: "from-violet-500 to-purple-700",
+    platinum: "from-slate-500 to-slate-800", black_platinum: "from-gray-800 to-black",
+  };
   const currentMemberTier = membershipData?.membership?.tier || "silver";
   const MemberTierIcon = tierIcons[currentMemberTier] || Shield;
 

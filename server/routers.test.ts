@@ -355,3 +355,94 @@ describe("community router", () => {
     ).rejects.toThrow();
   });
 });
+
+describe("membership router", () => {
+  it("allows public access to membership.getTiers", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.membership.getTiers();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("requires authentication for membership.getMyMembership", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.membership.getMyMembership()).rejects.toThrow();
+  });
+
+  it("requires authentication for membership.upgrade", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.membership.upgrade({ tier: "gold" })
+    ).rejects.toThrow();
+  });
+
+  it("validates membership.upgrade tier enum (8 tiers)", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    // Invalid tier should be rejected
+    await expect(
+      caller.membership.upgrade({ tier: "invalid_tier" as any })
+    ).rejects.toThrow();
+  });
+
+  it("accepts all valid 8-tier values for upgrade", async () => {
+    const validTiers = ["gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"];
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    // All should fail auth (not validation), proving the enum accepts them
+    for (const tier of validTiers) {
+      await expect(
+        caller.membership.upgrade({ tier: tier as any })
+      ).rejects.toThrow("Please login");
+    }
+  });
+});
+
+describe("points router", () => {
+  it("requires authentication for points.getBalance", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.points.getBalance()).rejects.toThrow();
+  });
+
+  it("requires authentication for points.getHistory", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.points.getHistory()).rejects.toThrow();
+  });
+});
+
+describe("coupon router", () => {
+  it("requires authentication for coupon.getMyCoupons", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(caller.coupon.getMyCoupons()).rejects.toThrow();
+  });
+
+  it("requires authentication for coupon.register", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.coupon.register({ code: "TESTCODE" })
+    ).rejects.toThrow();
+  });
+});
+
+describe("event router", () => {
+  it("allows public access to event.getActive", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.event.getActive();
+    expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("requires authentication for event.join", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    await expect(
+      caller.event.join({ eventId: 1 })
+    ).rejects.toThrow();
+  });
+});

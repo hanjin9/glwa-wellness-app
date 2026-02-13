@@ -24,13 +24,27 @@ const PAYMENT_METHODS = [
   { id: "paypal", name: "PayPal", icon: Globe, desc: "PayPal 글로벌 결제", region: "global" },
 ];
 
-const tierDiscounts: Record<string, number> = { silver: 0, gold: 3, diamond: 5, platinum: 10 };
-const tierPointRates: Record<string, number> = { silver: 1, gold: 2, diamond: 3, platinum: 5 };
-const tierNames: Record<string, string> = { silver: "실버", gold: "골드", diamond: "다이아몬드", platinum: "플래티넘" };
-const tierIcons: Record<string, any> = { silver: Shield, gold: Star, diamond: Diamond, platinum: Crown };
+const tierDiscounts: Record<string, number> = {
+  silver: 0, gold: 5, blue_sapphire: 8, green_emerald: 10,
+  diamond: 12, blue_diamond: 15, platinum: 20, black_platinum: 25,
+};
+const tierPointRates: Record<string, number> = {
+  silver: 1, gold: 1.5, blue_sapphire: 2, green_emerald: 2.5,
+  diamond: 3, blue_diamond: 4, platinum: 5, black_platinum: 10,
+};
+const tierNames: Record<string, string> = {
+  silver: "실버", gold: "골드", blue_sapphire: "블루사파이어", green_emerald: "그린에메랄드",
+  diamond: "다이아몬드", blue_diamond: "블루다이아몬드", platinum: "플래티넘", black_platinum: "블랙플래티넘",
+};
+const tierIcons: Record<string, any> = {
+  silver: Shield, gold: Star, blue_sapphire: Diamond, green_emerald: Diamond,
+  diamond: Diamond, blue_diamond: Diamond, platinum: Crown, black_platinum: Crown,
+};
 const tierGradients: Record<string, string> = {
   silver: "from-gray-400 to-gray-500", gold: "from-amber-400 to-amber-600",
-  diamond: "from-sky-400 to-blue-600", platinum: "from-purple-500 to-indigo-700",
+  blue_sapphire: "from-blue-400 to-indigo-600", green_emerald: "from-emerald-400 to-teal-600",
+  diamond: "from-sky-400 to-blue-600", blue_diamond: "from-violet-500 to-purple-700",
+  platinum: "from-slate-500 to-slate-800", black_platinum: "from-gray-800 to-black",
 };
 
 export default function Cart() {

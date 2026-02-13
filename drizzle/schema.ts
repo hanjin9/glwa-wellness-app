@@ -30,7 +30,7 @@ export const memberProfiles = mysqlTable("member_profiles", {
   medications: json("medications"),
   emergencyContact: varchar("emergencyContact", { length: 100 }),
   constitutionType: varchar("constitutionType", { length: 50 }),
-  memberGrade: mysqlEnum("memberGrade", ["free", "standard", "vip", "platinum"]).default("free").notNull(),
+  memberGrade: mysqlEnum("memberGrade", ["silver", "gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"]).default("silver").notNull(),
   beltRank: varchar("beltRank", { length: 50 }).default("white"),
   beltStartDate: timestamp("beltStartDate"),
   totalDays: int("totalDays").default(0),
@@ -435,18 +435,32 @@ export type InsertUserStory = typeof userStories.$inferInsert;
 // ─── Membership Tiers (멤버십 등급 설정) ────────────────────────────────
 export const membershipTiers = mysqlTable("membership_tiers", {
   id: int("id").autoincrement().primaryKey(),
-  tier: mysqlEnum("tier", ["silver", "gold", "diamond", "platinum"]).notNull(),
-  name: varchar("name", { length: 50 }).notNull(), // 실버, 골드, 다이아몬드, 플래티넘
+  tier: mysqlEnum("tier", ["silver", "gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"]).notNull(),
+  name: varchar("name", { length: 50 }).notNull(),
+  nameEn: varchar("nameEn", { length: 50 }), // 영문명
   monthlyFee: int("monthlyFee").default(0), // 월 구독료 (0=무료)
+  annualFee: int("annualFee").default(0), // 연회비 (0=없음)
+  initiationFee: int("initiationFee").default(0), // 가입비/입회비 (0=없음)
   shopDiscountRate: int("shopDiscountRate").default(0), // 쇼핑 할인율 %
   paybackRate: int("paybackRate").default(50), // 미션 페이백 비율 %
   pointMultiplier: float("pointMultiplier").default(1.0), // 포인트 적립 배율
-  consultPriority: int("consultPriority").default(0), // 상담 우선 순위 (높을수록 우선)
-  premiumContent: int("premiumContent").default(0), // 프리미엄 콘텐츠 접근 (0=불가, 1=가능)
+  consultPriority: int("consultPriority").default(0), // 상담 우선 순위
+  dedicatedManager: int("dedicatedManager").default(0), // 전담 매니저 배정 (0=불가, 1=가능)
+  premiumContent: int("premiumContent").default(0), // 프리미엄 콘텐츠 접근
   exclusiveEvents: int("exclusiveEvents").default(0), // 전용 이벤트 접근
+  vipLounge: int("vipLounge").default(0), // VIP 라운지 접근
+  conciergeService: int("conciergeService").default(0), // 컨시어지 서비스
   monthlyFreeCoupons: int("monthlyFreeCoupons").default(0), // 월 자동 발급 쿠폰 수
+  annualGiftPackage: int("annualGiftPackage").default(0), // 연간 선물 패키지
+  priorityBooking: int("priorityBooking").default(0), // 우선 예약
+  globalPartnerAccess: int("globalPartnerAccess").default(0), // 글로벌 파트너 시설 이용
+  membershipCardType: varchar("membershipCardType", { length: 50 }), // 회원 카드 유형
+  maxInvitations: int("maxInvitations").default(0), // 연간 초대 가능 수
   description: text("description"),
   benefits: json("benefits"), // 상세 혜택 목록 JSON
+  tierOrder: int("tierOrder").default(0), // 등급 순서 (정렬용)
+  colorTheme: varchar("colorTheme", { length: 50 }), // 등급별 테마 색상
+  iconEmoji: varchar("iconEmoji", { length: 10 }), // 등급별 아이콘
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
@@ -457,7 +471,7 @@ export type InsertMembershipTier = typeof membershipTiers.$inferInsert;
 export const userMemberships = mysqlTable("user_memberships", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
-  tier: mysqlEnum("memberTier", ["silver", "gold", "diamond", "platinum"]).default("silver").notNull(),
+  tier: mysqlEnum("memberTier", ["silver", "gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"]).default("silver").notNull(),
   startDate: timestamp("startDate").defaultNow().notNull(),
   endDate: timestamp("endDate"),
   isActive: int("isActive").default(1),
@@ -506,7 +520,7 @@ export const coupons = mysqlTable("coupons", {
   minOrderAmount: int("minOrderAmount").default(0), // 최소 주문 금액
   maxDiscountAmount: int("maxDiscountAmount"), // 최대 할인 금액 (정률일 때)
   applicableCategory: varchar("applicableCategory", { length: 50 }), // 적용 카테고리 (null=전체)
-  requiredTier: mysqlEnum("couponTier", ["silver", "gold", "diamond", "platinum"]), // 필요 등급 (null=전체)
+  requiredTier: mysqlEnum("couponTier", ["silver", "gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"]), // 필요 등급 (null=전체)
   totalQuantity: int("totalQuantity"), // 총 발급 수량 (null=무제한)
   usedQuantity: int("usedQuantity").default(0),
   startDate: timestamp("couponStartDate").defaultNow().notNull(),
@@ -541,7 +555,7 @@ export const events = mysqlTable("events", {
   content: text("eventContent"), // 상세 내용 (마크다운)
   imageUrl: text("eventImageUrl"),
   eventType: mysqlEnum("eventType", ["promotion", "seasonal", "tier_exclusive", "referral", "challenge", "special"]).notNull(),
-  requiredTier: mysqlEnum("eventTier", ["silver", "gold", "diamond", "platinum"]), // 필요 등급 (null=전체)
+  requiredTier: mysqlEnum("eventTier", ["silver", "gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"]), // 필요 등급 (null=전체)
   rewardType: mysqlEnum("rewardType", ["points", "coupon", "product", "mileage", "badge"]),
   rewardValue: int("rewardValue"), // 보상 값
   startDate: timestamp("eventStartDate").notNull(),

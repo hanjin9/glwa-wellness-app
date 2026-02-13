@@ -691,7 +691,7 @@ import {
 export async function getMembershipTiers() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(membershipTiers).orderBy(membershipTiers.monthlyFee);
+  return db.select().from(membershipTiers).orderBy(membershipTiers.tierOrder);
 }
 
 export async function getMembershipTierByName(tier: string) {
