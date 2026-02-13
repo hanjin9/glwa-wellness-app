@@ -92,15 +92,25 @@ export default function Dashboard() {
   const MemberTierIcon = tierIcons[currentMemberTier] || Shield;
 
   const beltInfo: Record<string, { label: string; emoji: string }> = {
-    white: { label: "화이트벨트", emoji: "⬜" },
-    yellow: { label: "옐로우벨트", emoji: "🟨" },
-    green: { label: "그린벨트", emoji: "🟩" },
-    blue: { label: "블루벨트", emoji: "🟦" },
-    red: { label: "레드벨트", emoji: "🟥" },
-    black: { label: "블랙벨트", emoji: "⬛" },
-    master2: { label: "사범 2단", emoji: "🥋" },
-    master3: { label: "사범 3단", emoji: "🥋" },
-    grandmaster: { label: "그랜드마스터", emoji: "👑" },
+    white: { label: "White LEVEL", emoji: "⬜" },
+    white1: { label: "Step 1 (White LEVEL)", emoji: "⬜" },
+    yellow: { label: "Yellow LEVEL", emoji: "🟨" },
+    green: { label: "Green LEVEL", emoji: "🟩" },
+    brown: { label: "Brown LEVEL", emoji: "🟫" },
+    purple: { label: "Purple LEVEL", emoji: "🟪" },
+    blue: { label: "Blue LEVEL", emoji: "🟦" },
+    red: { label: "Red LEVEL", emoji: "🟥" },
+    redblack: { label: "Red-Black LEVEL", emoji: "🔴⚫" },
+    black: { label: "Black LEVEL", emoji: "⬛" },
+    dan2: { label: "Black LEVEL 2nd Dan", emoji: "🥋" },
+    dan3: { label: "Black LEVEL 3rd Dan", emoji: "🥋" },
+    dan4: { label: "4th Dan · Grand Master", emoji: "👑" },
+    dan5: { label: "5th Dan · Grand Master", emoji: "👑" },
+    dan6: { label: "6th Dan · Grand Master", emoji: "👑" },
+    dan7: { label: "7th Dan · Grand Master", emoji: "👑" },
+    dan8: { label: "8th Dan · Grand Master", emoji: "👑" },
+    dan9: { label: "9th Dan · Grand Master", emoji: "👑" },
+    dan10: { label: "10th Dan · Big Grand Master", emoji: "🌟" },
   };
 
   const currentBelt = beltInfo[profile?.beltRank || "white"] || beltInfo.white;

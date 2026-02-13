@@ -87,7 +87,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
                 className="text-[10px] px-3 py-1.5 rounded-full bg-primary/5 text-primary/80 font-medium border border-primary/10 hover:bg-primary/10 transition-colors"
               >
                 <Sparkles className="w-3 h-3 inline mr-1" />
-                승급 현황
+                LEVEL Status
               </button>
             </div>
           </div>

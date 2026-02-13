@@ -9,7 +9,7 @@ const beltSystem = [
   {
     id: "white",
     step: 0,
-    name: "흰띠",
+    name: "White LEVEL",
     emoji: "⬜",
     daysReq: 0,
     missionReq: 0,
@@ -25,7 +25,7 @@ const beltSystem = [
   {
     id: "white1",
     step: 1,
-    name: "1단계 (흰띠)",
+    name: "Step 1 (White LEVEL)",
     emoji: "⬜",
     daysReq: 100,
     missionReq: 5,
@@ -41,7 +41,7 @@ const beltSystem = [
   {
     id: "yellow",
     step: 2,
-    name: "2단계 (노랑띠)",
+    name: "Step 2 (Yellow LEVEL)",
     emoji: "🟨",
     daysReq: 190,
     missionReq: 15,
@@ -57,7 +57,7 @@ const beltSystem = [
   {
     id: "green",
     step: 3,
-    name: "3단계 (초록띠)",
+    name: "Step 3 (Green LEVEL)",
     emoji: "🟩",
     daysReq: 370,
     missionReq: 30,
@@ -73,7 +73,7 @@ const beltSystem = [
   {
     id: "brown",
     step: 4,
-    name: "4단계 (갈색띠)",
+    name: "Step 4 (Brown LEVEL)",
     emoji: "🟫",
     daysReq: 550,
     missionReq: 50,
@@ -89,7 +89,7 @@ const beltSystem = [
   {
     id: "purple",
     step: 5,
-    name: "5단계 (보라띠)",
+    name: "Step 5 (Purple LEVEL)",
     emoji: "🟪",
     daysReq: 730,
     missionReq: 75,
@@ -105,7 +105,7 @@ const beltSystem = [
   {
     id: "blue",
     step: 6,
-    name: "6단계 (파랑띠)",
+    name: "Step 6 (Blue LEVEL)",
     emoji: "🟦",
     daysReq: 910,
     missionReq: 100,
@@ -121,7 +121,7 @@ const beltSystem = [
   {
     id: "red",
     step: 7,
-    name: "7단계 (빨강띠)",
+    name: "Step 7 (Red LEVEL)",
     emoji: "🟥",
     daysReq: 1095,
     missionReq: 130,
@@ -137,7 +137,7 @@ const beltSystem = [
   {
     id: "redblack",
     step: 8,
-    name: "8단계 (반빨강·반검정띠)",
+    name: "Step 8 (Red-Black LEVEL)",
     emoji: "🔴⚫",
     daysReq: 1275,
     missionReq: 170,
@@ -153,13 +153,13 @@ const beltSystem = [
   {
     id: "black",
     step: 9,
-    name: "9단계 · 검정띠 (1단)",
+    name: "Step 9 · Black LEVEL (1st Dan)",
     emoji: "⬛",
     daysReq: 1640,
     missionReq: 220,
     participationReq: 440,
     period: "1년",
-    desc: "4년+ 수련 달성 · 검정띠 1단",
+    desc: "4년+ 수련 달성 · Black LEVEL 1st Dan",
     bgColor: "bg-gray-900",
     borderColor: "border-black",
     gradient: "from-gray-800 to-black",
@@ -169,13 +169,13 @@ const beltSystem = [
   {
     id: "dan2",
     step: 10,
-    name: "검정띠 2단",
+    name: "Black LEVEL 2nd Dan",
     emoji: "🥋",
     daysReq: 2005,
     missionReq: 300,
     participationReq: 600,
     period: "1년",
-    desc: "5년+ 수련 · 사범 2단",
+    desc: "5년+ 수련 · 2nd Dan Master",
     bgColor: "bg-gray-950",
     borderColor: "border-black",
     gradient: "from-gray-900 to-black",
@@ -185,13 +185,13 @@ const beltSystem = [
   {
     id: "dan3",
     step: 11,
-    name: "검정띠 3단",
+    name: "Black LEVEL 3rd Dan",
     emoji: "🥋",
     daysReq: 2370,
     missionReq: 400,
     participationReq: 800,
     period: "1년",
-    desc: "6년+ 수련 · 사범 3단",
+    desc: "6년+ 수련 · 3rd Dan Master",
     bgColor: "bg-gray-950",
     borderColor: "border-black",
     gradient: "from-gray-900 via-gray-800 to-black",
@@ -201,13 +201,13 @@ const beltSystem = [
   {
     id: "dan4",
     step: 12,
-    name: "4단 · 그랜드마스터",
+    name: "4th Dan · Grand Master",
     emoji: "👑",
     daysReq: 3100,
     missionReq: 550,
     participationReq: 1100,
     period: "2년",
-    desc: "8년+ 수련 · 그랜드마스터",
+    desc: "8년+ 수련 · Grand Master",
     bgColor: "bg-black",
     borderColor: "border-amber-500",
     gradient: "from-amber-500 via-yellow-600 to-amber-800",
@@ -217,13 +217,13 @@ const beltSystem = [
   {
     id: "dan5",
     step: 13,
-    name: "5단 · 그랜드마스터",
+    name: "5th Dan · Grand Master",
     emoji: "👑",
     daysReq: 3830,
     missionReq: 700,
     participationReq: 1400,
     period: "2년",
-    desc: "10년+ 수련 · 그랜드마스터 5단",
+    desc: "10년+ 수련 · Grand Master 5th Dan",
     bgColor: "bg-black",
     borderColor: "border-amber-500",
     gradient: "from-amber-600 via-yellow-500 to-amber-700",
@@ -233,13 +233,13 @@ const beltSystem = [
   {
     id: "dan6",
     step: 14,
-    name: "6단 · 그랜드마스터",
+    name: "6th Dan · Grand Master",
     emoji: "👑",
     daysReq: 4560,
     missionReq: 850,
     participationReq: 1700,
     period: "2년",
-    desc: "12년+ 수련 · 그랜드마스터 6단",
+    desc: "12년+ 수련 · Grand Master 6th Dan",
     bgColor: "bg-black",
     borderColor: "border-amber-400",
     gradient: "from-amber-500 via-orange-500 to-amber-700",
@@ -249,13 +249,13 @@ const beltSystem = [
   {
     id: "dan7",
     step: 15,
-    name: "7단 · 그랜드마스터",
+    name: "7th Dan · Grand Master",
     emoji: "👑",
     daysReq: 5290,
     missionReq: 1000,
     participationReq: 2000,
     period: "2년",
-    desc: "14년+ 수련 · 그랜드마스터 7단",
+    desc: "14년+ 수련 · Grand Master 7th Dan",
     bgColor: "bg-black",
     borderColor: "border-yellow-400",
     gradient: "from-yellow-500 via-amber-500 to-orange-600",
@@ -265,13 +265,13 @@ const beltSystem = [
   {
     id: "dan8",
     step: 16,
-    name: "8단 · 그랜드마스터",
+    name: "8th Dan · Grand Master",
     emoji: "👑",
     daysReq: 6020,
     missionReq: 1200,
     participationReq: 2400,
     period: "2년",
-    desc: "16년+ 수련 · 그랜드마스터 8단",
+    desc: "16년+ 수련 · Grand Master 8th Dan",
     bgColor: "bg-black",
     borderColor: "border-yellow-300",
     gradient: "from-yellow-400 via-amber-400 to-yellow-600",
@@ -281,13 +281,13 @@ const beltSystem = [
   {
     id: "dan9",
     step: 17,
-    name: "9단 · 그랜드마스터",
+    name: "9th Dan · Grand Master",
     emoji: "👑",
     daysReq: 6750,
     missionReq: 1400,
     participationReq: 2800,
     period: "2년",
-    desc: "18년+ 수련 · 그랜드마스터 9단",
+    desc: "18년+ 수련 · Grand Master 9th Dan",
     bgColor: "bg-black",
     borderColor: "border-yellow-200",
     gradient: "from-yellow-300 via-amber-300 to-yellow-500",
@@ -297,13 +297,13 @@ const beltSystem = [
   {
     id: "dan10",
     step: 18,
-    name: "10단 · 빅 그랜드마스터",
+    name: "10th Dan · Big Grand Master",
     emoji: "🌟",
     daysReq: 8575,
     missionReq: 1800,
     participationReq: 3600,
     period: "5년",
-    desc: "23년+ 수련 · 빅 그랜드마스터",
+    desc: "23년+ 수련 · Big Grand Master",
     bgColor: "bg-black",
     borderColor: "border-amber-300",
     gradient: "from-amber-300 via-yellow-200 to-white",
@@ -330,7 +330,7 @@ export default function Rank() {
   const totalParticipation = profile?.totalParticipation || 0;
   const currentBeltId = profile?.beltRank || "white";
 
-  // 현재 벨트 인덱스 찾기
+  // Find current LEVEL index
   const currentBeltIndex = beltSystem.findIndex((b) => b.id === currentBeltId);
   const currentBelt = beltSystem[Math.max(0, currentBeltIndex)] || beltSystem[0];
   const nextBelt = beltSystem[currentBeltIndex + 1];
@@ -356,9 +356,9 @@ export default function Rank() {
 
       <div>
         <h1 className="text-lg font-bold" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-          승급 시스템
+          LEVEL Promotion System
         </h1>
-        <p className="text-xs text-muted-foreground">수련 · 미션 · 참여로 완성하는 평생 건강 프로젝트</p>
+        <p className="text-xs text-muted-foreground">Training · Mission · Participation → Lifetime Wellness Project</p>
       </div>
 
       {/* Current Rank Card */}
@@ -384,7 +384,7 @@ export default function Rank() {
         {/* 3 Criteria Progress */}
         <div className="relative z-10 space-y-3 bg-black/20 backdrop-blur-sm rounded-xl p-4">
           <h3 className="text-xs font-semibold text-white/90 mb-2 flex items-center gap-1">
-            <Trophy className="w-3.5 h-3.5" /> 승급 심사 기준
+            <Trophy className="w-3.5 h-3.5" /> LEVEL Promotion Criteria
           </h3>
 
           {/* 수련 누적 */}
@@ -424,7 +424,7 @@ export default function Rank() {
           {nextBelt && (
             <div className="pt-2 border-t border-white/20">
               <div className="flex items-center justify-between text-[10px] text-white/90 mb-1">
-                <span className="font-semibold">종합 승급 진행률</span>
+                <span className="font-semibold">Overall LEVEL Progress</span>
                 <span className="font-bold">{overallProgress}%</span>
               </div>
               <div className="w-full bg-white/20 rounded-full h-2.5">
@@ -441,7 +441,7 @@ export default function Rank() {
       {/* Belt Journey Timeline */}
       <div>
         <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
-          <Award className="w-4 h-4 text-primary" /> 벨트 승급 체계
+          <Award className="w-4 h-4 text-primary" /> LEVEL Promotion System
         </h2>
         <div className="relative">
           {/* Timeline line */}

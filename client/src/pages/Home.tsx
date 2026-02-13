@@ -47,9 +47,9 @@ const features = [
   },
   {
     icon: Award,
-    title: "승급 시스템",
-    desc: "화이트벨트에서 그랜드마스터까지",
-    detail: "9단계 벨트 · 10단 체계",
+    title: "LEVEL Promotion",
+    desc: "From White LEVEL to Grand Master",
+    detail: "9-Step LEVEL · 10 Dan System",
   },
   {
     icon: Shield,

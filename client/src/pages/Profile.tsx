@@ -303,7 +303,7 @@ export default function Profile() {
           <div className="space-y-2">
             {[
               { icon: Crown, label: "멤버십 센터", desc: "등급 혜택 및 업그레이드", path: "/membership" },
-              { icon: Award, label: "승급 현황", desc: "벨트 등급 및 수련 기록", path: "/rank" },
+              { icon: Award, label: "LEVEL Status", desc: "LEVEL Grade & Training Records", path: "/rank" },
               { icon: Heart, label: "건강 진단 결과", desc: "체질 분석 및 건강 체크", path: "/diagnosis" },
             ].map((item) => (
               <button
