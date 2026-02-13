@@ -1,0 +1,8 @@
+{
+  "query": "SELECT tier, tier_order, annual_fee, enrollment_fee, discount_rate FROM membership_tiers ORDER BY tier_order;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ov7UodCCzAj1bK.root --database KBFN4JnAdr8qafU4bE6w7s --execute SELECT tier, tier_order, annual_fee, enrollment_fee, discount_rate FROM membership_tiers ORDER BY tier_order;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'tier_order' in 'field list'"
+  ]
+}

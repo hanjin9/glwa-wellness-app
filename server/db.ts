@@ -693,6 +693,23 @@ import {
 export async function getMembershipTiers() {
   const db = await getDb();
   if (!db) return [];
+  const existing = await db.select().from(membershipTiers).orderBy(membershipTiers.tierOrder);
+  if (existing.length > 0) return existing;
+  // Auto-seed 8 tiers if empty
+  const seeds: any[] = [
+    { tier:"silver",name:"실버",nameEn:"Silver",annualFee:0,initiationFee:0,shopDiscountRate:0,paybackRate:50,pointMultiplier:1,dedicatedManager:0,premiumContent:0,exclusiveEvents:0,vipLounge:0,conciergeService:0,monthlyFreeCoupons:0,annualGiftPackage:0,priorityBooking:0,globalPartnerAccess:0,membershipCardType:"standard",maxInvitations:0,description:"무료 기본 멤버십",tierOrder:1,colorTheme:"gray",iconEmoji:"🛡️" },
+    { tier:"gold",name:"골드",nameEn:"Gold",annualFee:500000,initiationFee:100000,shopDiscountRate:5,paybackRate:60,pointMultiplier:2,dedicatedManager:0,premiumContent:1,exclusiveEvents:0,vipLounge:0,conciergeService:0,monthlyFreeCoupons:2,annualGiftPackage:0,priorityBooking:0,globalPartnerAccess:0,membershipCardType:"gold",maxInvitations:1,description:"프리미엄 건강 관리",tierOrder:2,colorTheme:"amber",iconEmoji:"⭐" },
+    { tier:"blue_sapphire",name:"블루사파이어",nameEn:"Blue Sapphire",annualFee:1200000,initiationFee:300000,shopDiscountRate:8,paybackRate:65,pointMultiplier:3,dedicatedManager:0,premiumContent:1,exclusiveEvents:1,vipLounge:0,conciergeService:0,monthlyFreeCoupons:3,annualGiftPackage:0,priorityBooking:1,globalPartnerAccess:0,membershipCardType:"sapphire",maxInvitations:2,description:"전용 이벤트와 우선 예약",tierOrder:3,colorTheme:"blue",iconEmoji:"💎" },
+    { tier:"green_emerald",name:"그린에메랄드",nameEn:"Green Emerald",annualFee:2400000,initiationFee:500000,shopDiscountRate:10,paybackRate:70,pointMultiplier:4,dedicatedManager:1,premiumContent:1,exclusiveEvents:1,vipLounge:0,conciergeService:0,monthlyFreeCoupons:5,annualGiftPackage:1,priorityBooking:1,globalPartnerAccess:0,membershipCardType:"emerald",maxInvitations:3,description:"전담 매니저 맞춤형 프로그램",tierOrder:4,colorTheme:"emerald",iconEmoji:"🏆" },
+    { tier:"diamond",name:"다이아몬드",nameEn:"Diamond",annualFee:5000000,initiationFee:1000000,shopDiscountRate:15,paybackRate:80,pointMultiplier:5,dedicatedManager:1,premiumContent:1,exclusiveEvents:1,vipLounge:1,conciergeService:0,monthlyFreeCoupons:8,annualGiftPackage:1,priorityBooking:1,globalPartnerAccess:1,membershipCardType:"diamond",maxInvitations:5,description:"VIP 라운지 및 글로벌 파트너",tierOrder:5,colorTheme:"sky",iconEmoji:"💠" },
+    { tier:"blue_diamond",name:"블루다이아몬드",nameEn:"Blue Diamond",annualFee:10000000,initiationFee:3000000,shopDiscountRate:18,paybackRate:85,pointMultiplier:7,dedicatedManager:1,premiumContent:1,exclusiveEvents:1,vipLounge:1,conciergeService:1,monthlyFreeCoupons:10,annualGiftPackage:1,priorityBooking:1,globalPartnerAccess:1,membershipCardType:"blue_diamond",maxInvitations:8,description:"컨시어지 및 프라이빗 투어",tierOrder:6,colorTheme:"indigo",iconEmoji:"🔷" },
+    { tier:"platinum",name:"플래티넘",nameEn:"Platinum",annualFee:20000000,initiationFee:5000000,shopDiscountRate:22,paybackRate:90,pointMultiplier:8,dedicatedManager:1,premiumContent:1,exclusiveEvents:1,vipLounge:1,conciergeService:1,monthlyFreeCoupons:15,annualGiftPackage:1,priorityBooking:1,globalPartnerAccess:1,membershipCardType:"platinum",maxInvitations:12,description:"최상위 프리미엄 서비스",tierOrder:7,colorTheme:"slate",iconEmoji:"👑" },
+    { tier:"black_platinum",name:"블랙플래티넘",nameEn:"Black Platinum",annualFee:50000000,initiationFee:10000000,shopDiscountRate:25,paybackRate:100,pointMultiplier:10,dedicatedManager:1,premiumContent:1,exclusiveEvents:1,vipLounge:1,conciergeService:1,monthlyFreeCoupons:20,annualGiftPackage:1,priorityBooking:1,globalPartnerAccess:1,membershipCardType:"black_platinum",maxInvitations:20,description:"초대 전용 최고 등급",tierOrder:8,colorTheme:"zinc",iconEmoji:"🖤" },
+  ];
+  try {
+    for (const s of seeds) await db.insert(membershipTiers).values(s);
+    console.log("[DB] 8등급 멤버십 시딩 완료");
+  } catch (e) { console.warn("[DB] 시딩 실패:", e); }
   return db.select().from(membershipTiers).orderBy(membershipTiers.tierOrder);
 }
 

@@ -3,10 +3,13 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
+import { transcribeAudio } from "./_core/voiceTranscription";
+import { storagePut } from "./storage";
 import { z } from "zod";
 import * as db from "./db";
 import { nanoid } from "nanoid";
 import { createCheckoutSession } from "./stripe";
+import { TRPCError } from "@trpc/server";
 
 export const appRouter = router({
   system: systemRouter,
@@ -724,7 +727,35 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return db.payFromWallet(ctx.user.id, input.currency, input.amount, input.description, input.paymentMethod, input.referenceId);
       }),
+   }),
+
+  // ─── Voice & File Upload ──────────────────────────────────────
+  voice: router({
+    transcribe: protectedProcedure
+      .input(z.object({ audioUrl: z.string(), language: z.string().optional() }))
+      .mutation(async ({ input }) => {
+        const result = await transcribeAudio({ audioUrl: input.audioUrl, language: input.language || "ko" });
+        if ("error" in result) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: result.error });
+        }
+        return { text: result.text, language: result.language };
+      }),
+  }),
+  upload: router({
+    getPresignedUrl: protectedProcedure
+      .input(z.object({ fileName: z.string(), contentType: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const ext = input.fileName.split(".").pop() || "bin";
+        const key = `chat-attachments/${ctx.user.id}/${nanoid()}.${ext}`;
+        return { key, contentType: input.contentType };
+      }),
+    complete: protectedProcedure
+      .input(z.object({ key: z.string(), base64Data: z.string(), contentType: z.string() }))
+      .mutation(async ({ input }) => {
+        const buffer = Buffer.from(input.base64Data, "base64");
+        const { url } = await storagePut(input.key, buffer, input.contentType);
+        return { url };
+      }),
   }),
 });
-
 export type AppRouter = typeof appRouter;

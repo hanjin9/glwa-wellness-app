@@ -162,3 +162,7 @@
 - [x] 통합 지갑 DB 스키마 (userWallets, walletTransactions)
 - [x] 지갑 백엔드 API (wallet 라우터)
 - [x] 지갑 테스트 추가 (57 tests passed)
+## 8차 업데이트
+- [x] db.ts 코드 중복 에러 수정 (시딩 로직 정리)
+- [x] 건강상담 페이지 음성 입력(STT) 기능 추가
+- [x] 건강상담 페이지 사진/영상 업로드 기능 추가

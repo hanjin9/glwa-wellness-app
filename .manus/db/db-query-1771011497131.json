@@ -1,0 +1,234 @@
+{
+  "query": "DESCRIBE membership_tiers;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ov7UodCCzAj1bK.root --database KBFN4JnAdr8qafU4bE6w7s --execute DESCRIBE membership_tiers;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "tier",
+      "Type": "enum('silver','gold','blue_sapphire','green_emerald','diamond','blue_diamond','platinum','black_platinum')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "name",
+      "Type": "varchar(50)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "monthlyFee",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "shopDiscountRate",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "paybackRate",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "50",
+      "Extra": ""
+    },
+    {
+      "Field": "pointMultiplier",
+      "Type": "float",
+      "Null": "YES",
+      "Key": "",
+      "Default": "1",
+      "Extra": ""
+    },
+    {
+      "Field": "consultPriority",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "premiumContent",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "exclusiveEvents",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "monthlyFreeCoupons",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "description",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "benefits",
+      "Type": "json",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "nameEn",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "annualFee",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "initiationFee",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "dedicatedManager",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "vipLounge",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "conciergeService",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "annualGiftPackage",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "priorityBooking",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "globalPartnerAccess",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "membershipCardType",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "maxInvitations",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "tierOrder",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "colorTheme",
+      "Type": "varchar(50)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "iconEmoji",
+      "Type": "varchar(10)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint\tNO\tPRI\tNULL\tauto_increment\ntier\tenum('silver','gold','blue_sapphire','green_emerald','diamond','blue_diamond','platinum','black_platinum')\tNO\t\tNULL\t\nname\tvarchar(50)\tNO\t\tNULL\t\nmonthlyFee\tint\tYES\t\t0\t\nshopDiscountRate\tint\tYES\t\t0\t\npaybackRate\tint\tYES\t\t50\t\npointMultiplier\tfloat\tYES\t\t1\t\nconsultPriority\tint\tYES\t\t0\t\npremiumContent\tint\tYES\t\t0\t\nexclusiveEvents\tint\tYES\t\t0\t\nmonthlyFreeCoupons\tint\tYES\t\t0\t\ndescription\ttext\tYES\t\tNULL\t\nbenefits\tjson\tYES\t\tNULL\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nnameEn\tvarchar(50)\tYES\t\tNULL\t\nannualFee\tint\tYES\t\t0\t\ninitiationFee\tint\tYES\t\t0\t\ndedicatedManager\tint\tYES\t\t0\t\nvipLounge\tint\tYES\t\t0\t\nconciergeService\tint\tYES\t\t0\t\nannualGiftPackage\tint\tYES\t\t0\t\npriorityBooking\tint\tYES\t\t0\t\nglobalPartnerAccess\tint\tYES\t\t0\t\nmembershipCardType\tvarchar(50)\tYES\t\tNULL\t\nmaxInvitations\tint\tYES\t\t0\t\ntierOrder\tint\tYES\t\t0\t\ncolorTheme\tvarchar(50)\tYES\t\tNULL\t\niconEmoji\tvarchar(10)\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 1534
+}
