@@ -46,6 +46,10 @@
 }
 
 :root {
+  /* Font Scale Variables - for dynamic font sizing */
+  --font-scale: 1;
+  --font-base: 16px;
+  
   /* GLWA Resort Luxury Theme - Inspired by Aman/Banyan Tree/Six Senses */
   --primary: oklch(0.38 0.04 55);
   --primary-foreground: oklch(0.98 0.003 60);
