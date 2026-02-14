@@ -131,7 +131,7 @@ export default function Home() {
             <h1 className="text-4xl font-light text-white leading-[1.3] tracking-tight font-resort mb-6">
               365일,<br />
               당신만의<br />
-              <span className="font-medium italic">건강 주치의</span>
+              <span className="font-medium italic">헬스케어 매니저'App</span>
             </h1>
             <p className="text-white/55 text-sm leading-relaxed font-light max-w-[280px]">
               동양 철학과 현대 의학의 조화.<br />
