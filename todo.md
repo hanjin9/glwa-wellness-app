@@ -279,3 +279,29 @@
 - [x] MobileLayout.tsx에 TopInfoBar 통합
 - [x] TypeScript 에러 0개
 - [x] 모든 테스트 57/57 통과
+
+
+## 21차 업데이트 - Google Cloud Scheduler + YouTube 음악 라이브러리
+- [ ] Google Cloud Scheduler 설정 (7시/12시/5시/10시 알림)
+- [ ] YouTube Audio Library에서 5가지 장르 음악 선택
+- [ ] 음악 파일 S3에 업로드
+- [ ] DB에 음악 URL 저장
+- [ ] 알림 시스템 API 통합
+- [ ] 최종 테스트
+- [ ] 배포 준비
+
+
+## 22차 업데이트 - 아바타 설정 기능 + Google Cloud Scheduler
+- [x] 아바타 설정 UI 컴포넌트 생성 (남성/여성 아바타 선택)
+- [x] 남성 아바타 (40대, 50대, 60대 각각 스타일)
+- [x] 여성 아바타 (40대, 50대, 60대 각각 스타일)
+- [x] 사진 업로드 기능 (S3 연동)
+- [x] 이름 변경 기능
+- [x] Settings 페이지에 아바타 설정 섹션 추가
+- [ ] YouTube 음악 라이브러리 다운로드
+- [ ] 음악 파일 S3 업로드
+- [ ] DB에 음악 URL 저장
+- [ ] Google Cloud Scheduler API 활성화 (hanjin9@gmail.com)
+- [ ] 서비스 계정 생성 및 API 키 발급
+- [ ] 알림 시스템 API 통합
+- [ ] 최종 테스트 및 배포

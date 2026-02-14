@@ -4,12 +4,18 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Globe, Bell, User, LogOut, ChevronRight, Wallet, Zap } from "lucide-react";
 import { useState } from "react";
+import AvatarSelector, { AvatarConfig } from "@/components/AvatarSelector";
 
 export default function SettingsPage() {
   const { t, language, changeLanguage, languages } = useTranslation();
   const { scale, changeFontScale } = useFontScale();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [showAvatarSelector, setShowAvatarSelector] = useState(false);
+  const [avatarConfig, setAvatarConfig] = useState<AvatarConfig>({
+    type: 'default',
+    name: '사용자'
+  });
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -181,6 +187,40 @@ export default function SettingsPage() {
               <div className={`w-6 h-6 bg-white rounded-full mt-1 transition-all ${notificationsEnabled ? 'ml-7' : 'ml-1'}`} />
             </div>
           </button>
+        </Card>
+
+        {/* 아바타 설정 */}
+        <Card className="p-5">
+          <button
+            onClick={() => setShowAvatarSelector(!showAvatarSelector)}
+            className="w-full flex items-center justify-between py-3 hover:bg-gray-50 rounded-lg px-3 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="text-3xl">
+                {avatarConfig.type === 'default' && '😊'}
+                {avatarConfig.type === 'avatar' && (avatarConfig.gender === 'male' ? (avatarConfig.ageGroup === '40s' ? '👨‍💼' : avatarConfig.ageGroup === '50s' ? '👨‍🦱' : '👴') : (avatarConfig.ageGroup === '40s' ? '👩‍💼' : avatarConfig.ageGroup === '50s' ? '👩‍🦱' : '👵'))}
+                {avatarConfig.type === 'photo' && '📷'}
+              </div>
+              <div className="text-left">
+                <h3 className="font-bold text-base">아바타 설정</h3>
+                <p className="text-xs text-muted-foreground">{avatarConfig.name}</p>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </button>
+          
+          {showAvatarSelector && (
+            <div className="mt-4 pt-4 border-t">
+              <AvatarSelector
+                onSelect={(config) => {
+                  setAvatarConfig(config);
+                  setShowAvatarSelector(false);
+                }}
+                currentConfig={avatarConfig}
+                userName={avatarConfig.name}
+              />
+            </div>
+          )}
         </Card>
 
         {/* 계정 관리 */}
