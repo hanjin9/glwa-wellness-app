@@ -146,13 +146,8 @@ export default function Diagnosis() {
     setSelectedBodyParts((prev) => {
       const next = new Set(prev);
       if (next.has(partId)) {
+        // 부위 선택만 해제 (기록은 유지)
         next.delete(partId);
-        // 노트도 제거
-        setBodyPartNotes((notes) => {
-          const updated = { ...notes };
-          delete updated[partId];
-          return updated;
-        });
         if (expandedPart === partId) setExpandedPart(null);
       } else {
         next.add(partId);
