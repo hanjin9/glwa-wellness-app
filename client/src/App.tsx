@@ -20,6 +20,9 @@ import Community from "./pages/Community";
 import PostDetail from "./pages/PostDetail";
 import SellerDashboard from "./pages/SellerDashboard";
 import Membership from "./pages/Membership";
+import Settings from "./pages/Settings";
+import HealthCheck from "./pages/HealthCheck";
+import VIPLounge from "./pages/VIPLounge";
 import MobileLayout from "./components/MobileLayout";
 
 function Router() {
@@ -70,6 +73,15 @@ function Router() {
       </Route>
       <Route path="/membership">
         <MobileLayout><Membership /></MobileLayout>
+      </Route>
+      <Route path="/settings">
+        <MobileLayout><Settings /></MobileLayout>
+      </Route>
+      <Route path="/health-check">
+        <MobileLayout><HealthCheck /></MobileLayout>
+      </Route>
+      <Route path="/vip-lounge">
+        <MobileLayout><VIPLounge /></MobileLayout>
       </Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
