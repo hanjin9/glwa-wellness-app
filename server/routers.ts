@@ -816,5 +816,27 @@ export const appRouter = router({
         });
       }),
   }),
+  music: router({
+    getByGenre: publicProcedure
+      .input(z.object({ genre: z.string() }))
+      .query(async ({ input }) => {
+        const { getMusicByGenre } = await import('./music-library');
+        return getMusicByGenre(input.genre);
+      }),
+    getRandomByGenre: publicProcedure
+      .input(z.object({ genre: z.string() }))
+      .query(async ({ input }) => {
+        const { getRandomMusicByGenre } = await import('./music-library');
+        return getRandomMusicByGenre(input.genre);
+      }),
+    getAllGenres: publicProcedure.query(async () => {
+      const { getAllGenres } = await import('./music-library');
+      return getAllGenres();
+    }),
+    getAll: publicProcedure.query(async () => {
+      const { MUSIC_LIBRARY } = await import('./music-library');
+      return MUSIC_LIBRARY;
+    }),
+  }),
 });
 export type AppRouter = typeof appRouter;
