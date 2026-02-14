@@ -36,6 +36,7 @@ export const memberProfiles = mysqlTable("member_profiles", {
   totalDays: int("totalDays").default(0),
   totalMissions: int("totalMissions").default(0),
   totalParticipation: int("totalParticipation").default(0),
+  pushNotificationEnabled: boolean("pushNotificationEnabled").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -76,6 +76,15 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg shadow-sm border-b border-border/30">
           <div className="flex items-center justify-between px-4 h-14">
             {/* 홈 버튼 (좌상단) - 홈 화면이 아닐 때만 표시 */}
+            {/* 설정 버튼 (좌상단) - 귀여운 톱니바퀴 */}
+            <button
+              onClick={() => setLocation("/settings")}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg hover:shadow-xl transition-all hover:scale-110 duration-300 hover:rotate-90"
+              title="설정"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+            
             {!isHomePage && (
               <button 
                 onClick={() => setLocation("/dashboard")} 

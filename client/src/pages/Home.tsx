@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
+import SongOfTheDay from "@/components/SongOfTheDay";
 
 const features = [
   {
@@ -179,6 +180,16 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* ═══ Song of the Day Section (로그인 후) ═══ */}
+      {user && (
+        <section className="py-8 px-6 max-w-lg mx-auto">
+          <SongOfTheDay 
+            songTitle="그날의 축하 음악"
+            artistName="GLWA Wellness"
+          />
+        </section>
+      )}
 
       {/* ═══ Philosophy Section ═══ */}
       <section className="py-16 px-6 max-w-lg mx-auto">

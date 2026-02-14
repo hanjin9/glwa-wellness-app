@@ -78,6 +78,13 @@
       "when": 1771013217331,
       "tag": "0010_abandoned_black_widow",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1771099930756,
+      "tag": "0011_hot_solo",
+      "breakpoints": true
     }
   ]
 }

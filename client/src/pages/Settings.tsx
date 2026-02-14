@@ -2,7 +2,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useFontScale, FontScale } from "@/hooks/useFontScale";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Globe, Bell, User, LogOut, ChevronRight } from "lucide-react";
+import { Moon, Sun, Globe, Bell, User, LogOut, ChevronRight, Wallet, Zap } from "lucide-react";
 import { useState } from "react";
 
 export default function SettingsPage() {
@@ -134,6 +134,31 @@ export default function SettingsPage() {
             ))}
           </div>
         </Card>
+
+        {/* 지갑 & 포인트 */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="p-5 bg-gradient-to-br from-blue-50 to-blue-100">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="font-bold text-sm">내 지갑</h3>
+            </div>
+            <div className="text-2xl font-bold text-blue-600 mb-1">₩ 12,500</div>
+            <p className="text-xs text-muted-foreground">사용 가능한 잔액</p>
+          </Card>
+          
+          <Card className="p-5 bg-gradient-to-br from-amber-50 to-amber-100">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="font-bold text-sm">포인트</h3>
+            </div>
+            <div className="text-2xl font-bold text-amber-600 mb-1">3,450 P</div>
+            <p className="text-xs text-muted-foreground">누적 포인트</p>
+          </Card>
+        </div>
 
         {/* 알림 설정 */}
         <Card className="p-5">
