@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "vite",
+    "dev": "tsx watch server/_core/index.ts",
     "build": "NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "vercel-build": "NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "preview": "vite preview",
