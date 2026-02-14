@@ -14,6 +14,8 @@ import {
   sellerSettlements,
   userWallets, InsertUserWallet,
   walletTransactions, InsertWalletTransaction,
+  songOfTheDay, InsertSongOfTheDay,
+  mentalHealthNotifications, InsertMentalHealthNotification,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -993,4 +995,68 @@ export async function payFromWallet(userId: number, currency: "point" | "cash" |
     userId, walletId: wallet.id, type: "payment", currency, amount: -amount, balanceAfter: newBalance, description, paymentMethod, referenceId: referenceId || null,
   });
   return { success: true, newBalance };
+}
+
+
+// ─── Song of the Day ────────────────────────────────────────────────────
+export async function getSongOfTheDay(date: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(songOfTheDay)
+    .where(eq(songOfTheDay.selectedDate, date))
+    .limit(1);
+  return result[0] || null;
+}
+
+export async function setSongOfTheDay(data: InsertSongOfTheDay) {
+  const db = await getDb();
+  if (!db) return null;
+  // Check if song already exists for this date
+  const existing = await getSongOfTheDay(data.selectedDate);
+  if (existing) {
+    await db.update(songOfTheDay).set(data).where(eq(songOfTheDay.selectedDate, data.selectedDate));
+    return existing;
+  }
+  await db.insert(songOfTheDay).values(data);
+  return data;
+}
+
+// ─── Mental Health Notifications ───────────────────────────────────────
+export async function getMentalHealthNotification(userId: number, notificationTime: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(mentalHealthNotifications)
+    .where(and(eq(mentalHealthNotifications.userId, userId), eq(mentalHealthNotifications.notificationTime, notificationTime)))
+    .limit(1);
+  return result[0] || null;
+}
+
+export async function getUserMentalHealthNotifications(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(mentalHealthNotifications)
+    .where(eq(mentalHealthNotifications.userId, userId))
+    .orderBy(mentalHealthNotifications.notificationTime);
+}
+
+export async function createMentalHealthNotification(data: InsertMentalHealthNotification) {
+  const db = await getDb();
+  if (!db) return null;
+  await db.insert(mentalHealthNotifications).values(data);
+  return data;
+}
+
+export async function updateMentalHealthNotification(userId: number, notificationTime: string, data: Partial<InsertMentalHealthNotification>) {
+  const db = await getDb();
+  if (!db) return null;
+  await db.update(mentalHealthNotifications).set(data)
+    .where(and(eq(mentalHealthNotifications.userId, userId), eq(mentalHealthNotifications.notificationTime, notificationTime)));
+  return getMentalHealthNotification(userId, notificationTime);
+}
+
+export async function getEnabledMentalHealthNotifications() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(mentalHealthNotifications)
+    .where(eq(mentalHealthNotifications.isEnabled, 1));
 }

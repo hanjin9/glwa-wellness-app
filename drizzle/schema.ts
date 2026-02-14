@@ -637,3 +637,32 @@ export const walletTransactions = mysqlTable("wallet_transactions", {
 });
 export type WalletTransaction = typeof walletTransactions.$inferSelect;
 export type InsertWalletTransaction = typeof walletTransactions.$inferInsert;
+
+// ─── Song of the Day (오늘의 노래) ──────────────────────────────────────
+export const songOfTheDay = mysqlTable("song_of_the_day", {
+  id: int("id").autoincrement().primaryKey(),
+  songUrl: text("songUrl").notNull(), // S3 음악 URL
+  songTitle: varchar("songTitle", { length: 200 }).notNull(), // 노래 제목
+  artistName: varchar("artistName", { length: 100 }).notNull(), // 아티스트명
+  genre: varchar("genre", { length: 50 }), // 장르 (80s가요, 90s가요, 80s팝, 90s팝, 트로트)
+  selectedDate: varchar("selectedDate", { length: 10 }).notNull().unique(), // YYYY-MM-DD
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SongOfTheDay = typeof songOfTheDay.$inferSelect;
+export type InsertSongOfTheDay = typeof songOfTheDay.$inferInsert;
+
+// ─── Mental Health Notifications (정신건강 알림) ──────────────────────────
+export const mentalHealthNotifications = mysqlTable("mental_health_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  notificationTime: varchar("notificationTime", { length: 5 }).notNull(), // HH:MM (07:00, 12:00, 17:00, 22:00)
+  musicGenre: varchar("musicGenre", { length: 50 }), // 선호 음악 장르
+  isEnabled: int("isEnabled").default(1).notNull(), // 알림 활성화 여부
+  lastSentAt: timestamp("lastSentAt"), // 마지막 발송 시간
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type MentalHealthNotification = typeof mentalHealthNotifications.$inferSelect;
+export type InsertMentalHealthNotification = typeof mentalHealthNotifications.$inferInsert;

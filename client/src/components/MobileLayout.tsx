@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "@/hooks/useTranslation";
+import TopInfoBar from "./TopInfoBar";
 
 export default function MobileLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -75,7 +76,9 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
       {!hideTopHeader && (
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg shadow-sm border-b border-border/30">
           <div className="flex items-center justify-between px-4 h-14">
-            {/* 홈 버튼 (좌상단) - 홈 화면이 아닐 때만 표시 */}
+            {/* 실시간 시간, 비트코인, 날씨 */}
+            <TopInfoBar />
+            
             {/* 설정 버튼 (좌상단) - 귀여운 톱니바퀴 */}
             <button
               onClick={() => setLocation("/settings")}

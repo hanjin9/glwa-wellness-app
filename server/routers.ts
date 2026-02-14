@@ -774,5 +774,47 @@ export const appRouter = router({
         return { url };
       }),
   }),
+  song: router({
+    getToday: publicProcedure.query(async () => {
+      const today = new Date().toISOString().split('T')[0];
+      return db.getSongOfTheDay(today);
+    }),
+    getByDate: publicProcedure
+      .input(z.object({ date: z.string() }))
+      .query(async ({ input }) => {
+        return db.getSongOfTheDay(input.date);
+      }),
+  }),
+  notification: router({
+    getMyNotifications: protectedProcedure.query(async ({ ctx }) => {
+      return db.getUserMentalHealthNotifications(ctx.user.id);
+    }),
+    createNotification: protectedProcedure
+      .input(z.object({
+        notificationTime: z.string(),
+        musicGenre: z.string().optional(),
+        isEnabled: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return db.createMentalHealthNotification({
+          userId: ctx.user.id,
+          notificationTime: input.notificationTime,
+          musicGenre: input.musicGenre || null,
+          isEnabled: input.isEnabled !== undefined ? input.isEnabled : 1,
+        });
+      }),
+    updateNotification: protectedProcedure
+      .input(z.object({
+        notificationTime: z.string(),
+        musicGenre: z.string().optional(),
+        isEnabled: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return db.updateMentalHealthNotification(ctx.user.id, input.notificationTime, {
+          musicGenre: input.musicGenre || null,
+          isEnabled: input.isEnabled,
+        });
+      }),
+  }),
 });
 export type AppRouter = typeof appRouter;

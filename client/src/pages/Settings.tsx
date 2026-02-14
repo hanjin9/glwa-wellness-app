@@ -210,6 +210,46 @@ export default function SettingsPage() {
           </div>
         </Card>
 
+        {/* 정신건강 알림 설정 */}
+        <Card className="p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+              <Bell className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-base">정신건강 알림 & 음악</h3>
+              <p className="text-xs text-muted-foreground">7시, 12시, 5시, 10시 자동 알림</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div>
+                <p className="font-medium text-sm">알림 활성화</p>
+                <p className="text-xs text-muted-foreground">매일 정신건강 알림 받기</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={notificationsEnabled}
+                onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                className="w-5 h-5 rounded cursor-pointer"
+              />
+            </div>
+            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm font-medium text-blue-900 mb-2">선호 음악 장르</p>
+              <div className="grid grid-cols-2 gap-2">
+                {['80s가요', '90s가요', '80s팝', '90s팝', '트로트'].map((genre) => (
+                  <button
+                    key={genre}
+                    className="py-2 px-3 text-xs rounded-lg border border-blue-300 hover:bg-blue-100 transition-all"
+                  >
+                    {genre}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Card>
+
         {/* 로그아웃 */}
         <Button
           variant="outline"
