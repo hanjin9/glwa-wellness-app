@@ -1,0 +1,66 @@
+{
+  "query": "SELECT tier, name, annualFee, shopDiscountRate, tierOrder FROM membership_tiers ORDER BY tierOrder;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway04.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ov7UodCCzAj1bK.root --database KBFN4JnAdr8qafU4bE6w7s --execute SELECT tier, name, annualFee, shopDiscountRate, tierOrder FROM membership_tiers ORDER BY tierOrder;",
+  "rows": [
+    {
+      "tier": "silver",
+      "name": "실버",
+      "annualFee": "0",
+      "shopDiscountRate": "0",
+      "tierOrder": "1"
+    },
+    {
+      "tier": "gold",
+      "name": "골드",
+      "annualFee": "500000",
+      "shopDiscountRate": "5",
+      "tierOrder": "2"
+    },
+    {
+      "tier": "blue_sapphire",
+      "name": "블루사파이어",
+      "annualFee": "1200000",
+      "shopDiscountRate": "8",
+      "tierOrder": "3"
+    },
+    {
+      "tier": "green_emerald",
+      "name": "그린에메랄드",
+      "annualFee": "2400000",
+      "shopDiscountRate": "10",
+      "tierOrder": "4"
+    },
+    {
+      "tier": "diamond",
+      "name": "다이아몬드",
+      "annualFee": "5000000",
+      "shopDiscountRate": "15",
+      "tierOrder": "5"
+    },
+    {
+      "tier": "blue_diamond",
+      "name": "블루다이아몬드",
+      "annualFee": "10000000",
+      "shopDiscountRate": "18",
+      "tierOrder": "6"
+    },
+    {
+      "tier": "platinum",
+      "name": "플래티넘",
+      "annualFee": "20000000",
+      "shopDiscountRate": "22",
+      "tierOrder": "7"
+    },
+    {
+      "tier": "black_platinum",
+      "name": "블랙플래티넘",
+      "annualFee": "50000000",
+      "shopDiscountRate": "25",
+      "tierOrder": "8"
+    }
+  ],
+  "messages": [],
+  "stdout": "tier\tname\tannualFee\tshopDiscountRate\ttierOrder\nsilver\t실버\t0\t0\t1\ngold\t골드\t500000\t5\t2\nblue_sapphire\t블루사파이어\t1200000\t8\t3\ngreen_emerald\t그린에메랄드\t2400000\t10\t4\ndiamond\t다이아몬드\t5000000\t15\t5\nblue_diamond\t블루다이아몬드\t10000000\t18\t6\nplatinum\t플래티넘\t20000000\t22\t7\nblack_platinum\t블랙플래티넘\t50000000\t25\t8\n",
+  "stderr": "",
+  "execution_time_ms": 1548
+}
