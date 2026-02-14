@@ -251,12 +251,19 @@
 
 
 ## 18차 업데이트 - 홈페이지 메인 화면 "오늘의 노래" 기능
-- [ ] DB 스키마: songOfTheDay 테이블 추가 (id, songUrl, songTitle, artistName, selectedDate, createdAt)
-- [ ] 백엔드: 매일 자정(00:00)에 S3 음악 중 랜덤 선택 스케줄러 구현
-- [ ] 백엔드 API: 오늘의 노래 조회 API (getSongOfTheDay)
-- [ ] 프론트엔드: Home.tsx 맨 위에 "오늘의 노래" 컴포넌트 추가
-- [ ] UI: 제목 우측 스크롤 애니메이션 (marquee 효과)
-- [ ] UI: 클릭 시 음악 재생 기능
-- [ ] UI: 재생 아이콘 및 시각적 디자인
-- [ ] 테스트: 오늘의 노래 기능 테스트
-- [ ] 최종 체크포인트 저장
+- [x] DB 스키마: songOfTheDay 테이블 추가 (id, songUrl, songTitle, artistName, selectedDate, createdAt)
+- [x] 백엔드: 매일 자정(00:00)에 S3 음악 중 랜덤 선택 스케줄러 구현
+- [x] 백엔드 API: 오늘의 노래 조회 API (getSongOfTheDay)
+- [x] 프론트엔드: Home.tsx 맨 위에 "오늘의 노래" 컴포넌트 추가
+- [x] UI: 제목 우측 스크롤 애니메이션 (marquee 효과)
+- [x] UI: 클릭 시 음악 재생 기능
+- [x] UI: 재생 아이콘 및 시각적 디자인
+- [x] 테스트: 오늘의 노래 기능 테스트
+- [x] 최종 체크포인트 저장
+
+
+## 19차 업데이트 - 개발 서버 외부 노출 및 배포 준비
+- [x] 개발 서버 포트 5173 외부 노출 (브라우저 Preview 활성화)
+- [ ] GitHub Pages 배포 설정 (gh-pages 스크립트)
+- [ ] 커스텀 도메인 (.club) 연결 (선택사항)
+- [ ] 최종 배포 테스트 및 확인
