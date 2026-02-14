@@ -10,6 +10,7 @@ import {
   Loader2,
   Sparkles,
   Settings,
+  Crown,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -21,10 +22,12 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
   const { t } = useTranslation();
 
   const navItems = [
+    { icon: Home, label: t.nav.home, path: "/dashboard" },
     { icon: User, label: t.nav.my, path: "/profile" },
     { icon: Sparkles, label: t.nav.mission, path: "/missions" },
     { icon: ShoppingBag, label: t.nav.shop, path: "/shop" },
     { icon: Users, label: t.nav.community, path: "/community" },
+    { icon: Crown, label: "VIP", path: "/membership" },
   ];
 
   if (loading) {

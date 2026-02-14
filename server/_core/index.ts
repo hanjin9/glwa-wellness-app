@@ -1,7 +1,7 @@
 import "dotenv/config";
-if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = "development";
-}
+// MUST set NODE_ENV before any imports that depend on it
+process.env.NODE_ENV = process.env.NODE_ENV || "development";
+console.log("[Server] NODE_ENV:", process.env.NODE_ENV);
 import express from "express";
 import { createServer } from "http";
 import net from "net";
