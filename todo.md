@@ -216,3 +216,11 @@
 - [x] 프론트엔드 UI 텍스트 변경
 - [x] 서버 라우터/로직의 띠 관련 텍스트 변경 (서버에는 띠 텍스트 없음)
 - [x] 테스트 코드 업데이트 (57개 전체 통과)
+
+## 15차 업데이트 - Vercel 배포 에러 수정 및 최종 마무리
+- [x] vite.config.ts에서 @builder.io/vite-plugin-jsx-loc 제거 (Vercel 빌드 에러 해결)
+- [x] vite.config.ts 문법 에러 수정
+- [x] GitHub 최신 코드 동기화
+- [x] TypeScript 에러 0개 확인
+- [x] 전체 테스트 57/57 통과
+- [x] 최종 체크포인트 저장
