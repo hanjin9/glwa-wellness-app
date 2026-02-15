@@ -13,6 +13,7 @@ import Missions from "./pages/Missions";
 import Chat from "./pages/Chat";
 import Programs from "./pages/Programs";
 import Goals from "./pages/Goals";
+import Live from "./pages/Live";
 import Rank from "./pages/Rank";
 import Shop from "./pages/Shop";
 import Cart from "./pages/Cart";
@@ -84,6 +85,9 @@ function Router() {
         <MobileLayout><VIPLounge /></MobileLayout>
       </Route>
       <Route path="/404" component={NotFound} />
+      <Route path="/live">
+        <MobileLayout><Live /></MobileLayout>
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
