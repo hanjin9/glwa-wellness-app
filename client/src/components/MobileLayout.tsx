@@ -11,6 +11,7 @@ import {
   Sparkles,
   Settings,
   Crown,
+  Radio,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -107,6 +108,16 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
             )}
             
             <div className="flex-1"></div>
+            
+            {/* 라이브 버튼 (우상단 중앙) */}
+            <button
+              onClick={() => setLocation("/live")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg transition-all hover:scale-105 duration-200 mr-2"
+              title="라이브 방송"
+            >
+              <Radio className="w-3.5 h-3.5 animate-pulse" />
+              <span className="text-xs font-bold tracking-wide">LIVE</span>
+            </button>
             
             {/* 설정 버튼 (우상단) - 항상 표시 */}
             <button

@@ -2,17 +2,20 @@
   "name": "glwa-wellness-app",
   "version": "1.0.0",
   "type": "module",
+  "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
     "dev": "tsx watch server/_core/index.ts",
     "build": "NODE_OPTIONS='--max-old-space-size=4096' vite build",
     "vercel-build": "NODE_OPTIONS='--max-old-space-size=4096' vite build",
+    "start": "node dist/index.js",
+    "prod": "NODE_ENV=production node dist/index.js",
     "preview": "vite preview",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
-    "deploy": "pnpm build && gh-pages -d dist/public"
+    "deploy": "pnpm build && pnpm start"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
