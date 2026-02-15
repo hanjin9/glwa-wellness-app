@@ -75,7 +75,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
   const isHomePage = location === "/dashboard" || location === "/";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       {/* Top header - 방안 B: 홈 버튼(좌상단) + 설정 버튼(우상단) */}
       {!hideTopHeader && (
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg shadow-sm border-b border-border/30">
@@ -132,7 +132,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
       )}
 
       {/* Main content */}
-      <main className={hideTopHeader ? "" : "px-4 py-4 pb-20"}>
+      <main className={hideTopHeader ? "flex-1" : "flex-1 px-4 py-4 pb-20 overflow-y-auto"}>
         {children}
       </main>
 
