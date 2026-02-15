@@ -1,6 +1,6 @@
 import "dotenv/config";
 // MUST set NODE_ENV before any imports that depend on it
-process.env.NODE_ENV = process.env.NODE_ENV || "development";
+process.env.NODE_ENV = "development"; // Force development mode
 console.log("[Server] NODE_ENV:", process.env.NODE_ENV);
 import express from "express";
 import { createServer } from "http";
