@@ -82,15 +82,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
             {/* 실시간 시간, 비트코인, 날씨 */}
             <TopInfoBar />
             
-            {/* 설정 버튼 (좌상단) - 귀여운 톱니바퀴 */}
-            <button
-              onClick={() => setLocation("/settings")}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg hover:shadow-xl transition-all hover:scale-110 duration-300 hover:rotate-90"
-              title="설정"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
-            
+
             {!isHomePage && (
               <button 
                 onClick={() => setLocation("/dashboard")} 
@@ -119,10 +111,10 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
             {/* 설정 버튼 (우상단) - 항상 표시 */}
             <button
               onClick={() => setLocation("/settings")}
-              className="flex items-center gap-2 bg-gradient-to-r from-gray-700 to-gray-900 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all hover:rotate-90 duration-300"
+              className="flex items-center justify-center w-7 h-7 rounded-full bg-gray-800 text-white shadow-md hover:shadow-lg transition-all hover:bg-gray-700 duration-200"
+              title="설정"
             >
               <Settings className="w-4 h-4" />
-              <span className="text-sm font-bold">{t.nav.settings}</span>
             </button>
           </div>
         </header>
