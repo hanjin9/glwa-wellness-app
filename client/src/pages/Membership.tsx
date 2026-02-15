@@ -186,7 +186,7 @@ export default function Membership() {
           <div className="absolute bottom-4 left-4 w-32 h-32 rounded-full bg-white/20 blur-2xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-white/10 blur-3xl" />
         </div>
-        <div className="relative w-full max-w-full mx-auto">
+        <div className="relative max-w-md mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-white/60 text-xs font-medium tracking-widest uppercase">GLWA PREMIUM MEMBERSHIP</p>
@@ -249,9 +249,9 @@ export default function Membership() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="w-full mx-auto px-4 -mt-4">
+      <div className="max-w-md mx-auto px-4 -mt-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full max-w-full bg-white shadow-lg rounded-2xl h-12 p-1">
+          <TabsList className="w-full bg-white shadow-lg rounded-2xl h-12 p-1">
             <TabsTrigger value="overview" className="rounded-xl text-xs flex-1">혜택</TabsTrigger>
             <TabsTrigger value="tiers" className="rounded-xl text-xs flex-1">등급</TabsTrigger>
             <TabsTrigger value="points" className="rounded-xl text-xs flex-1">포인트</TabsTrigger>
@@ -352,13 +352,12 @@ export default function Membership() {
           </TabsContent>
 
           {/* ═══ 8등급 체계 탭 ═══ */}
-          <TabsContent value="tiers" className="mt-4">
-            <div className="text-center mb-4">
+          <TabsContent value="tiers" className="mt-4 space-y-3">
+            <div className="text-center mb-2">
               <h3 className="font-bold text-lg">GLWA 프리미엄 멤버십 8등급</h3>
               <p className="text-xs text-muted-foreground">글로벌 프리미엄 클럽 수준의 차별화된 혜택</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {TIER_ORDER.map((tier, idx) => {
               const cfg = TIER_CONFIG[tier];
               const details = TIER_DETAILS[tier];
@@ -486,7 +485,6 @@ export default function Membership() {
                 </motion.div>
               );
             })}
-            </div>
 
             {/* 등급 비교표 */}
             <Card className="border-0 shadow-md mt-4">

@@ -4,8 +4,6 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { OfflineProvider } from "./contexts/OfflineContext";
-import { OfflineIndicator } from "./components/OfflineIndicator";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -25,7 +23,6 @@ import Membership from "./pages/Membership";
 import Settings from "./pages/Settings";
 import HealthCheck from "./pages/HealthCheck";
 import VIPLounge from "./pages/VIPLounge";
-import Live from "./pages/Live";
 import MobileLayout from "./components/MobileLayout";
 
 function Router() {
@@ -86,9 +83,6 @@ function Router() {
       <Route path="/vip-lounge">
         <MobileLayout><VIPLounge /></MobileLayout>
       </Route>
-      <Route path="/live">
-        <MobileLayout><Live /></MobileLayout>
-      </Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
@@ -98,15 +92,12 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <OfflineProvider>
-        <ThemeProvider defaultTheme="light">
-          <TooltipProvider>
-            <Toaster />
-            <OfflineIndicator />
-            <Router />
-          </TooltipProvider>
-        </ThemeProvider>
-      </OfflineProvider>
+      <ThemeProvider defaultTheme="light">
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

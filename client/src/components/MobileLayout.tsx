@@ -11,7 +11,6 @@ import {
   Sparkles,
   Settings,
   Crown,
-  Radio,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -75,7 +74,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
   const isHomePage = location === "/dashboard" || location === "/";
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       {/* Top header - 방안 B: 홈 버튼(좌상단) + 설정 버튼(우상단) */}
       {!hideTopHeader && (
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg shadow-sm border-b border-border/30">
@@ -109,16 +108,6 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
             
             <div className="flex-1"></div>
             
-            {/* 라이브 버튼 (우상단 중앙) */}
-            <button
-              onClick={() => setLocation("/live")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg transition-all hover:scale-105 duration-200 mr-2"
-              title="라이브 방송"
-            >
-              <Radio className="w-3.5 h-3.5 animate-pulse" />
-              <span className="text-xs font-bold tracking-wide">LIVE</span>
-            </button>
-            
             {/* 설정 버튼 (우상단) - 항상 표시 */}
             <button
               onClick={() => setLocation("/settings")}
@@ -132,7 +121,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
       )}
 
       {/* Main content */}
-      <main className={hideTopHeader ? "flex-1" : "flex-1 px-4 py-4 pb-20 overflow-y-auto"}>
+      <main className={hideTopHeader ? "" : "px-4 py-4 pb-20"}>
         {children}
       </main>
 

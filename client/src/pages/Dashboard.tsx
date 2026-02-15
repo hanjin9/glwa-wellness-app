@@ -116,7 +116,7 @@ export default function Dashboard() {
   const currentBelt = beltInfo[profile?.beltRank || "white"] || beltInfo.white;
 
   return (
-    <div className="space-y-5 min-h-screen pb-20">
+    <div className="space-y-5">
       {/* Welcome Banner - Resort Style */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
