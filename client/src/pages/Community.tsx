@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   MessageSquare, Heart, Eye, Send, Plus, Image as ImageIcon,
-  Users, BookOpen, Camera, Sparkles, Clock, User, ChevronRight
+  Users, BookOpen, Camera, Sparkles, Clock, User, ChevronRight,
+  Crown, Lock, Trophy, Star
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
@@ -25,7 +26,7 @@ const CATEGORY_MAP: Record<string, string> = {
   exercise: "운동",
   nutrition: "영양",
   question: "질문",
-  success_story: "명예의전당 스토리",
+  success_story: "VIP 라운지 스토리",
 };
 
 export default function Community() {
@@ -46,6 +47,12 @@ export default function Community() {
   const [galleryMedia, setGalleryMedia] = useState<MediaFile[]>([]);
   const [galleryCaption, setGalleryCaption] = useState("");
   const [showGalleryUpload, setShowGalleryUpload] = useState(false);
+  const [hallOfFameView, setHallOfFameView] = useState<"menu" | "stories" | "vip">("menu");
+
+  // VIP 접근 권한 체크 (diamond 이상)
+  const { data: profile } = trpc.profile.get.useQuery(undefined, { enabled: isAuthenticated });
+  const VIP_TIERS = ["diamond", "blue_diamond", "platinum", "black_platinum"];
+  const isVipMember = profile?.memberGrade ? VIP_TIERS.includes(profile.memberGrade) : false;
 
   const utils = trpc.useUtils();
 
@@ -80,7 +87,7 @@ export default function Community() {
       utils.community.getStories.invalidate();
       setShowNewStory(false);
       setNewStoryContent("");
-      toast.success("명예의전당 스토리가 등록되었습니다");
+      toast.success("VIP 라운지 스토리가 등록되었습니다");
     },
   });
 
@@ -133,8 +140,8 @@ export default function Community() {
           <TabsTrigger value="gallery" className="flex-1 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-emerald-700 data-[state=active]:text-emerald-700 h-full">
             <Camera className="w-4 h-4 mr-1" />나의 작은다락방
           </TabsTrigger>
-          <TabsTrigger value="story" className="flex-1 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-emerald-700 data-[state=active]:text-emerald-700 h-full">
-            <Sparkles className="w-4 h-4 mr-1" />명예의전당
+          <TabsTrigger value="story" className="flex-1 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-emerald-700 data-[state=active]:text-emerald-700 h-full" onClick={() => setHallOfFameView("menu")}>
+            <Trophy className="w-4 h-4 mr-1" />명예의전당
           </TabsTrigger>
         </TabsList>
 
@@ -404,88 +411,280 @@ export default function Community() {
           </Dialog>
         </TabsContent>
 
-        {/* ─── 명예의전당 스토리 ─── */}
+        {/* ─── 명예의전당 (스토리 + VIP 라운지) ─── */}
         <TabsContent value="story" className="mt-0">
-          <div className="px-4 py-4 space-y-3">
-            {!stories || stories.length === 0 ? (
-              <div className="py-12 text-center">
-                <Sparkles className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-                <p className="text-muted-foreground">아직 명예의전당 스토리가 없습니다</p>
-                <p className="text-sm text-muted-foreground">나의 건강 이야기를 나눠보세요!</p>
+          {hallOfFameView === "menu" && (
+            <div className="px-4 py-6 space-y-4">
+              {/* 명예의전당 헤더 */}
+              <div className="text-center py-4">
+                <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center mb-3 shadow-lg">
+                  <Trophy className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-lg font-bold">명예의 전당</h2>
+                <p className="text-sm text-muted-foreground mt-1">건강 여정의 이야기를 나누는 공간</p>
               </div>
-            ) : (
-              stories.map((story: any) => (
-                <Card key={story.id} className="overflow-hidden">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shrink-0">
-                        <User className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">{story.authorName || "익명"}</span>
-                          <span className="text-xs text-muted-foreground">{formatTime(story.createdAt)}</span>
-                        </div>
-                        <p className="text-sm mt-2 leading-relaxed">{story.content}</p>
-                        {story.imageUrl && (
-                          <div className="mt-3 rounded-lg overflow-hidden">
-                            <img src={story.imageUrl} alt="" className="w-full" />
-                          </div>
-                        )}
-                        <div className="flex items-center gap-4 mt-3">
-                          <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-emerald-700">
-                            <Heart className="w-3.5 h-3.5" /> {story.likeCount || 0}
-                          </button>
-                        </div>
+
+              {/* 명예의전당 스토리 */}
+              <button
+                onClick={() => setHallOfFameView("stories")}
+                className="w-full group"
+              >
+                <Card className="overflow-hidden hover:shadow-lg transition-all border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50">
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform">
+                      <Star className="w-7 h-7 text-white" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h3 className="font-bold text-base">명예의전당 스토리</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">회원들의 건강 성공 이야기를 읽고 공유하세요</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="outline" className="text-[10px] bg-amber-100 text-amber-700 border-amber-300">
+                          {stories?.length || 0}개 스토리
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground">모든 회원 접근 가능</span>
                       </div>
                     </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-amber-600 transition-colors" />
                   </CardContent>
                 </Card>
-              ))
-            )}
-          </div>
+              </button>
 
-          {/* New Story */}
-          <Dialog open={showNewStory} onOpenChange={setShowNewStory}>
-            <DialogTrigger asChild>
-              <Button
-                className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-emerald-700 hover:bg-emerald-800 shadow-lg z-50"
-                onClick={() => { if (!requireAuth()) return; setShowNewStory(true); }}
+              {/* VIP 라운지 */}
+              <button
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    window.location.href = getLoginUrl();
+                    return;
+                  }
+                  if (!isVipMember) {
+                    toast.error("VIP 라운지는 Diamond LEVEL 이상 회원만 입장 가능합니다", {
+                      description: "등급 업그레이드 후 이용해주세요",
+                    });
+                    return;
+                  }
+                  setHallOfFameView("vip");
+                }}
+                className="w-full group"
               >
-                <Plus className="w-6 h-6" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md mx-auto">
-              <DialogHeader>
-                <DialogTitle>명예의전당 스토리</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Textarea
-                  placeholder="건강 여정의 이야기를 짧게 남겨보세요..."
-                  value={newStoryContent}
-                  onChange={e => setNewStoryContent(e.target.value)}
-                  rows={4}
-                />
-                <MediaInputToolbar
-                  onTextFromVoice={(text) => setNewStoryContent(prev => prev ? prev + " " + text : text)}
-                  attachedMedia={storyMedia}
-                  onMediaAttached={setStoryMedia}
-                  onRemoveMedia={(idx) => setStoryMedia(prev => prev.filter((_, i) => i !== idx))}
-                />
-                <Button
-                  className="w-full bg-emerald-700 hover:bg-emerald-800"
-                  disabled={!newStoryContent.trim() || createStory.isPending}
-                  onClick={() => {
-                    const imageUrl = storyMedia.find(m => m.type === "image")?.url;
-                    createStory.mutate({ content: newStoryContent, imageUrl });
-                    setStoryMedia([]);
-                  }}
-                >
-                  {createStory.isPending ? "등록 중..." : "명예의전당 스토리 등록"}
-                </Button>
+                <Card className={`overflow-hidden hover:shadow-lg transition-all ${
+                  isVipMember
+                    ? "border-purple-300 bg-gradient-to-r from-purple-50 to-violet-50"
+                    : "border-gray-200 bg-gray-50 opacity-80"
+                }`}>
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform ${
+                      isVipMember
+                        ? "bg-gradient-to-br from-purple-500 to-violet-600"
+                        : "bg-gradient-to-br from-gray-400 to-gray-500"
+                    }`}>
+                      {isVipMember ? <Crown className="w-7 h-7 text-white" /> : <Lock className="w-7 h-7 text-white" />}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-base">VIP 라운지</h3>
+                        {!isVipMember && (
+                          <Badge variant="outline" className="text-[10px] bg-gray-100 text-gray-500 border-gray-300">
+                            <Lock className="w-2.5 h-2.5 mr-0.5" /> 잠김
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {isVipMember
+                          ? "Diamond LEVEL 이상 전용 프리미엄 공간"
+                          : "Diamond LEVEL 이상 회원만 입장 가능"
+                        }
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="outline" className={`text-[10px] ${
+                          isVipMember
+                            ? "bg-purple-100 text-purple-700 border-purple-300"
+                            : "bg-gray-100 text-gray-500 border-gray-300"
+                        }`}>
+                          <Crown className="w-2.5 h-2.5 mr-0.5" /> VIP 전용
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground">
+                          {isVipMember ? "프리미엄 콘텐츠 & 네트워킹" : "Diamond / Platinum / Black Platinum"}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight className={`w-5 h-5 transition-colors ${
+                      isVipMember ? "text-purple-400 group-hover:text-purple-600" : "text-gray-400"
+                    }`} />
+                  </CardContent>
+                </Card>
+              </button>
+            </div>
+          )}
+
+          {/* 명예의전당 스토리 뷰 */}
+          {hallOfFameView === "stories" && (
+            <div>
+              {/* 뒤로가기 버튼 */}
+              <div className="px-4 py-3 border-b bg-amber-50/50">
+                <button onClick={() => setHallOfFameView("menu")} className="flex items-center gap-2 text-sm text-amber-700 hover:text-amber-800">
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                  <Star className="w-4 h-4" />
+                  <span className="font-medium">명예의전당 스토리</span>
+                </button>
               </div>
-            </DialogContent>
-          </Dialog>
+
+              <div className="px-4 py-4 space-y-3">
+                {!stories || stories.length === 0 ? (
+                  <div className="py-12 text-center">
+                    <Star className="w-12 h-12 mx-auto mb-3 text-amber-400 opacity-50" />
+                    <p className="text-muted-foreground">아직 명예의전당 스토리가 없습니다</p>
+                    <p className="text-sm text-muted-foreground">나의 건강 성공 이야기를 남겨보세요!</p>
+                  </div>
+                ) : (
+                  stories.map((story: any) => (
+                    <Card key={story.id} className="overflow-hidden border-amber-200">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shrink-0">
+                            <User className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm">{story.authorName || "익명"}</span>
+                              <span className="text-xs text-muted-foreground">{formatTime(story.createdAt)}</span>
+                            </div>
+                            <p className="text-sm mt-2 leading-relaxed">{story.content}</p>
+                            {story.imageUrl && (
+                              <div className="mt-3 rounded-lg overflow-hidden">
+                                <img src={story.imageUrl} alt="" className="w-full" />
+                              </div>
+                            )}
+                            <div className="flex items-center gap-4 mt-3">
+                              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-amber-700">
+                                <Heart className="w-3.5 h-3.5" /> {story.likeCount || 0}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+
+              {/* 스토리 작성 버튼 */}
+              <Dialog open={showNewStory} onOpenChange={setShowNewStory}>
+                <DialogTrigger asChild>
+                  <Button
+                    className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-amber-500 hover:bg-amber-600 shadow-lg z-50"
+                    onClick={() => { if (!requireAuth()) return; setShowNewStory(true); }}
+                  >
+                    <Plus className="w-6 h-6" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md mx-auto">
+                  <DialogHeader>
+                    <DialogTitle>명예의전당 스토리 등록</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <Textarea
+                      placeholder="건강 여정의 이야기를 짧게 남겨보세요..."
+                      value={newStoryContent}
+                      onChange={e => setNewStoryContent(e.target.value)}
+                      rows={4}
+                    />
+                    <MediaInputToolbar
+                      onTextFromVoice={(text) => setNewStoryContent(prev => prev ? prev + " " + text : text)}
+                      attachedMedia={storyMedia}
+                      onMediaAttached={setStoryMedia}
+                      onRemoveMedia={(idx) => setStoryMedia(prev => prev.filter((_, i) => i !== idx))}
+                    />
+                    <Button
+                      className="w-full bg-amber-500 hover:bg-amber-600"
+                      disabled={!newStoryContent.trim() || createStory.isPending}
+                      onClick={() => {
+                        const imageUrl = storyMedia.find(m => m.type === "image")?.url;
+                        createStory.mutate({ content: newStoryContent, imageUrl });
+                        setStoryMedia([]);
+                      }}
+                    >
+                      {createStory.isPending ? "등록 중..." : "명예의전당 스토리 등록"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
+
+          {/* VIP 라운지 뷰 */}
+          {hallOfFameView === "vip" && isVipMember && (
+            <div>
+              {/* 뒤로가기 버튼 */}
+              <div className="px-4 py-3 border-b bg-purple-50/50">
+                <button onClick={() => setHallOfFameView("menu")} className="flex items-center gap-2 text-sm text-purple-700 hover:text-purple-800">
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                  <Crown className="w-4 h-4" />
+                  <span className="font-medium">VIP 라운지</span>
+                </button>
+              </div>
+
+              <div className="px-4 py-6">
+                {/* VIP 헤더 */}
+                <div className="bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl p-6 text-white mb-6 shadow-lg">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                      <Crown className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold">VIP 라운지</h2>
+                      <p className="text-xs text-white/80">글로벌 리더 전용 프리미엄 공간</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 mt-4">
+                    <div className="bg-white/15 rounded-xl p-3 text-center">
+                      <p className="text-lg font-bold">128</p>
+                      <p className="text-[10px] text-white/70">온라인 VIP</p>
+                    </div>
+                    <div className="bg-white/15 rounded-xl p-3 text-center">
+                      <p className="text-lg font-bold">24</p>
+                      <p className="text-[10px] text-white/70">이번주 활동</p>
+                    </div>
+                    <div className="bg-white/15 rounded-xl p-3 text-center">
+                      <p className="text-lg font-bold">VIP</p>
+                      <p className="text-[10px] text-white/70">내 등급</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* VIP 전용 콘텐츠 */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold flex items-center gap-2">
+                    <Crown className="w-4 h-4 text-purple-600" /> VIP 전용 콘텐츠
+                  </h3>
+                  {[
+                    { icon: "🏥", title: "프리미엄 건강관리", desc: "1:1 전문가 상담 예약" },
+                    { icon: "🌍", title: "글로벌 네트워킹", desc: "VIP 전용 네트워킹 이벤트" },
+                    { icon: "✈️", title: "테마 여행", desc: "건강 테마 여행 우선 예약" },
+                    { icon: "🍷", title: "와인 파티", desc: "VIP 전용 와인 & 다이닝" },
+                    { icon: "🎨", title: "취미 서클", desc: "프리미엄 취미 클래스" },
+                    { icon: "🎫", title: "VIP 쿠폰", desc: "월별 특별 할인 쿠폰" },
+                  ].map((item, i) => (
+                    <Card key={i} className="border-purple-200 hover:shadow-md transition-all cursor-pointer">
+                      <CardContent className="p-4 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-xl shrink-0">
+                          {item.icon}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-bold">{item.title}</h4>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-purple-400" />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                <p className="text-center text-[10px] text-muted-foreground mt-6">
+                  VIP 라운지는 Diamond LEVEL 이상 회원만 이용 가능합니다
+                </p>
+              </div>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

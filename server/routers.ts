@@ -162,7 +162,7 @@ export const appRouter = router({
       return { success: true };
     }),
     submit: protectedProcedure
-      .input(z.object({ missionId: z.number() }))
+      .input(z.object({ missionId: z.number(), photoBase64: z.string().optional(), photoContentType: z.string().optional() }))
       .mutation(async ({ ctx, input }) => {
         const profile = await db.getProfile(ctx.user.id);
         const gradePayback: Record<string, number> = {
@@ -172,9 +172,76 @@ export const appRouter = router({
         const maxPayback = gradePayback[profile?.memberGrade || "silver"] || 50;
         const completionRate = Math.floor(Math.random() * 30) + 70;
         const paybackRate = Math.round((completionRate / 100) * maxPayback);
+        
+        // 사진 업로드 (S3)
+        let photoUrl: string | undefined;
+        if (input.photoBase64) {
+          try {
+            const buffer = Buffer.from(input.photoBase64, "base64");
+            const ext = (input.photoContentType || "image/jpeg").split("/")[1] || "jpg";
+            const key = `mission-photos/${ctx.user.id}/${input.missionId}-${nanoid(8)}.${ext}`;
+            const { url } = await storagePut(key, buffer, input.photoContentType || "image/jpeg");
+            photoUrl = url;
+          } catch (e) {
+            console.warn("[Mission] Photo upload failed:", e);
+          }
+        }
+        
         await db.updateMission(input.missionId, { status: "completed", completionRate, paybackRate });
-        return { success: true, completionRate, paybackRate };
+        
+        // 관리자에게 미션 인증 알림 발송
+        try {
+          const { notifyOwner } = await import("./_core/notification");
+          await notifyOwner({
+            title: `✅ 미션 인증 완료`,
+            content: `회원명: ${ctx.user.name || "미입력"}\n미션ID: ${input.missionId}\n완수율: ${completionRate}%\n페이백: ${paybackRate}%${photoUrl ? `\n인증사진: ${photoUrl}` : ""}\n\n관리자 페이지에서 확인해주세요.`,
+          });
+        } catch (e) {
+          console.warn("[Mission] Notification failed:", e);
+        }
+        
+        return { success: true, completionRate, paybackRate, photoUrl };
       }),
+    // 필수 미션 인증 사진 업로드 + 관리자 알림
+    submitRequiredMission: protectedProcedure
+      .input(z.object({ missionTitle: z.string(), difficulty: z.string().optional(), photoBase64: z.string(), photoContentType: z.string().optional() }))
+      .mutation(async ({ ctx, input }) => {
+        let photoUrl = "";
+        try {
+          const buffer = Buffer.from(input.photoBase64, "base64");
+          const ext = (input.photoContentType || "image/jpeg").split("/")[1] || "jpg";
+          const key = `required-mission-photos/${ctx.user.id}/${nanoid(8)}.${ext}`;
+          const { url } = await storagePut(key, buffer, input.photoContentType || "image/jpeg");
+          photoUrl = url;
+        } catch (e) {
+          console.warn("[RequiredMission] Photo upload failed:", e);
+        }
+        
+        // 관리자에게 알림
+        try {
+          const { notifyOwner } = await import("./_core/notification");
+          await notifyOwner({
+            title: `📸 필수 미션 인증 제출`,
+            content: `회원명: ${ctx.user.name || "미입력"}\n미션: ${input.missionTitle}\n난이도: ${input.difficulty || "일반"}${photoUrl ? `\n인증사진: ${photoUrl}` : ""}\n\n관리자 페이지에서 확인 후 승인해주세요.`,
+          });
+        } catch (e) {
+          console.warn("[RequiredMission] Notification failed:", e);
+        }
+        
+        return { success: true, photoUrl };
+      }),
+  }),
+
+  // ─── VIP Access Check ─────────────────────────────────────────────
+  vip: router({
+    checkAccess: protectedProcedure.query(async ({ ctx }) => {
+      const profile = await db.getProfile(ctx.user.id);
+      const grade = profile?.memberGrade || "silver";
+      // diamond 이상 등급만 VIP 라운지 접근 가능
+      const vipGrades = ["diamond", "blue_diamond", "platinum", "black_platinum"];
+      const hasAccess = vipGrades.includes(grade);
+      return { hasAccess, currentGrade: grade, requiredGrade: "diamond" };
+    }),
   }),
 
   // ─── Goals ───────────────────────────────────────────────────────
@@ -538,6 +605,21 @@ export const appRouter = router({
         });
         return { success: true };
       }),
+    // 멤버십 업그레이드 신청 (본사에 알림)
+    requestUpgrade: protectedProcedure
+      .input(z.object({ tier: z.enum(["gold", "blue_sapphire", "green_emerald", "diamond", "blue_diamond", "platinum", "black_platinum"]) }))
+      .mutation(async ({ ctx, input }) => {
+        const { notifyOwner } = await import("./_core/notification");
+        const tierNames: Record<string, string> = {
+          gold: "골드", blue_sapphire: "블루사파이어", green_emerald: "그린에메랄드",
+          diamond: "다이아몬드", blue_diamond: "블루다이아몬드", platinum: "플래티넘", black_platinum: "블랙플래티넘",
+        };
+        await notifyOwner({
+          title: `💎 멤버십 업그레이드 신청`,
+          content: `회원명: ${ctx.user.name || "미입력"}\n회원ID: ${ctx.user.id}\n신청 등급: ${tierNames[input.tier] || input.tier}\n\n관리자 페이지에서 해당 회원의 등급을 변경해주세요.`,
+        });
+        return { success: true };
+      }),
   }),
 
   // ─── 포인트 ─────────────────────────────────────────────────────
@@ -837,6 +919,84 @@ export const appRouter = router({
       const { MUSIC_LIBRARY } = await import('./music-library');
       return MUSIC_LIBRARY;
     }),
+  }),
+  // ─── Health Sync (건강 데이터 자동 연동) ───────────────────────────
+  healthSync: router({
+    createToken: protectedProcedure
+      .input(z.object({ platform: z.enum(["samsung_health", "apple_health", "google_fit", "manual"]) }))
+      .mutation(async ({ ctx, input }) => {
+        const token = nanoid(32);
+        const database = await db.getDb();
+        if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const { healthSyncTokens } = await import("../drizzle/schema");
+        const { eq, and } = await import("drizzle-orm");
+        await database.update(healthSyncTokens).set({ isActive: 0 }).where(and(eq(healthSyncTokens.userId, ctx.user.id), eq(healthSyncTokens.platform, input.platform)));
+        await database.insert(healthSyncTokens).values({ userId: ctx.user.id, syncToken: token, platform: input.platform, consentGivenAt: new Date() });
+        return { token, webhookUrl: `/api/health-sync/webhook?token=${token}` };
+      }),
+    getMyTokens: protectedProcedure.query(async ({ ctx }) => {
+      const database = await db.getDb();
+      if (!database) return [];
+      const { healthSyncTokens } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      return database.select().from(healthSyncTokens).where(eq(healthSyncTokens.userId, ctx.user.id));
+    }),
+    deactivateToken: protectedProcedure
+      .input(z.object({ tokenId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const database = await db.getDb();
+        if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const { healthSyncTokens } = await import("../drizzle/schema");
+        const { eq, and } = await import("drizzle-orm");
+        await database.update(healthSyncTokens).set({ isActive: 0 }).where(and(eq(healthSyncTokens.id, input.tokenId), eq(healthSyncTokens.userId, ctx.user.id)));
+        return { success: true };
+      }),
+    getSyncedData: protectedProcedure
+      .input(z.object({ days: z.number().default(7) }))
+      .query(async ({ ctx, input }) => {
+        const database = await db.getDb();
+        if (!database) return [];
+        const { healthSyncData } = await import("../drizzle/schema");
+        const { eq, desc, gte, and } = await import("drizzle-orm");
+        const since = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
+        return database.select().from(healthSyncData).where(and(eq(healthSyncData.userId, ctx.user.id), gte(healthSyncData.recordedAt, since))).orderBy(desc(healthSyncData.recordedAt)).limit(500);
+      }),
+    requestAiAnalysis: protectedProcedure
+      .input(z.object({ period: z.enum(["daily", "weekly", "monthly"]).default("weekly") }))
+      .mutation(async ({ ctx, input }) => {
+        const database = await db.getDb();
+        if (!database) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const { healthSyncData, aiHealthFeedback, healthRecords } = await import("../drizzle/schema");
+        const { eq, desc, gte, and } = await import("drizzle-orm");
+        const days = input.period === "daily" ? 1 : input.period === "weekly" ? 7 : 30;
+        const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        const syncedData = await database.select().from(healthSyncData).where(and(eq(healthSyncData.userId, ctx.user.id), gte(healthSyncData.recordedAt, since))).orderBy(desc(healthSyncData.recordedAt)).limit(200);
+        const manualRecords = await database.select().from(healthRecords).where(and(eq(healthRecords.userId, ctx.user.id), gte(healthRecords.recordDate, since.toISOString().slice(0, 10)))).limit(30);
+        if (syncedData.length === 0 && manualRecords.length === 0) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "분석할 건강 데이터가 없습니다. 건강 데이터를 먼저 동기화하거나 수동으로 입력해주세요." });
+        }
+        const dataSummary = JSON.stringify({ syncedData: syncedData.slice(0, 50), manualRecords: manualRecords.slice(0, 10) });
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: `당신은 GLWA 글로벌 리더스 웰니스 매니저의 AI 건강 분석 전문가입니다. 사용자의 건강 데이터를 분석하여 한국어로 맞춤형 피드백을 제공합니다. 분석 기간: ${input.period}. 반드시 JSON 형식으로 응답하세요.` },
+            { role: "user", content: `다음 건강 데이터를 분석해주세요:\n${dataSummary}\n\nJSON 형식으로 응답: { "summary": "전체 요약", "recommendations": ["추천1", "추천2", ...], "riskAlerts": ["경고", ...] 또는 빈 배열, "score": 0-100 건강 점수 }` }
+          ],
+          response_format: { type: "json_schema", json_schema: { name: "health_analysis", strict: true, schema: { type: "object", properties: { summary: { type: "string" }, recommendations: { type: "array", items: { type: "string" } }, riskAlerts: { type: "array", items: { type: "string" } }, score: { type: "number" } }, required: ["summary", "recommendations", "riskAlerts", "score"], additionalProperties: false } } }
+        });
+        const analysis = JSON.parse((response.choices[0].message.content as string) || "{}");
+        const today = new Date().toISOString().slice(0, 10);
+        await database.insert(aiHealthFeedback).values({ userId: ctx.user.id, feedbackDate: today, analysisType: input.period, summary: analysis.summary, recommendations: analysis.recommendations, riskAlerts: analysis.riskAlerts, dataSnapshot: { score: analysis.score, period: input.period, dataCount: syncedData.length + manualRecords.length } });
+        return analysis;
+      }),
+    getFeedbackHistory: protectedProcedure
+      .input(z.object({ limit: z.number().default(10) }))
+      .query(async ({ ctx, input }) => {
+        const database = await db.getDb();
+        if (!database) return [];
+        const { aiHealthFeedback } = await import("../drizzle/schema");
+        const { eq, desc } = await import("drizzle-orm");
+        return database.select().from(aiHealthFeedback).where(eq(aiHealthFeedback.userId, ctx.user.id)).orderBy(desc(aiHealthFeedback.createdAt)).limit(input.limit);
+      }),
   }),
 });
 export type AppRouter = typeof appRouter;

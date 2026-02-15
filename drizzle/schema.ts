@@ -666,3 +666,46 @@ export const mentalHealthNotifications = mysqlTable("mental_health_notifications
 
 export type MentalHealthNotification = typeof mentalHealthNotifications.$inferSelect;
 export type InsertMentalHealthNotification = typeof mentalHealthNotifications.$inferInsert;
+
+// ─── Health Sync (건강 데이터 자동 연동) ──────────────────────────────────
+export const healthSyncTokens = mysqlTable("health_sync_tokens", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  syncToken: varchar("syncToken", { length: 64 }).notNull(),
+  platform: mysqlEnum("platform", ["samsung_health", "apple_health", "google_fit", "manual"]).default("samsung_health").notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  consentGivenAt: timestamp("consentGivenAt"),
+  lastSyncAt: timestamp("lastSyncAt"),
+  syncCount: int("syncCount").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type HealthSyncToken = typeof healthSyncTokens.$inferSelect;
+export type InsertHealthSyncToken = typeof healthSyncTokens.$inferInsert;
+
+export const healthSyncData = mysqlTable("health_sync_data", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  dataType: varchar("dataType", { length: 50 }).notNull(),
+  value: float("value"),
+  valueJson: json("valueJson"),
+  unit: varchar("unit", { length: 20 }),
+  source: varchar("source", { length: 50 }),
+  recordedAt: timestamp("recordedAt").notNull(),
+  syncedAt: timestamp("syncedAt").defaultNow().notNull(),
+});
+export type HealthSyncDatum = typeof healthSyncData.$inferSelect;
+export type InsertHealthSyncDatum = typeof healthSyncData.$inferInsert;
+
+export const aiHealthFeedback = mysqlTable("ai_health_feedback", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  feedbackDate: varchar("feedbackDate", { length: 10 }).notNull(),
+  analysisType: mysqlEnum("analysisType", ["daily", "weekly", "monthly", "alert"]).default("daily").notNull(),
+  summary: text("summary"),
+  recommendations: json("recommendations"),
+  riskAlerts: json("riskAlerts"),
+  dataSnapshot: json("dataSnapshot"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AiHealthFeedback = typeof aiHealthFeedback.$inferSelect;
+export type InsertAiHealthFeedback = typeof aiHealthFeedback.$inferInsert;

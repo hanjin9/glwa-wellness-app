@@ -60,6 +60,69 @@ async function startServer() {
     }
   });
 
+  // ─── Health Sync Webhook (건강 데이터 자동 연동) ─────────────────────
+  app.post("/api/health-sync/webhook", express.json(), async (req, res) => {
+    try {
+      const token = req.headers["x-sync-token"] as string || req.query.token as string;
+      if (!token) return res.status(401).json({ error: "Missing sync token" });
+      const { eq, and } = await import("drizzle-orm");
+      const { getDb } = await import("../db");
+      const { healthSyncTokens, healthSyncData, healthRecords } = await import("../../drizzle/schema");
+      const database = await getDb();
+      if (!database) return res.status(500).json({ error: "Database not available" });
+      const [syncToken] = await database.select().from(healthSyncTokens).where(and(eq(healthSyncTokens.syncToken, token), eq(healthSyncTokens.isActive, 1))).limit(1);
+      if (!syncToken) return res.status(401).json({ error: "Invalid or inactive sync token" });
+      const body = req.body;
+      const records = Array.isArray(body) ? body : body.records || [body];
+      for (const record of records) {
+        const dataType = record.dataType || record.type || "unknown";
+        let value: number | null = null;
+        let unit = "";
+        if (dataType === "steps") { value = record.count || record.value; unit = "steps"; }
+        else if (dataType === "sleep") { value = record.duration || record.value; unit = "hours"; }
+        else if (dataType === "heartRate" || dataType === "heart_rate") { value = record.bpm || record.value; unit = "bpm"; }
+        else if (dataType === "weight") { value = record.value; unit = "kg"; }
+        else if (dataType === "bloodPressure" || dataType === "blood_pressure") { value = record.systolic || record.value; unit = "mmHg"; }
+        else if (dataType === "bloodGlucose" || dataType === "blood_glucose") { value = record.value; unit = "mg/dL"; }
+        else if (dataType === "oxygenSaturation") { value = record.value; unit = "%"; }
+        else { value = record.value || null; unit = record.unit || ""; }
+        await database!.insert(healthSyncData).values({
+          userId: syncToken.userId,
+          dataType,
+          value,
+          valueJson: record,
+          unit,
+          source: syncToken.platform,
+          recordedAt: record.startTime ? new Date(record.startTime) : new Date(),
+        });
+      }
+      // Update sync token stats
+      await database!.update(healthSyncTokens).set({ lastSyncAt: new Date(), syncCount: (syncToken.syncCount || 0) + 1 }).where(eq(healthSyncTokens.id, syncToken.id));
+      // Auto-fill today's health record from synced data
+      const today = new Date().toISOString().slice(0, 10);
+      const [existing] = await database!.select().from(healthRecords).where(and(eq(healthRecords.userId, syncToken.userId), eq(healthRecords.recordDate, today))).limit(1);
+      if (!existing) {
+        const updates: any = { userId: syncToken.userId, recordDate: today };
+        for (const r of records) {
+          const dt = r.dataType || r.type;
+          if (dt === "steps") updates.exerciseMinutes = Math.round((r.count || r.value || 0) / 100);
+          if (dt === "sleep") updates.sleepHours = r.duration || r.value;
+          if (dt === "heartRate" || dt === "heart_rate") updates.heartRate = r.bpm || r.value;
+          if (dt === "weight") updates.weight = r.value;
+          if (dt === "bloodPressure" || dt === "blood_pressure") { updates.systolicBP = r.systolic; updates.diastolicBP = r.diastolic; }
+          if (dt === "bloodGlucose" || dt === "blood_glucose") updates.bloodSugar = r.value;
+          if (dt === "hydration") updates.waterIntake = r.value;
+        }
+        await database!.insert(healthRecords).values(updates);
+      }
+      console.log(`[HealthSync] Received ${records.length} records from user ${syncToken.userId}`);
+      res.json({ success: true, recordsProcessed: records.length });
+    } catch (err: any) {
+      console.error("[HealthSync Webhook] Error:", err.message);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));

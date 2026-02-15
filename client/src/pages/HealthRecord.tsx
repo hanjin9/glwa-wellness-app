@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
-import { Plus, History, Heart, Weight, Moon, Flame, Brain, Utensils, Cookie } from "lucide-react";
+import { Plus, History, Heart, Weight, Moon, Flame, Brain, Utensils, Cookie, Activity } from "lucide-react";
+import HealthAutoTracker from "@/components/HealthAutoTracker";
 import { MediaInputToolbar, type MediaFile } from "@/components/MediaInputToolbar";
 
 // 식사 시간대 (6시~22시)
@@ -30,6 +31,8 @@ export default function HealthRecord() {
     },
     onError: () => toast.error("저장에 실패했습니다."),
   });
+
+  const [autoData, setAutoData] = useState<{ steps?: number; distance?: number; calories?: number; sleepHours?: number }>({});
 
   const [form, setForm] = useState({
     systolicBP: "",
@@ -121,12 +124,17 @@ export default function HealthRecord() {
           <TabsTrigger value="record" className="flex-1 text-xs">
             <Plus className="w-3 h-3 mr-1" /> 기록하기
           </TabsTrigger>
+          <TabsTrigger value="auto" className="flex-1 text-xs">
+            <Activity className="w-3 h-3 mr-1" /> 자동추적
+          </TabsTrigger>
           <TabsTrigger value="history" className="flex-1 text-xs">
             <History className="w-3 h-3 mr-1" /> 히스토리
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="record" className="space-y-4 mt-4">
+          {/* 자동 건강 추적 - 센서 데이터 */}
+          <HealthAutoTracker compact onDataCollected={setAutoData} />
           <div>
             <Label className="text-xs">기록 날짜</Label>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1 text-sm" />
@@ -442,6 +450,10 @@ export default function HealthRecord() {
           <Button onClick={handleSave} className="w-full gradient-warm text-white border-0" disabled={addRecord.isPending}>
             {addRecord.isPending ? "저장 중..." : "건강 기록 저장"}
           </Button>
+        </TabsContent>
+
+        <TabsContent value="auto" className="mt-4">
+          <HealthAutoTracker onDataCollected={setAutoData} />
         </TabsContent>
 
         <TabsContent value="history" className="mt-4">

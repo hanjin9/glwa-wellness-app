@@ -15,6 +15,7 @@ import {
   Lock, Globe, Phone, UserCheck, Briefcase, Wine
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { UpgradeChatDialog } from "@/components/UpgradeChatDialog";
 
 // ═══════════════════════════════════════════════════════════════════
 // 8등급 프리미엄 멤버십 설정
@@ -156,6 +157,13 @@ export default function Membership() {
     onSuccess: () => { toast.success("멤버십이 업그레이드되었습니다!"); membershipQuery.refetch(); pointsQuery.refetch(); },
     onError: (err) => toast.error(err.message),
   });
+  const requestUpgrade = trpc.membership.requestUpgrade.useMutation({
+    onSuccess: () => { toast.success("업그레이드 신청이 접수되었습니다! GLWA 본사에서 확인 후 연락드리겠습니다."); },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const [chatDialogOpen, setChatDialogOpen] = useState(false);
+  const [selectedUpgradeTier, setSelectedUpgradeTier] = useState<string>("gold");
 
   const currentTier = (membershipQuery.data?.membership?.tier || "silver") as string;
   const tierConfig = TIER_CONFIG[currentTier] || TIER_CONFIG.silver;
@@ -464,12 +472,12 @@ export default function Membership() {
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                upgradeMembership.mutate({ tier: tier as any });
+                                setSelectedUpgradeTier(tier);
+                                setChatDialogOpen(true);
                               }}
-                              disabled={upgradeMembership.isPending}
                             >
                               <ArrowUp className="w-4 h-4 mr-1" />
-                              {cfg.name}으로 업그레이드
+                              {cfg.name} 업그레이드 신청
                             </Button>
                           )}
                           {tier === "black_platinum" && isHigherTier && (
@@ -716,6 +724,18 @@ export default function Membership() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* 업그레이드 신청 AI 챗봇 다이얼로그 */}
+      <UpgradeChatDialog
+        open={chatDialogOpen}
+        onOpenChange={setChatDialogOpen}
+        tierName={TIER_CONFIG[selectedUpgradeTier]?.name || ""}
+        tierNameEn={TIER_CONFIG[selectedUpgradeTier]?.nameEn || ""}
+        tierKey={selectedUpgradeTier}
+        currentTierName={tierConfig.name}
+        tierColor={TIER_CONFIG[selectedUpgradeTier]?.color || "from-gray-400 to-gray-600"}
+        userName={user?.name || undefined}
+      />
     </div>
   );
 }

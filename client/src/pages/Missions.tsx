@@ -10,6 +10,8 @@ import {
   ChevronRight, Calendar, Timer,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { MissionSlotMachine } from "@/components/MissionSlotMachine";
+import { RequiredMissions } from "@/components/RequiredMissions";
 
 const periodTabs = [
   { key: "daily", label: "오늘", icon: "⚡", color: "from-amber-400 to-orange-500", pts: 10, days: "1일" },
@@ -219,6 +221,14 @@ export default function Missions() {
 
   return (
     <div className="space-y-5">
+      {/* 부여된 미션 - 슬롯머신 */}
+      <MissionSlotMachine onSelectMission={(mission, difficulty) => {
+        toast.success(`"${mission}" 미션을 선택했습니다! (${difficulty})`);
+      }} />
+
+      {/* 필수 미션 */}
+      <RequiredMissions />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
