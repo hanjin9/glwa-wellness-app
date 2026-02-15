@@ -25,6 +25,7 @@ import Membership from "./pages/Membership";
 import Settings from "./pages/Settings";
 import HealthCheck from "./pages/HealthCheck";
 import VIPLounge from "./pages/VIPLounge";
+import Live from "./pages/Live";
 import MobileLayout from "./components/MobileLayout";
 
 function Router() {
@@ -84,6 +85,9 @@ function Router() {
       </Route>
       <Route path="/vip-lounge">
         <MobileLayout><VIPLounge /></MobileLayout>
+      </Route>
+      <Route path="/live">
+        <MobileLayout><Live /></MobileLayout>
       </Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

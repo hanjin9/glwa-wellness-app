@@ -186,7 +186,7 @@ export default function Membership() {
           <div className="absolute bottom-4 left-4 w-32 h-32 rounded-full bg-white/20 blur-2xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-white/10 blur-3xl" />
         </div>
-        <div className="relative max-w-md lg:max-w-4xl mx-auto">
+        <div className="relative w-full max-w-full mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-white/60 text-xs font-medium tracking-widest uppercase">GLWA PREMIUM MEMBERSHIP</p>
@@ -251,7 +251,7 @@ export default function Membership() {
       {/* Tabs Navigation */}
       <div className="w-full mx-auto px-4 -mt-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full bg-white shadow-lg rounded-2xl h-12 p-1">
+          <TabsList className="w-full max-w-full bg-white shadow-lg rounded-2xl h-12 p-1">
             <TabsTrigger value="overview" className="rounded-xl text-xs flex-1">혜택</TabsTrigger>
             <TabsTrigger value="tiers" className="rounded-xl text-xs flex-1">등급</TabsTrigger>
             <TabsTrigger value="points" className="rounded-xl text-xs flex-1">포인트</TabsTrigger>
