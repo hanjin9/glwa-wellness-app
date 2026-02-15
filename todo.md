@@ -346,11 +346,12 @@
 
 
 ## 27차 업데이트 - Service Worker 오프라인 모드 지원
-- [x] Service Worker 기본 설정 및 등록
+- [x] Service Worker 기본 설정 및 등록 (client/public/service-worker.js)
 - [x] 캐싱 전략 구현 (Network First, Cache First)
 - [x] IndexedDB 오프라인 데이터 저장소 구현
 - [x] 핵심 페이지 오프라인 지원 (대시보드, 미션, 프로필)
 - [x] 오프라인/온라인 상태 감지 및 UI 표시
 - [x] 오프라인 데이터 동기화 (온라인 복귀 시)
-- [x] 테스트 및 검증
+- [x] 테스트 및 검증 (모든 테스트 57/57 통과)
+- [x] 프로덕션 빌드 설정 수정
 - [x] 최종 체크포인트 저장
