@@ -709,3 +709,113 @@ export const aiHealthFeedback = mysqlTable("ai_health_feedback", {
 });
 export type AiHealthFeedback = typeof aiHealthFeedback.$inferSelect;
 export type InsertAiHealthFeedback = typeof aiHealthFeedback.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════
+// 관리자 알림 시스템
+// ═══════════════════════════════════════════════════════════════════════
+
+// ─── Admin Notification Settings (알림 파이프라인 설정) ─────────────────
+export const adminNotificationSettings = mysqlTable("admin_notification_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  adminUserId: int("adminUserId").notNull(),
+  category: mysqlEnum("notifCategory", [
+    "urgent",       // 긴급: VIP레벨업 신청, 긴급상담 요청
+    "important",    // 중요: 결제완료, 정산요청, 환불요청
+    "normal",       // 일반: 미션완료, 건강기록, 게시글 신고
+    "low"           // 낮음: 좋아요, 댓글, 출석체크
+  ]).notNull(),
+  enabled: int("enabled").default(1).notNull(), // 1=ON, 0=OFF
+  pipeline: mysqlEnum("pipeline", [
+    "instant",      // 즉시 알림
+    "batch_6h",     // 6시간마다 모아보기
+    "daily",        // 일일 모아보기
+    "weekly"        // 주간 모아보기
+  ]).default("instant").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type AdminNotificationSetting = typeof adminNotificationSettings.$inferSelect;
+export type InsertAdminNotificationSetting = typeof adminNotificationSettings.$inferInsert;
+
+// ─── Admin Notifications (관리자 알림 로그) ─────────────────────────────
+export const adminNotifications = mysqlTable("admin_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  category: mysqlEnum("notifLogCategory", [
+    "urgent", "important", "normal", "low"
+  ]).notNull(),
+  type: varchar("type", { length: 100 }).notNull(),
+  title: varchar("title", { length: 300 }).notNull(),
+  content: text("content"),
+  metadata: json("metadata"),
+  isRead: int("isRead").default(0).notNull(),
+  isArchived: int("isArchived").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AdminNotification = typeof adminNotifications.$inferSelect;
+export type InsertAdminNotification = typeof adminNotifications.$inferInsert;
+
+// ─── Admin Activity Log (관리자 활동 로그) ──────────────────────────────
+export const adminActivityLog = mysqlTable("admin_activity_log", {
+  id: int("id").autoincrement().primaryKey(),
+  adminUserId: int("adminUserId").notNull(),
+  action: varchar("action", { length: 100 }).notNull(),
+  targetType: varchar("targetType", { length: 50 }),
+  targetId: int("targetId"),
+  details: text("details"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AdminActivityLogEntry = typeof adminActivityLog.$inferSelect;
+export type InsertAdminActivityLogEntry = typeof adminActivityLog.$inferInsert;
+
+
+// ─── AI Health Analysis (AI 건강 분석 결과) ──────────────────────────────
+export const aiHealthAnalysis = mysqlTable("ai_health_analysis", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  analysisType: mysqlEnum("analysisType", ["daily", "weekly", "monthly", "alert"]).notNull(),
+  riskLevel: mysqlEnum("riskLevel", ["normal", "caution", "warning", "critical"]).notNull(),
+  summary: text("summary").notNull(),
+  details: json("details"),
+  recommendations: json("recommendations"),
+  dataSnapshot: json("dataSnapshot"),
+  isReviewedByAdmin: int("isReviewedByAdmin").default(0).notNull(),
+  adminNotes: text("adminNotes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AiHealthAnalysis = typeof aiHealthAnalysis.$inferSelect;
+export type InsertAiHealthAnalysis = typeof aiHealthAnalysis.$inferInsert;
+
+// ─── Coaching Messages (코칭 메시지) ──────────────────────────────────
+export const coachingMessages = mysqlTable("coaching_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  coachId: int("coachId"),
+  type: mysqlEnum("coachMsgType", ["ai_auto", "coach_manual", "scheduled"]).notNull(),
+  category: mysqlEnum("coachMsgCategory", ["health_analysis", "exercise", "nutrition", "mental", "lifestyle", "motivation", "general"]).notNull(),
+  title: varchar("title", { length: 300 }).notNull(),
+  content: text("content").notNull(),
+  analysisId: int("analysisId"),
+  isRead: int("isRead").default(0).notNull(),
+  scheduledAt: timestamp("scheduledAt"),
+  sentAt: timestamp("sentAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CoachingMessage = typeof coachingMessages.$inferSelect;
+export type InsertCoachingMessage = typeof coachingMessages.$inferInsert;
+
+// ─── Scheduled Coaching (정기 예약 코칭) ──────────────────────────────
+export const scheduledCoaching = mysqlTable("scheduled_coaching", {
+  id: int("id").autoincrement().primaryKey(),
+  coachId: int("coachId").notNull(),
+  targetUserIds: json("targetUserIds"),
+  targetGrade: varchar("targetGrade", { length: 50 }),
+  title: varchar("title", { length: 300 }).notNull(),
+  content: text("content").notNull(),
+  category: mysqlEnum("schedCoachCategory", ["health_analysis", "exercise", "nutrition", "mental", "lifestyle", "motivation", "general"]).notNull(),
+  scheduleType: mysqlEnum("scheduleType", ["once", "daily", "weekly", "monthly"]).notNull(),
+  scheduledAt: timestamp("scheduledAt").notNull(),
+  lastSentAt: timestamp("lastSentAt"),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ScheduledCoaching = typeof scheduledCoaching.$inferSelect;
+export type InsertScheduledCoaching = typeof scheduledCoaching.$inferInsert;

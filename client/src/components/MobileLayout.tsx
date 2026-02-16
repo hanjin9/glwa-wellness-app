@@ -12,6 +12,7 @@ import {
   Settings,
   Crown,
   Radio,
+  Shield,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -120,6 +121,15 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
               <span className="text-xs font-bold tracking-wide">LIVE</span>
             </button>
             
+            {user?.role === "admin" && (
+              <button
+                onClick={() => setLocation("/admin")}
+                className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:shadow-lg transition-all hover:scale-105 duration-200 mr-1.5"
+                title="관리자"
+              >
+                <Shield className="w-3.5 h-3.5" />
+              </button>
+            )}
             <button
               onClick={() => setLocation("/settings")}
               className="flex items-center justify-center w-7 h-7 rounded-full bg-gray-800 text-white shadow-md hover:shadow-lg transition-all hover:bg-gray-700 duration-200"

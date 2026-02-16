@@ -998,5 +998,245 @@ export const appRouter = router({
         return database.select().from(aiHealthFeedback).where(eq(aiHealthFeedback.userId, ctx.user.id)).orderBy(desc(aiHealthFeedback.createdAt)).limit(input.limit);
       }),
   }),
+
+  // ═══════════════════════════════════════════════════════════════════
+  // 관리자 대시보드
+  // ═══════════════════════════════════════════════════════════════════
+  admin: router({
+    getDashboardStats: adminProcedure.query(async () => {
+      const database = await db.getDb();
+      if (!database) return null;
+      const { users, orders, memberProfiles, healthRecords, adminNotifications } = await import("../drizzle/schema");
+      const { count, sum, eq, gte, and } = await import("drizzle-orm");
+      const today = new Date().toISOString().split("T")[0];
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000);
+      const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
+      const [totalUsers] = await database.select({ count: count() }).from(users);
+      const [totalOrders] = await database.select({ count: count() }).from(orders);
+      const [monthlyRevenue] = await database.select({ total: sum(orders.totalAmount) }).from(orders).where(and(gte(orders.createdAt, thirtyDaysAgo), eq(orders.paymentStatus, "completed")));
+      const [todayRecords] = await database.select({ count: count() }).from(healthRecords).where(eq(healthRecords.recordDate, today));
+      const [unreadNotifs] = await database.select({ count: count() }).from(adminNotifications).where(eq(adminNotifications.isRead, 0));
+      const [urgentNotifs] = await database.select({ count: count() }).from(adminNotifications).where(and(eq(adminNotifications.isRead, 0), eq(adminNotifications.category, "urgent")));
+      const [weeklyNewUsers] = await database.select({ count: count() }).from(users).where(gte(users.createdAt, sevenDaysAgo));
+      const gradeStats = await database.select({ grade: memberProfiles.memberGrade, count: count() }).from(memberProfiles).groupBy(memberProfiles.memberGrade);
+      return { totalUsers: totalUsers?.count || 0, totalOrders: totalOrders?.count || 0, monthlyRevenue: Number(monthlyRevenue?.total || 0), todayHealthRecords: todayRecords?.count || 0, unreadNotifications: unreadNotifs?.count || 0, urgentNotifications: urgentNotifs?.count || 0, weeklyNewUsers: weeklyNewUsers?.count || 0, gradeStats };
+    }),
+
+    getNotifications: adminProcedure
+      .input(z.object({ category: z.enum(["all", "urgent", "important", "normal", "low"]).default("all"), readStatus: z.enum(["all", "unread", "read"]).default("all"), limit: z.number().default(50), offset: z.number().default(0) }))
+      .query(async ({ input }) => {
+        const database = await db.getDb();
+        if (!database) return { items: [], total: 0 };
+        const { adminNotifications } = await import("../drizzle/schema");
+        const { eq, and, desc, count } = await import("drizzle-orm");
+        const conditions: any[] = [eq(adminNotifications.isArchived, 0)];
+        if (input.category !== "all") conditions.push(eq(adminNotifications.category, input.category));
+        if (input.readStatus === "unread") conditions.push(eq(adminNotifications.isRead, 0));
+        if (input.readStatus === "read") conditions.push(eq(adminNotifications.isRead, 1));
+        const where = conditions.length > 1 ? and(...conditions) : conditions[0];
+        const items = await database.select().from(adminNotifications).where(where).orderBy(desc(adminNotifications.createdAt)).limit(input.limit).offset(input.offset);
+        const [totalResult] = await database.select({ count: count() }).from(adminNotifications).where(where);
+        return { items, total: totalResult?.count || 0 };
+      }),
+
+    markNotificationRead: adminProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      const database = await db.getDb(); if (!database) return false;
+      const { adminNotifications } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      await database.update(adminNotifications).set({ isRead: 1 }).where(eq(adminNotifications.id, input.id)); return true;
+    }),
+
+    markAllRead: adminProcedure.input(z.object({ category: z.enum(["all", "urgent", "important", "normal", "low"]).default("all") })).mutation(async ({ input }) => {
+      const database = await db.getDb(); if (!database) return false;
+      const { adminNotifications } = await import("../drizzle/schema");
+      const { eq, and } = await import("drizzle-orm");
+      if (input.category === "all") { await database.update(adminNotifications).set({ isRead: 1 }).where(eq(adminNotifications.isRead, 0)); }
+      else { await database.update(adminNotifications).set({ isRead: 1 }).where(and(eq(adminNotifications.isRead, 0), eq(adminNotifications.category, input.category))); }
+      return true;
+    }),
+
+    archiveNotification: adminProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+      const database = await db.getDb(); if (!database) return false;
+      const { adminNotifications } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      await database.update(adminNotifications).set({ isArchived: 1 }).where(eq(adminNotifications.id, input.id)); return true;
+    }),
+
+    getNotificationSettings: adminProcedure.query(async ({ ctx }) => {
+      const database = await db.getDb(); if (!database) return [];
+      const { adminNotificationSettings } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      return database.select().from(adminNotificationSettings).where(eq(adminNotificationSettings.adminUserId, ctx.user.id));
+    }),
+
+    updateNotificationSetting: adminProcedure
+      .input(z.object({ category: z.enum(["urgent", "important", "normal", "low"]), enabled: z.boolean(), pipeline: z.enum(["instant", "batch_6h", "daily", "weekly"]) }))
+      .mutation(async ({ ctx, input }) => {
+        const database = await db.getDb(); if (!database) return false;
+        const { adminNotificationSettings } = await import("../drizzle/schema");
+        const { eq, and } = await import("drizzle-orm");
+        const existing = await database.select().from(adminNotificationSettings).where(and(eq(adminNotificationSettings.adminUserId, ctx.user.id), eq(adminNotificationSettings.category, input.category)));
+        if (existing.length > 0) { await database.update(adminNotificationSettings).set({ enabled: input.enabled ? 1 : 0, pipeline: input.pipeline }).where(eq(adminNotificationSettings.id, existing[0].id)); }
+        else { await database.insert(adminNotificationSettings).values({ adminUserId: ctx.user.id, category: input.category, enabled: input.enabled ? 1 : 0, pipeline: input.pipeline }); }
+        return true;
+      }),
+
+    getFinancialStats: adminProcedure
+      .input(z.object({ period: z.enum(["today", "week", "month", "year"]).default("month") }))
+      .query(async ({ input }) => {
+        const database = await db.getDb(); if (!database) return null;
+        const { orders, sellerSettlements } = await import("../drizzle/schema");
+        const { count, sum, eq, gte, and } = await import("drizzle-orm");
+        const now = new Date();
+        let startDate: Date;
+        switch (input.period) { case "today": startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()); break; case "week": startDate = new Date(now.getTime() - 7 * 86400000); break; case "month": startDate = new Date(now.getTime() - 30 * 86400000); break; case "year": startDate = new Date(now.getTime() - 365 * 86400000); break; }
+        const [totalRevenue] = await database.select({ total: sum(orders.totalAmount), count: count() }).from(orders).where(and(gte(orders.createdAt, startDate!), eq(orders.paymentStatus, "completed")));
+        const [pendingOrders] = await database.select({ count: count() }).from(orders).where(eq(orders.status, "pending"));
+        const [shippingOrders] = await database.select({ count: count() }).from(orders).where(eq(orders.status, "shipping"));
+        const [refundedOrders] = await database.select({ count: count() }).from(orders).where(eq(orders.status, "refunded"));
+        const [pendingSettlements] = await database.select({ total: sum(sellerSettlements.netAmount), count: count() }).from(sellerSettlements).where(eq(sellerSettlements.status, "pending"));
+        const recentOrders = await database.select().from(orders).orderBy(orders.createdAt).limit(10);
+        return { totalRevenue: Number(totalRevenue?.total || 0), totalOrderCount: totalRevenue?.count || 0, pendingOrders: pendingOrders?.count || 0, shippingOrders: shippingOrders?.count || 0, refundedOrders: refundedOrders?.count || 0, pendingSettlementAmount: Number(pendingSettlements?.total || 0), pendingSettlementCount: pendingSettlements?.count || 0, recentOrders };
+      }),
+
+    getMembers: adminProcedure
+      .input(z.object({ search: z.string().default(""), grade: z.string().default("all"), limit: z.number().default(50), offset: z.number().default(0) }))
+      .query(async ({ input }) => {
+        const database = await db.getDb(); if (!database) return { items: [], total: 0 };
+        const { users, memberProfiles } = await import("../drizzle/schema");
+        const { count, desc } = await import("drizzle-orm");
+        const allUsers = await database.select().from(users).orderBy(desc(users.createdAt)).limit(input.limit).offset(input.offset);
+        const [totalResult] = await database.select({ count: count() }).from(users);
+        const profiles = await database.select().from(memberProfiles);
+        const profileMap = new Map(profiles.map(p => [p.userId, p]));
+        const items = allUsers.map(u => ({ ...u, profile: profileMap.get(u.id) || null }));
+        return { items, total: totalResult?.count || 0 };
+      }),
+
+    updateMemberGrade: adminProcedure
+      .input(z.object({ userId: z.number(), grade: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const database = await db.getDb(); if (!database) return false;
+        const { memberProfiles, adminActivityLog } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        await database.update(memberProfiles).set({ memberGrade: input.grade as any }).where(eq(memberProfiles.userId, input.userId));
+        await database.insert(adminActivityLog).values({ adminUserId: ctx.user.id, action: "update_grade", targetType: "user", targetId: input.userId, details: `등급 변경: ${input.grade}` });
+        return true;
+      }),
+
+    updateOrderStatus: adminProcedure
+      .input(z.object({ orderId: z.number(), status: z.enum(["pending", "paid", "shipping", "delivered", "cancelled", "refunded"]) }))
+      .mutation(async ({ ctx, input }) => {
+        const database = await db.getDb(); if (!database) return false;
+        const { orders, adminActivityLog } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        await database.update(orders).set({ status: input.status }).where(eq(orders.id, input.orderId));
+        await database.insert(adminActivityLog).values({ adminUserId: ctx.user.id, action: "update_order_status", targetType: "order", targetId: input.orderId, details: `상태 변경: ${input.status}` });
+        return true;
+      }),
+
+    getActivityLog: adminProcedure.input(z.object({ limit: z.number().default(50) })).query(async ({ input }) => {
+      const database = await db.getDb(); if (!database) return [];
+      const { adminActivityLog } = await import("../drizzle/schema");
+      const { desc } = await import("drizzle-orm");
+      return database.select().from(adminActivityLog).orderBy(desc(adminActivityLog.createdAt)).limit(input.limit);
+    }),
+
+    getAllOrders: adminProcedure
+      .input(z.object({ status: z.string().default("all"), limit: z.number().default(50), offset: z.number().default(0) }))
+      .query(async ({ input }) => {
+        const database = await db.getDb(); if (!database) return { items: [], total: 0 };
+        const { orders } = await import("../drizzle/schema");
+        const { eq, count, desc } = await import("drizzle-orm");
+        let items; let totalResult;
+        if (input.status === "all") { items = await database.select().from(orders).orderBy(desc(orders.createdAt)).limit(input.limit).offset(input.offset); [totalResult] = await database.select({ count: count() }).from(orders); }
+        else { items = await database.select().from(orders).where(eq(orders.status, input.status as any)).orderBy(desc(orders.createdAt)).limit(input.limit).offset(input.offset); [totalResult] = await database.select({ count: count() }).from(orders).where(eq(orders.status, input.status as any)); }
+        return { items, total: totalResult?.count || 0 };
+      }),
+    // ─── AI 분석 파이프라인 + 코칭 시스템 ─────────────────────────
+    runAiAnalysis: adminProcedure.input(z.object({ userId: z.number(), type: z.enum(["daily", "weekly", "monthly", "alert"]).default("daily") })).mutation(async ({ input }) => {
+      const database = await db.getDb(); if (!database) return null;
+      const { healthRecords, memberProfiles, aiHealthAnalysis } = await import("../drizzle/schema");
+      const { eq, desc } = await import("drizzle-orm");
+      const records = await database.select().from(healthRecords).where(eq(healthRecords.userId, input.userId)).orderBy(desc(healthRecords.createdAt)).limit(30);
+      const [profile] = await database.select().from(memberProfiles).where(eq(memberProfiles.userId, input.userId)).limit(1);
+      const dataSnapshot = { records: records.slice(0, 10), profile: profile ? { gender: profile.gender, birthDate: profile.birthDate, height: profile.height, weight: profile.weight, constitutionType: profile.constitutionType } : null };
+      const prompt = `당신은 전문 건강 분석 AI입니다. 아래 건강 데이터를 분석하여 JSON으로 응답하세요.\n환자 프로필: ${JSON.stringify(dataSnapshot.profile)}\n최근 건강 기록 (${records.length}건): ${JSON.stringify(records.slice(0, 10).map(r => ({ date: r.recordDate, bp: r.systolicBP ? r.systolicBP+"/"+r.diastolicBP : null, hr: r.heartRate, sugar: r.bloodSugar, weight: r.weight, exercise: r.exerciseMinutes, sleep: r.sleepHours, stress: r.stressLevel, mood: r.mood })))}\n다음 JSON 형식으로 응답: {"riskLevel": "normal|caution|warning|critical", "summary": "한국어 2-3줄 요약", "details": {"bloodPressure": "분석", "heartRate": "분석", "bloodSugar": "분석", "exercise": "분석", "sleep": "분석", "mental": "분석"}, "recommendations": ["권고1", "권고2", "권고3"]}`;
+      try {
+        const response = await invokeLLM({ messages: [{ role: "system", content: "건강 데이터 분석 전문 AI. JSON만 응답." }, { role: "user", content: prompt }] });
+        const content = response.choices?.[0]?.message?.content as string || "{}";
+        const parsed = JSON.parse(content.replace(/```json?\n?/g, "").replace(/```/g, "").trim());
+        const [inserted] = await database.insert(aiHealthAnalysis).values({ userId: input.userId, analysisType: input.type, riskLevel: parsed.riskLevel || "normal", summary: parsed.summary || "분석 완료", details: parsed.details, recommendations: parsed.recommendations, dataSnapshot });
+        return { id: inserted.insertId, ...parsed };
+      } catch { return { riskLevel: "normal", summary: "데이터 부족으로 분석 불가", details: {}, recommendations: ["더 많은 건강 데이터를 기록해주세요"] }; }
+    }),
+    getAiAnalyses: adminProcedure.input(z.object({ userId: z.number().optional(), riskLevel: z.string().optional(), limit: z.number().default(50) })).query(async ({ input }) => {
+      const database = await db.getDb(); if (!database) return [];
+      const { aiHealthAnalysis, users } = await import("../drizzle/schema");
+      const { eq, desc } = await import("drizzle-orm");
+      return database.select({ analysis: aiHealthAnalysis, userName: users.name }).from(aiHealthAnalysis).leftJoin(users, eq(aiHealthAnalysis.userId, users.id)).orderBy(desc(aiHealthAnalysis.createdAt)).limit(input.limit);
+    }),
+    addAdminNotes: adminProcedure.input(z.object({ analysisId: z.number(), notes: z.string() })).mutation(async ({ input }) => {
+      const database = await db.getDb(); if (!database) return false;
+      const { aiHealthAnalysis } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      await database.update(aiHealthAnalysis).set({ adminNotes: input.notes, isReviewedByAdmin: 1 }).where(eq(aiHealthAnalysis.id, input.analysisId));
+      return true;
+    }),
+    sendCoaching: adminProcedure.input(z.object({ userId: z.number(), title: z.string(), content: z.string(), category: z.enum(["health_analysis", "exercise", "nutrition", "mental", "lifestyle", "motivation", "general"]).default("general"), analysisId: z.number().optional(), scheduledAt: z.string().optional() })).mutation(async ({ ctx, input }) => {
+      const database = await db.getDb(); if (!database) return false;
+      const { coachingMessages } = await import("../drizzle/schema");
+      const isScheduled = !!input.scheduledAt;
+      await database.insert(coachingMessages).values({ userId: input.userId, coachId: ctx.user.id, type: isScheduled ? "scheduled" : "coach_manual", category: input.category, title: input.title, content: input.content, analysisId: input.analysisId, scheduledAt: isScheduled ? new Date(input.scheduledAt!) : null, sentAt: isScheduled ? null : new Date() });
+      return true;
+    }),
+    getCoachingMessages: adminProcedure.input(z.object({ userId: z.number().optional(), type: z.string().optional(), limit: z.number().default(50) })).query(async ({ input }) => {
+      const database = await db.getDb(); if (!database) return [];
+      const { coachingMessages, users } = await import("../drizzle/schema");
+      const { eq, desc } = await import("drizzle-orm");
+      return database.select({ msg: coachingMessages, userName: users.name }).from(coachingMessages).leftJoin(users, eq(coachingMessages.userId, users.id)).orderBy(desc(coachingMessages.createdAt)).limit(input.limit);
+    }),
+    createScheduledCoaching: adminProcedure.input(z.object({ title: z.string(), content: z.string(), category: z.enum(["health_analysis", "exercise", "nutrition", "mental", "lifestyle", "motivation", "general"]), scheduleType: z.enum(["once", "daily", "weekly", "monthly"]), scheduledAt: z.string(), targetGrade: z.string().optional(), targetUserIds: z.array(z.number()).optional() })).mutation(async ({ ctx, input }) => {
+      const database = await db.getDb(); if (!database) return false;
+      const { scheduledCoaching } = await import("../drizzle/schema");
+      await database.insert(scheduledCoaching).values({ coachId: ctx.user.id, title: input.title, content: input.content, category: input.category, scheduleType: input.scheduleType, scheduledAt: new Date(input.scheduledAt), targetGrade: input.targetGrade, targetUserIds: input.targetUserIds });
+      return true;
+    }),
+    getScheduledCoachings: adminProcedure.query(async () => {
+      const database = await db.getDb(); if (!database) return [];
+      const { scheduledCoaching } = await import("../drizzle/schema");
+      const { desc } = await import("drizzle-orm");
+      return database.select().from(scheduledCoaching).orderBy(desc(scheduledCoaching.createdAt));
+    }),
+    toggleScheduledCoaching: adminProcedure.input(z.object({ id: z.number(), isActive: z.number() })).mutation(async ({ input }) => {
+      const database = await db.getDb(); if (!database) return false;
+      const { scheduledCoaching } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      await database.update(scheduledCoaching).set({ isActive: input.isActive }).where(eq(scheduledCoaching.id, input.id));
+      return true;
+    }),
+  }),
+  // ─── 고객용 코칭 수신 ─────────────────────────────────────────────
+  coaching: router({
+    getMyCoaching: protectedProcedure.input(z.object({ limit: z.number().default(20) })).query(async ({ ctx, input }) => {
+      const database = await db.getDb(); if (!database) return [];
+      const { coachingMessages } = await import("../drizzle/schema");
+      const { eq, desc, and, isNotNull } = await import("drizzle-orm");
+      return database.select().from(coachingMessages).where(and(eq(coachingMessages.userId, ctx.user.id), isNotNull(coachingMessages.sentAt))).orderBy(desc(coachingMessages.createdAt)).limit(input.limit);
+    }),
+    markRead: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+      const database = await db.getDb(); if (!database) return false;
+      const { coachingMessages } = await import("../drizzle/schema");
+      const { eq, and } = await import("drizzle-orm");
+      await database.update(coachingMessages).set({ isRead: 1 }).where(and(eq(coachingMessages.id, input.id), eq(coachingMessages.userId, ctx.user.id)));
+      return true;
+    }),
+    getMyAnalyses: protectedProcedure.input(z.object({ limit: z.number().default(10) })).query(async ({ ctx, input }) => {
+      const database = await db.getDb(); if (!database) return [];
+      const { aiHealthAnalysis } = await import("../drizzle/schema");
+      const { eq, desc } = await import("drizzle-orm");
+      return database.select().from(aiHealthAnalysis).where(eq(aiHealthAnalysis.userId, ctx.user.id)).orderBy(desc(aiHealthAnalysis.createdAt)).limit(input.limit);
+    }),
+  }),
 });
 export type AppRouter = typeof appRouter;
