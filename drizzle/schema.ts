@@ -819,3 +819,103 @@ export const scheduledCoaching = mysqlTable("scheduled_coaching", {
 });
 export type ScheduledCoaching = typeof scheduledCoaching.$inferSelect;
 export type InsertScheduledCoaching = typeof scheduledCoaching.$inferInsert;
+
+
+// ─── Live Streaming (라이브 방송) ──────────────────────────────────────
+export const liveStreams = mysqlTable("live_streams", {
+  id: int("id").autoincrement().primaryKey(),
+  hostId: int("hostId").notNull(),
+  title: varchar("title", { length: 300 }).notNull(),
+  description: text("description"),
+  thumbnailUrl: varchar("thumbnailUrl", { length: 500 }),
+  category: varchar("category", { length: 50 }).notNull(),
+  status: mysqlEnum("liveStatus", ["scheduled", "live", "ended"]).default("scheduled").notNull(),
+  viewerCount: int("viewerCount").default(0).notNull(),
+  startedAt: timestamp("startedAt"),
+  endedAt: timestamp("endedAt"),
+  totalDuration: int("totalDuration"),
+  totalGiftsAmount: int("totalGiftsAmount").default(0).notNull(),
+  totalViewers: int("totalViewers").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").onUpdateNow().notNull(),
+});
+export type LiveStream = typeof liveStreams.$inferSelect;
+export type InsertLiveStream = typeof liveStreams.$inferInsert;
+
+// ─── Live Viewers (라이브 시청자) ──────────────────────────────────────
+export const liveViewers = mysqlTable("live_viewers", {
+  id: int("id").autoincrement().primaryKey(),
+  streamId: int("streamId").notNull(),
+  userId: int("userId").notNull(),
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+  leftAt: timestamp("leftAt"),
+  watchDuration: int("watchDuration"),
+  giftsSent: int("giftsSent").default(0).notNull(),
+  pointsContributed: int("pointsContributed").default(0).notNull(),
+});
+export type LiveViewer = typeof liveViewers.$inferSelect;
+export type InsertLiveViewer = typeof liveViewers.$inferInsert;
+
+// ─── Live Gifts (라이브 선물/기부) ──────────────────────────────────────
+export const liveGifts = mysqlTable("live_gifts", {
+  id: int("id").autoincrement().primaryKey(),
+  streamId: int("streamId").notNull(),
+  senderId: int("senderId").notNull(),
+  giftType: varchar("giftType", { length: 50 }).notNull(),
+  quantity: int("quantity").default(1).notNull(),
+  pointsSpent: int("pointsSpent").notNull(),
+  message: varchar("message", { length: 200 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type LiveGift = typeof liveGifts.$inferSelect;
+export type InsertLiveGift = typeof liveGifts.$inferInsert;
+
+// ─── Crypto Watchlist (암호화폐 관심 목록) ──────────────────────────────
+export const cryptoWatchlist = mysqlTable("crypto_watchlist", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  symbol: varchar("symbol", { length: 20 }).notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  addedAt: timestamp("addedAt").defaultNow().notNull(),
+  alertPrice: varchar("alertPrice", { length: 50 }),
+  alertType: mysqlEnum("alertType", ["above", "below"]),
+});
+export type CryptoWatchlist = typeof cryptoWatchlist.$inferSelect;
+export type InsertCryptoWatchlist = typeof cryptoWatchlist.$inferInsert;
+
+// ─── Crypto Trading Records (암호화폐 거래 기록) ──────────────────────
+export const cryptoTradingRecords = mysqlTable("crypto_trading_records", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  symbol: varchar("symbol", { length: 20 }).notNull(),
+  tradeType: mysqlEnum("tradeType", ["buy", "sell"]).notNull(),
+  quantity: varchar("quantity", { length: 50 }).notNull(),
+  price: varchar("price", { length: 50 }).notNull(),
+  totalAmount: varchar("totalAmount", { length: 50 }).notNull(),
+  fee: varchar("fee", { length: 50 }).default("0"),
+  profitLoss: varchar("profitLoss", { length: 50 }),
+  status: mysqlEnum("tradeStatus", ["pending", "completed", "cancelled"]).default("pending").notNull(),
+  tradeDate: timestamp("tradeDate").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CryptoTradingRecord = typeof cryptoTradingRecords.$inferSelect;
+export type InsertCryptoTradingRecord = typeof cryptoTradingRecords.$inferInsert;
+
+// ─── Auto Trading Rules (자동 거래 규칙) ──────────────────────────────
+export const autoTradingRules = mysqlTable("auto_trading_rules", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  symbol: varchar("symbol", { length: 20 }).notNull(),
+  ruleType: varchar("ruleType", { length: 50 }).notNull(),
+  condition: varchar("condition", { length: 200 }).notNull(),
+  tradeType: mysqlEnum("autoTradeType", ["buy", "sell"]).notNull(),
+  quantity: varchar("quantity", { length: 50 }).notNull(),
+  maxLoss: varchar("maxLoss", { length: 50 }),
+  takeProfit: varchar("takeProfit", { length: 50 }),
+  isActive: int("isActive").default(1).notNull(),
+  executedCount: int("executedCount").default(0).notNull(),
+  lastExecutedAt: timestamp("lastExecutedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type AutoTradingRule = typeof autoTradingRules.$inferSelect;
+export type InsertAutoTradingRule = typeof autoTradingRules.$inferInsert;

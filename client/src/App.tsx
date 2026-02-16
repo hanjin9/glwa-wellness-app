@@ -25,6 +25,8 @@ import Settings from "./pages/Settings";
 import HealthCheck from "./pages/HealthCheck";
 import VIPLounge from "./pages/VIPLounge";
 import AdminDashboard from "./pages/AdminDashboard";
+import Coaching from "./pages/Coaching";
+import LiveBroadcast from "./pages/LiveBroadcast";
 import MobileLayout from "./components/MobileLayout";
 
 function Router() {
@@ -84,6 +86,12 @@ function Router() {
       </Route>
       <Route path="/vip-lounge">
         <MobileLayout><VIPLounge /></MobileLayout>
+      </Route>
+      <Route path="/coaching">
+        <MobileLayout><Coaching /></MobileLayout>
+      </Route>
+      <Route path="/live-broadcast">
+        <MobileLayout><LiveBroadcast /></MobileLayout>
       </Route>
       <Route path="/admin">
         <MobileLayout><AdminDashboard /></MobileLayout>
