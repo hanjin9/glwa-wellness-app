@@ -919,3 +919,15 @@ export const autoTradingRules = mysqlTable("auto_trading_rules", {
 });
 export type AutoTradingRule = typeof autoTradingRules.$inferSelect;
 export type InsertAutoTradingRule = typeof autoTradingRules.$inferInsert;
+
+// ─── Live Chat Messages (라이브 채팅 메시지) ──────────────────────────────
+export const liveChatMessages = mysqlTable("live_chat_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  streamId: int("streamId").notNull(),
+  userId: int("userId").notNull(),
+  message: text("message").notNull(),
+  isPinned: int("isPinned").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type LiveChatMessage = typeof liveChatMessages.$inferSelect;
+export type InsertLiveChatMessage = typeof liveChatMessages.$inferInsert;

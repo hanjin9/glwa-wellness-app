@@ -1238,5 +1238,32 @@ export const appRouter = router({
       return database.select().from(aiHealthAnalysis).where(eq(aiHealthAnalysis.userId, ctx.user.id)).orderBy(desc(aiHealthAnalysis.createdAt)).limit(input.limit);
     }),
   }),
+  live: router({
+    sendChatMessage: protectedProcedure.input(z.object({ streamId: z.number(), message: z.string().min(1).max(500) })).mutation(async ({ ctx, input }) => {
+      const database = await db.getDb(); if (!database) throw new Error("DB not available");
+      const { liveChatMessages } = await import("../drizzle/schema");
+      const result = await database.insert(liveChatMessages).values({
+        streamId: input.streamId,
+        userId: ctx.user.id,
+        message: input.message,
+      });
+      return { id: result[0].insertId, success: true };
+    }),
+    getChatMessages: publicProcedure.input(z.object({ streamId: z.number(), limit: z.number().default(50) })).query(async ({ input }) => {
+      const database = await db.getDb(); if (!database) return [];
+      const { liveChatMessages } = await import("../drizzle/schema");
+      const { eq, desc } = await import("drizzle-orm");
+      return database.select().from(liveChatMessages).where(eq(liveChatMessages.streamId, input.streamId)).orderBy(desc(liveChatMessages.createdAt)).limit(input.limit);
+    }),
+    pinMessage: protectedProcedure.input(z.object({ messageId: z.number(), streamId: z.number() })).mutation(async ({ ctx, input }) => {
+      const database = await db.getDb(); if (!database) throw new Error("DB not available");
+      const { liveChatMessages, liveStreams } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const stream = await database.select().from(liveStreams).where(eq(liveStreams.id, input.streamId));
+      if (stream.length === 0 || stream[0].hostId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN" });
+      await database.update(liveChatMessages).set({ isPinned: 1 }).where(eq(liveChatMessages.id, input.messageId));
+      return true;
+    }),
+  }),
 });
 export type AppRouter = typeof appRouter;
