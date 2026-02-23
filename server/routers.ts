@@ -7,6 +7,7 @@ import { transcribeAudio } from "./_core/voiceTranscription";
 import { storagePut } from "./storage";
 import { z } from "zod";
 import * as db from "./db";
+import * as rewards from "./pointRewards";
 import { nanoid } from "nanoid";
 import { createCheckoutSession } from "./stripe";
 import { TRPCError } from "@trpc/server";
@@ -1264,6 +1265,139 @@ export const appRouter = router({
       await database.update(liveChatMessages).set({ isPinned: 1 }).where(eq(liveChatMessages.id, input.messageId));
       return true;
     }),
+  }),
+
+  // ─── 게임 및 포인트 보상 ─────────────────────────────────────────────
+  games: router({
+    recordGameResult: protectedProcedure
+      .input(z.object({
+        gameId: z.string(),
+        result: z.enum(["win", "loss"]),
+        difficulty: z.enum(["easy", "medium", "hard"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const result = await rewards.awardGamePoints(
+            ctx.user.id,
+            input.gameId,
+            input.result,
+            input.difficulty
+          );
+          return { success: true, points: result?.amount || 0 };
+        } catch (error) {
+          console.error("Game points error:", error);
+          return { success: false, error: "포인트 적립 실패" };
+        }
+      }),
+  }),
+
+  // ─── 포인트 보상 시스템 ─────────────────────────────────────────────
+  rewards: router({
+    awardMissionPoints: protectedProcedure
+      .input(z.object({
+        missionId: z.string(),
+        difficulty: z.enum(["low", "medium", "high"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const result = await rewards.awardMissionPoints(
+            ctx.user.id,
+            input.missionId,
+            input.difficulty
+          );
+          return { success: true, points: result?.amount || 0 };
+        } catch (error) {
+          console.error("Mission points error:", error);
+          return { success: false, error: "포인트 적립 실패" };
+        }
+      }),
+    awardHealthBonus: protectedProcedure
+      .input(z.object({
+        metric: z.string(),
+        improvementScore: z.number().min(0).max(100),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const result = await rewards.awardHealthImprovementPoints(
+            ctx.user.id,
+            input.metric,
+            input.improvementScore
+          );
+          return { success: true, points: result?.amount || 0 };
+        } catch (error) {
+          console.error("Health bonus error:", error);
+          return { success: false, error: "포인트 적립 실패" };
+        }
+      }),
+    awardSleepBonus: protectedProcedure
+      .input(z.object({
+        sleepHours: z.number().min(0).max(24),
+        sleepQuality: z.number().min(0).max(100),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const result = await rewards.awardSleepQualityPoints(
+            ctx.user.id,
+            input.sleepHours,
+            input.sleepQuality
+          );
+          return { success: true, points: result?.amount || 0 };
+        } catch (error) {
+          console.error("Sleep bonus error:", error);
+          return { success: false, error: "포인트 적립 실패" };
+        }
+      }),
+    awardAttendanceBonus: protectedProcedure
+      .input(z.object({
+        consecutiveDays: z.number().min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const result = await rewards.awardAttendanceBonus(
+            ctx.user.id,
+            input.consecutiveDays
+          );
+          return { success: true, points: result?.amount || 0 };
+        } catch (error) {
+          console.error("Attendance bonus error:", error);
+          return { success: false, error: "포인트 적립 실패" };
+        }
+      }),
+    awardTierUpBonus: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        newTier: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          const result = await rewards.awardTierUpBonus(
+            input.userId,
+            input.newTier
+          );
+          return { success: true, points: result?.amount || 0 };
+        } catch (error) {
+          console.error("Tier up bonus error:", error);
+          return { success: false, error: "포인트 적립 실패" };
+        }
+      }),
+    awardAIAutoBonus: protectedProcedure
+      .input(z.object({
+        dailySteps: z.number().optional(),
+        distance: z.number().optional(),
+        sleepHours: z.number().optional(),
+        sleepQuality: z.number().optional(),
+        heartRateAvg: z.number().optional(),
+        stressLevel: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const result = await rewards.awardAIAutoBonus(ctx.user.id, input);
+          return { success: true, points: result?.amount || 0 };
+        } catch (error) {
+          console.error("AI auto bonus error:", error);
+          return { success: false, error: "포인트 적립 실패" };
+        }
+      }),
   }),
 });
 export type AppRouter = typeof appRouter;

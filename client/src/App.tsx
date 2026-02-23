@@ -27,6 +27,7 @@ import VIPLounge from "./pages/VIPLounge";
 import AdminDashboard from "./pages/AdminDashboard";
 import Coaching from "./pages/Coaching";
 import LiveBroadcast from "./pages/LiveBroadcast";
+import Games from "./pages/Games";
 import MobileLayout from "./components/MobileLayout";
 
 function Router() {
@@ -99,6 +100,9 @@ function Router() {
       <Route path="/404" component={NotFound} />
       <Route path="/live">
         <MobileLayout><Live /></MobileLayout>
+      </Route>
+      <Route path="/games">
+        <MobileLayout><Games /></MobileLayout>
       </Route>
       <Route component={NotFound} />
     </Switch>

@@ -13,6 +13,7 @@ import {
   Crown,
   Radio,
   Shield,
+  Gamepad2,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -110,17 +111,27 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
             
             <div className="flex-1"></div>
             
-            {/* 설정 버튼 (우상단) - 항상 표시 */}
-            {/* 라이브 버튼 (우상단 중앙) */}
+            {/* 우측 액션 그룹: 게임 - Live - 설정 */}
+            {/* 게임 버튼 */}
+            <button
+              onClick={() => setLocation("/games")}
+              className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md hover:shadow-lg transition-all hover:scale-105 duration-200 mr-1.5"
+              title="게임"
+            >
+              <Gamepad2 className="w-3.5 h-3.5" />
+            </button>
+            
+            {/* 라이브 버튼 */}
             <button
               onClick={() => setLocation("/live")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg transition-all hover:scale-105 duration-200 mr-2"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg transition-all hover:scale-105 duration-200 mr-1.5"
               title="라이브 방송"
             >
               <Radio className="w-3.5 h-3.5 animate-pulse" />
               <span className="text-xs font-bold tracking-wide">LIVE</span>
             </button>
             
+            {/* 관리자 버튼 */}
             {user?.role === "admin" && (
               <button
                 onClick={() => setLocation("/admin")}
@@ -130,6 +141,8 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
                 <Shield className="w-3.5 h-3.5" />
               </button>
             )}
+            
+            {/* 설정 버튼 */}
             <button
               onClick={() => setLocation("/settings")}
               className="flex items-center justify-center w-7 h-7 rounded-full bg-gray-800 text-white shadow-md hover:shadow-lg transition-all hover:bg-gray-700 duration-200"
