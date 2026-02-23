@@ -28,6 +28,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Coaching from "./pages/Coaching";
 import LiveBroadcast from "./pages/LiveBroadcast";
 import Games from "./pages/Games";
+import BitcoinMarket from "./pages/BitcoinMarket";
 import MobileLayout from "./components/MobileLayout";
 
 function Router() {
@@ -103,6 +104,9 @@ function Router() {
       </Route>
       <Route path="/games">
         <MobileLayout><Games /></MobileLayout>
+      </Route>
+      <Route path="/bitcoin">
+        <BitcoinMarket />
       </Route>
       <Route component={NotFound} />
     </Switch>

@@ -11,6 +11,7 @@ import * as rewards from "./pointRewards";
 import { nanoid } from "nanoid";
 import { createCheckoutSession } from "./stripe";
 import { TRPCError } from "@trpc/server";
+import { fetchBitcoinData, formatBitcoinData } from "./bitcoin";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1398,6 +1399,26 @@ export const appRouter = router({
           return { success: false, error: "포인트 적립 실패" };
         }
       }),
+  }),
+
+  // ─── Bitcoin Market Data ─────────────────────────────────────────
+  bitcoin: router({
+    getCurrentData: publicProcedure.query(async () => {
+      try {
+        const data = await fetchBitcoinData();
+        return {
+          success: true,
+          data,
+          formatted: formatBitcoinData(data),
+        };
+      } catch (error) {
+        console.error("Bitcoin data fetch error:", error);
+        return {
+          success: false,
+          error: "비트코인 데이터를 불러올 수 없습니다",
+        };
+      }
+    }),
   }),
 });
 export type AppRouter = typeof appRouter;
