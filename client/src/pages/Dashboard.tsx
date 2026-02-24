@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
+import LuxuryDashboard from "@/components/LuxuryDashboard";
 
 // 무지개 그라데이션 색상 (0~10 레벨에 따른 색상 반환)
 function rainbowColor(level: number): string {
@@ -117,20 +118,20 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5">
-      {/* Welcome Banner - Resort Style */}
+      {/* Welcome Banner - Luxury Black & Gold */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="gradient-resort rounded-2xl p-5 text-white relative overflow-hidden"
+        className="bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-[#d4af37]/30 rounded-2xl p-5 text-white relative overflow-hidden"
       >
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.15\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
+        <div className="absolute inset-0 opacity-5 bg-gradient-to-r from-[#d4af37] via-transparent to-[#d4af37]" />
         <div className="relative flex items-start justify-between">
           <div>
-            <p className="text-white/50 text-[10px] tracking-[0.2em] uppercase font-light">Welcome Back</p>
-            <h1 className="text-lg font-medium font-resort mt-1 tracking-tight">
+            <p className="text-[#d4af37]/60 text-[10px] tracking-[0.2em] uppercase font-light">Welcome Back</p>
+            <h1 className="text-2xl font-bold font-display mt-1 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f4d03f]">
               {user?.name || "회원"}님
             </h1>
-            <p className="text-white/70 text-xs font-light mt-1">
+            <p className="text-[#d4af37]/70 text-xs font-light mt-1">
               오늘도 건강한 하루를 시작하세요
             </p>
           </div>
@@ -139,13 +140,16 @@ export default function Dashboard() {
             <p className="text-white/60 text-[10px] mt-1 font-light">{currentBelt.label}</p>
           </div>
         </div>
-        <div className="relative mt-4 flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/10">
-          <TrendingUp className="w-4 h-4 text-white/70" />
-          <span className="text-xs text-white/80 font-light">
+        <div className="relative mt-4 flex items-center gap-2 bg-[#d4af37]/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-[#d4af37]/30">
+          <TrendingUp className="w-4 h-4 text-[#d4af37]" />
+          <span className="text-xs text-[#d4af37]/90 font-light">
             누적 {profile?.totalDays || 0}일째 건강 관리 중
           </span>
         </div>
       </motion.div>
+
+      {/* Luxury 6-Panel Dashboard */}
+      <LuxuryDashboard />
 
       {/* Membership & Points Bar */}
       <motion.div
@@ -155,10 +159,10 @@ export default function Dashboard() {
         className="flex items-center gap-2 cursor-pointer"
         onClick={() => setLocation("/membership")}
       >
-        <div className={`flex-1 flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r ${tierColors[currentMemberTier]} text-white`}>
+        <div className="flex-1 flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-black">
           <MemberTierIcon className="w-5 h-5" />
           <div className="flex-1">
-            <p className="text-[10px] text-white/70">멤버십</p>
+            <p className="text-[10px] text-black/70">멤버십</p>
             <p className="text-sm font-bold">{tierNames[currentMemberTier]}</p>
           </div>
         </div>

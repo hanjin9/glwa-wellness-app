@@ -1,4 +1,3 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +16,9 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/_core/hooks/useAuth";
 import TopInfoBar from "./TopInfoBar";
+import SlidingMissionDashboard from "./SlidingMissionDashboard";
 
 export default function MobileLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -158,6 +159,9 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
       <main className={hideTopHeader ? "flex-1 overflow-y-auto" : "flex-1 overflow-y-auto px-4 py-4 pb-20"}>
         {children}
       </main>
+
+      {/* Sliding Mission Dashboard */}
+      {user && <SlidingMissionDashboard />}
 
       {/* Bottom navigation - Resort Style */}
       <nav className="mobile-nav">
