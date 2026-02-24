@@ -1,0 +1,18 @@
+    getAnalysisBrief: publicProcedure.query(async () => {
+      try {
+        const data = await fetchBitcoinData();
+        const brief = await analyzeBitcoinMarket(data);
+        const text = formatBitcoinBrief(brief);
+        return {
+          success: true,
+          brief,
+          text,
+        };
+      } catch (error) {
+        console.error("Bitcoin analysis error:", error);
+        return {
+          success: false,
+          error: "비트코인 분석을 불러올 수 없습니다",
+        };
+      }
+    }),

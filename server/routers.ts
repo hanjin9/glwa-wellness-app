@@ -12,6 +12,7 @@ import { nanoid } from "nanoid";
 import { createCheckoutSession } from "./stripe";
 import { TRPCError } from "@trpc/server";
 import { fetchBitcoinData, formatBitcoinData } from "./bitcoin";
+import { analyzeBitcoinMarket, formatBitcoinBrief } from "./bitcoinAnalysis";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1416,6 +1417,24 @@ export const appRouter = router({
         return {
           success: false,
           error: "비트코인 데이터를 불러올 수 없습니다",
+        };
+      }
+    }),
+    getAnalysisBrief: publicProcedure.query(async () => {
+      try {
+        const data = await fetchBitcoinData();
+        const brief = await analyzeBitcoinMarket(data);
+        const text = formatBitcoinBrief(brief);
+        return {
+          success: true,
+          brief,
+          text,
+        };
+      } catch (error) {
+        console.error("Bitcoin analysis error:", error);
+        return {
+          success: false,
+          error: "비트코인 분석을 불러올 수 없습니다",
         };
       }
     }),

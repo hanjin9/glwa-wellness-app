@@ -1,5 +1,6 @@
 import { invokeLLM } from "./_core/llm";
 import { BitcoinData } from "./bitcoin";
+import { getHanJinLevel, sentimentToHanJinLevel, HanJinLevel } from "./hanJinLevel";
 
 /**
  * 비트코인 시황 분석 결과
@@ -23,6 +24,7 @@ export interface BitcoinBrief {
     title: string;
     sentiment: string;
     impact: number;
+    hanJinLevel: HanJinLevel;
   }>;
   tradingPlan: {
     shortTerm: {
@@ -67,6 +69,7 @@ export interface BitcoinBrief {
     point: string;
     sentiment: string;
     impact: number;
+    hanJinLevel: HanJinLevel;
   }>;
   recommendation: string;
   keyPoints: Array<string>;
@@ -184,10 +187,10 @@ JSON으로 다음 구조로 응답하세요:
         },
       ],
       response_format: {
-        type: "json_schema",
+        type: "json_schema" as const,
         json_schema: {
           name: "bitcoin_analysis",
-          strict: true,
+          strict: true as const,
           schema: {
             type: "object",
             properties: {
@@ -323,7 +326,8 @@ JSON으로 다음 구조로 응답하세요:
 
     // LLM 응답 파싱
     const content = response.choices[0].message.content;
-    const analysisData = JSON.parse(content);
+    const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
+    const analysisData = JSON.parse(contentStr);
 
     // 결과 포맷팅
     const brief: BitcoinBrief = {
@@ -352,6 +356,7 @@ JSON으로 다음 구조로 응답하세요:
         title: item.title,
         sentiment: item.sentiment,
         impact: item.impact,
+        hanJinLevel: sentimentToHanJinLevel(item.impact, item.sentiment === 'positive'),
       })),
       tradingPlan: analysisData.tradingPlan,
       execution: analysisData.execution.map((exec: any) => ({
@@ -361,7 +366,10 @@ JSON으로 다음 구조로 응답하세요:
       })),
       strategies: analysisData.strategies,
       whaleFlow: analysisData.whaleFlow,
-      globalBrief: analysisData.globalBrief,
+      globalBrief: analysisData.globalBrief.map((item: any) => ({
+        ...item,
+        hanJinLevel: sentimentToHanJinLevel(item.impact, item.sentiment === 'positive'),
+      })),
       recommendation: analysisData.recommendation,
       keyPoints: analysisData.keyPoints,
     };
@@ -394,8 +402,7 @@ export function formatBitcoinBrief(brief: BitcoinBrief): string {
 
   text += `📰 주요 뉴스 / 이슈\n`;
   brief.news.forEach((item) => {
-    const emoji = item.sentiment === "positive" ? "🟢" : item.sentiment === "negative" ? "🔴" : "🟡";
-    text += `\t${item.rank}. ${item.title} — ${emoji} ${item.impact > 0 ? "+" : ""}${item.impact}\n`;
+    text += `\t${item.rank}. ${item.title} — ${item.hanJinLevel.text}\n`;
   });
   text += `⸻\n`;
 
@@ -439,8 +446,7 @@ export function formatBitcoinBrief(brief: BitcoinBrief): string {
 
   text += `🌍 현재 세계 시황 정리 Brief\n`;
   brief.globalBrief.forEach((item) => {
-    const emoji = item.sentiment === "positive" ? "🟢" : item.sentiment === "negative" ? "🔴" : "🟡";
-    text += `\t• ${item.point} ${emoji} ${item.impact > 0 ? "+" : ""}${item.impact}\n`;
+    text += `\t• ${item.point} ${item.hanJinLevel.text}\n`;
   });
   text += `⸻\n`;
 
