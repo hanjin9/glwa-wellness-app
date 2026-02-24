@@ -931,3 +931,88 @@ export const liveChatMessages = mysqlTable("live_chat_messages", {
 });
 export type LiveChatMessage = typeof liveChatMessages.$inferSelect;
 export type InsertLiveChatMessage = typeof liveChatMessages.$inferInsert;
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// 멀티플레이 게임 시스템
+// ═══════════════════════════════════════════════════════════════════════
+
+// ─── Game Matches (게임 매치) ────────────────────────────────────────────
+export const gameMatches = mysqlTable("game_matches", {
+  id: int("id").autoincrement().primaryKey(),
+  gameType: mysqlEnum("gameType", ["chess", "baduk", "omok", "yukmok", "janggi"]).notNull(),
+  player1Id: int("player1Id").notNull(),
+  player2Id: int("player2Id"),
+  player1Rating: int("player1Rating").default(1000),
+  player2Rating: int("player2Rating").default(1000),
+  difficulty: mysqlEnum("gameDifficulty", ["easy", "medium", "hard"]),
+  badukLevel: varchar("badukLevel", { length: 10 }), // 바둑 급수 (30급~7단)
+  status: mysqlEnum("matchStatus", ["waiting", "ongoing", "completed", "cancelled"]).default("waiting").notNull(),
+  winner: int("winner"), // 승자 userId (null=무승부)
+  loser: int("loser"), // 패자 userId
+  moves: json("moves"), // 게임 이동 기록
+  startedAt: timestamp("startedAt"),
+  completedAt: timestamp("completedAt"),
+  durationSeconds: int("durationSeconds"),
+  player1Points: int("player1Points").default(0),
+  player2Points: int("player2Points").default(0),
+  ratingChange1: int("ratingChange1").default(0),
+  ratingChange2: int("ratingChange2").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GameMatch = typeof gameMatches.$inferSelect;
+export type InsertGameMatch = typeof gameMatches.$inferInsert;
+
+// ─── Game Chat (게임 중 채팅) ───────────────────────────────────────────
+export const gameChat = mysqlTable("game_chat", {
+  id: int("id").autoincrement().primaryKey(),
+  matchId: int("matchId").notNull(),
+  userId: int("userId").notNull(),
+  message: text("message").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GameChatMessage = typeof gameChat.$inferSelect;
+export type InsertGameChatMessage = typeof gameChat.$inferInsert;
+
+// ─── Game Rankings (게임 랭킹) ──────────────────────────────────────────
+export const gameRankings = mysqlTable("game_rankings", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  gameType: mysqlEnum("rankingGameType", ["chess", "baduk", "omok", "yukmok", "janggi"]).notNull(),
+  rating: int("rating").default(1000),
+  wins: int("wins").default(0),
+  losses: int("losses").default(0),
+  draws: int("draws").default(0),
+  winRate: float("winRate").default(0),
+  rank: int("rank").default(0),
+  totalPoints: int("totalPoints").default(0),
+  lastPlayedAt: timestamp("lastPlayedAt"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GameRanking = typeof gameRankings.$inferSelect;
+export type InsertGameRanking = typeof gameRankings.$inferInsert;
+
+// ─── Game Statistics (게임 통계) ────────────────────────────────────────
+export const gameStatistics = mysqlTable("game_statistics", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  totalMatches: int("totalMatches").default(0),
+  totalWins: int("totalWins").default(0),
+  totalLosses: int("totalLosses").default(0),
+  totalDraws: int("totalDraws").default(0),
+  totalPoints: int("totalPoints").default(0),
+  averageGameDuration: int("averageGameDuration").default(0),
+  favoriteGame: varchar("favoriteGame", { length: 50 }),
+  highestRating: int("highestRating").default(1000),
+  currentStreak: int("currentStreak").default(0),
+  longestStreak: int("longestStreak").default(0),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GameStatistic = typeof gameStatistics.$inferSelect;
+export type InsertGameStatistic = typeof gameStatistics.$inferInsert;

@@ -127,6 +127,13 @@
       "when": 1771254663156,
       "tag": "0017_quiet_sphinx",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1771952977875,
+      "tag": "0018_easy_whiplash",
+      "breakpoints": true
     }
   ]
 }

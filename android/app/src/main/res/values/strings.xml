@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GLWA 웰니스</string>
+    <string name="title_activity_main">GLWA 웰니스</string>
+    <string name="package_name">com.glwa.wellness</string>
+    <string name="custom_url_scheme">com.glwa.wellness</string>
+</resources>
