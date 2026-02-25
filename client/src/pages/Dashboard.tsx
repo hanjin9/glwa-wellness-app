@@ -27,6 +27,9 @@ import {
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import LuxuryDashboard from "@/components/LuxuryDashboard";
+import WorkoutPoseAnalyzer from "@/components/WorkoutPoseAnalyzer";
+import BreathingAnalyzer from "@/components/BreathingAnalyzer";
+import RealtimeNotificationCenter from "@/components/RealtimeNotificationCenter";
 
 // 무지개 그라데이션 색상 (0~10 레벨에 따른 색상 반환)
 function rainbowColor(level: number): string {
@@ -118,6 +121,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5">
+      <RealtimeNotificationCenter userId={user?.id} />
       {/* Welcome Banner - Luxury Black & Gold */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -150,6 +154,36 @@ export default function Dashboard() {
 
       {/* Luxury 6-Panel Dashboard */}
       <LuxuryDashboard />
+
+      {/* Workout Pose Analyzer - Real-time Exercise Monitoring */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <WorkoutPoseAnalyzer
+          exerciseName="스쿼트"
+          targetPose="standing"
+          duration={30}
+          onAnalysisComplete={(result) => {
+            console.log("운동 분석 완료:", result);
+          }}
+        />
+      </motion.div>
+
+      {/* Breathing Analyzer - AI Breathing Recognition */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <BreathingAnalyzer
+          duration={60}
+          onAnalysisComplete={(result) => {
+            console.log("호띡 분석 완료:", result);
+          }}
+        />
+      </motion.div>
 
       {/* Membership & Points Bar */}
       <motion.div

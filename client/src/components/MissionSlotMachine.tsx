@@ -1,71 +1,89 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, Zap, Target, Flame, Check } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Trophy, Zap, Flame, ChevronDown } from "lucide-react";
 
-// 난이도별 미션 목록
-const EASY_MISSIONS = [
-  "걷기 15분 🚶",
-  "물 8잔 마시기 💧",
-  "스트레칭 5분 🧘",
-  "심호흡 3분 🌬️",
-  "과일 1개 먹기 🍎",
-  "계단 3층 오르기 🪜",
-  "감사일기 쓰기 📝",
-  "허브차 마시기 🍵",
-  "10분 명상 🧘‍♂️",
-  "바른자세 30분 💺",
-];
-
-const MEDIUM_MISSIONS = [
-  "조깅 30분 🏃",
-  "건강식 요리 🥗",
-  "요가 20분 🧘‍♀️",
-  "독서 30분 📖",
-  "플랭크 3세트 💪",
-  "자전거 20분 🚴",
-  "줄넘기 100회 🤸",
-  "수영 30분 🏊",
-  "등산 1시간 ⛰️",
-  "건강검진 예약 🏥",
-];
-
-const HARD_MISSIONS = [
-  "마라톤 5km 🏅",
-  "단식 16시간 ⏰",
-  "새벽 5시 기상 🌅",
-  "운동 1시간 🏋️",
-  "설탕 완전 금지 🚫",
-  "냉수 샤워 🚿",
-  "디지털 디톡스 📵",
-  "10km 걷기 🥾",
-  "근력운동 1시간 💪",
-  "건강 강의 수강 🎓",
-];
+// 미션 난이도별 색상 및 설정
+const MISSION_CONFIG = {
+  high: {
+    label: "Gold",
+    color: "#d4af37",
+    bgColor: "from-[#d4af37]/20 to-[#f4d03f]/10",
+    borderColor: "#d4af37",
+    icon: Trophy,
+    points: 500,
+    missions: [
+      "마라톤 5km 🏅",
+      "고강도 운동 1시간 💪",
+      "냉수 샤워 🚿",
+      "디지털 디톡스 📵",
+      "새벽 5시 기상 🌅",
+      "설탕 완전 금지 🚫",
+    ],
+  },
+  medium: {
+    label: "Silver",
+    color: "#c0c0c0",
+    bgColor: "from-[#c0c0c0]/20 to-[#e8e8e8]/10",
+    borderColor: "#c0c0c0",
+    icon: Zap,
+    points: 300,
+    missions: [
+      "조깅 30분 🏃",
+      "요가 20분 🧘",
+      "자전거 20분 🚴",
+      "줄넘기 100회 🤸",
+      "수영 30분 🏊",
+      "등산 1시간 ⛰️",
+    ],
+  },
+  low: {
+    label: "Bronze",
+    color: "#cd7f32",
+    bgColor: "from-[#cd7f32]/20 to-[#d4a574]/10",
+    borderColor: "#cd7f32",
+    icon: Flame,
+    points: 100,
+    missions: [
+      "걷기 15분 🚶",
+      "물 8잔 마시기 💧",
+      "스트레칭 5분 🧘",
+      "심호흡 3분 🌬️",
+      "과일 1개 먹기 🍎",
+      "계단 3층 오르기 🪜",
+    ],
+  },
+};
 
 interface MissionSlotMachineProps {
-  onSelectMission?: (mission: string, difficulty: string) => void;
+  onMissionSelect?: (mission: string, difficulty: string) => void;
 }
 
-function SlotColumn({ missions, speed, label, icon: Icon, color, onSelect }: {
+function LuxurySlotColumn({
+  missions,
+  speed,
+  difficulty,
+  onSelect,
+}: {
   missions: string[];
   speed: number;
-  label: string;
-  icon: any;
-  color: string;
+  difficulty: "high" | "medium" | "low";
   onSelect: (mission: string) => void;
 }) {
   const [offset, setOffset] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const config = MISSION_CONFIG[difficulty];
 
   useEffect(() => {
     if (isPaused) return;
     intervalRef.current = setInterval(() => {
-      setOffset(prev => (prev + 1) % missions.length);
+      setOffset((prev) => (prev + 1) % missions.length);
     }, speed);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [missions.length, speed, isPaused]);
 
   const getVisibleMissions = () => {
@@ -76,94 +94,168 @@ function SlotColumn({ missions, speed, label, icon: Icon, color, onSelect }: {
     return visible;
   };
 
+  const Icon = config.icon;
+
   return (
     <div className="flex-1">
-      <div className={`text-center mb-2 px-1 py-1 rounded-lg bg-gradient-to-r ${color}`}>
+      {/* 난이도 헤더 */}
+      <div
+        className="text-center mb-2 px-2 py-2 rounded-lg border-2 backdrop-blur-sm"
+        style={{
+          borderColor: config.borderColor,
+          backgroundColor: `${config.color}15`,
+        }}
+      >
         <div className="flex items-center justify-center gap-1">
-          <Icon className="w-3 h-3 text-white" />
-          <span className="text-[10px] font-bold text-white">{label}</span>
+          <Icon className="w-4 h-4" style={{ color: config.color }} />
+          <span
+            className="text-xs font-bold tracking-wider"
+            style={{ color: config.color }}
+          >
+            {config.label}
+          </span>
+          <span
+            className="text-[10px] font-light"
+            style={{ color: `${config.color}80` }}
+          >
+            +{config.points}P
+          </span>
         </div>
       </div>
-      <div className="relative h-[120px] overflow-hidden rounded-lg bg-background/50 border border-border/30">
-        {/* Gradient overlays */}
-        <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-background/80 to-transparent z-10 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background/80 to-transparent z-10 pointer-events-none" />
-        
+
+      {/* 슬롯 컨테이너 */}
+      <div
+        className="relative h-[140px] overflow-hidden rounded-lg border-2 backdrop-blur-sm"
+        style={{
+          borderColor: `${config.borderColor}50`,
+          backgroundColor: "rgba(26, 26, 26, 0.6)",
+        }}
+      >
+        {/* 상단 그라데이션 오버레이 */}
+        <div
+          className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b to-transparent z-20 pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(to bottom, rgba(26, 26, 26, 0.8), transparent)`,
+          }}
+        />
+
+        {/* 하단 그라데이션 오버레이 */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t to-transparent z-20 pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(to top, rgba(26, 26, 26, 0.8), transparent)`,
+          }}
+        />
+
+        {/* 슬롯 미션 */}
         <AnimatePresence mode="popLayout">
           <motion.div
             key={offset}
-            initial={{ y: -40 }}
-            animate={{ y: 0 }}
-            exit={{ y: 40 }}
-            transition={{ duration: speed / 2000, ease: "easeInOut" }}
-            className="space-y-1 p-1"
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 50, opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="space-y-2 p-2"
           >
             {getVisibleMissions().map((mission, i) => (
               <motion.button
                 key={`${offset}-${i}`}
-                className={`w-full text-left p-2 rounded-md text-[10px] leading-tight transition-all
-                  ${i === 1 ? 'bg-primary/10 border border-primary/20 font-semibold scale-[1.02]' : 'opacity-60 hover:opacity-80'}
-                `}
+                className={`w-full text-left p-2 rounded-lg transition-all border-2 ${
+                  i === 1 ? "ring-2 scale-105" : "opacity-50 hover:opacity-75"
+                }`}
+                style={{
+                  borderColor:
+                    i === 1 ? config.borderColor : `${config.borderColor}30`,
+                  backgroundColor:
+                    i === 1
+                      ? `${config.color}20`
+                      : `${config.color}05`,
+                  boxShadow:
+                    i === 1
+                      ? `0 0 20px ${config.color}40, inset 0 0 10px ${config.color}20`
+                      : "none",
+                } as any}
                 onClick={() => {
                   setIsPaused(true);
                   onSelect(mission);
                 }}
                 whileTap={{ scale: 0.95 }}
               >
-                {mission}
+                <p
+                  className="text-xs font-semibold leading-tight"
+                  style={{ color: config.color }}
+                >
+                  {mission}
+                </p>
               </motion.button>
             ))}
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* 일시정지 상태 표시 */}
       {isPaused && (
         <Button
           size="sm"
           variant="ghost"
           className="w-full mt-1 text-[10px] h-6"
+          style={{ color: config.color }}
           onClick={() => setIsPaused(false)}
         >
-          다시 돌리기 ↻
+          ▶️ 계속 돌리기
         </Button>
       )}
     </div>
   );
 }
 
-export function MissionSlotMachine({ onSelectMission }: MissionSlotMachineProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedMission, setSelectedMission] = useState<{ text: string; difficulty: string } | null>(null);
+export function MissionSlotMachine({
+  onMissionSelect,
+}: MissionSlotMachineProps) {
+  const [isOpen, setIsOpen] = useState(true);
+  const [selectedMission, setSelectedMission] = useState<{
+    text: string;
+    difficulty: string;
+  } | null>(null);
 
-  const handleSelect = (mission: string, difficulty: string) => {
-    setSelectedMission({ text: mission, difficulty });
-    onSelectMission?.(mission, difficulty);
+  const handleSelect = (
+    mission: string,
+    difficulty: "high" | "medium" | "low"
+  ) => {
+    const config = MISSION_CONFIG[difficulty];
+    setSelectedMission({ text: mission, difficulty: config.label });
+    onMissionSelect?.(mission, config.label);
   };
 
   return (
-    <Card className="border-border/40 overflow-hidden shadow-sm">
-      {/* Header Bar - 클릭하면 펼쳐짐 */}
+    <Card className="border-2 border-[#d4af37]/50 bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] overflow-hidden shadow-2xl">
+      {/* 헤더 - 럭셔리 블랙 & 골드 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-3 flex items-center justify-between bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 text-white"
+        className="w-full p-4 flex items-center justify-between bg-gradient-to-r from-[#1a1a1a] to-[#0a0a0a] border-b-2 border-[#d4af37]/30 hover:border-[#d4af37]/60 transition-colors"
       >
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
-            <Target className="w-4 h-4" />
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#d4af37]/20 to-[#f4d03f]/10 flex items-center justify-center border-2 border-[#d4af37]/50">
+            <span className="text-lg">🎰</span>
           </div>
           <div className="text-left">
-            <p className="text-xs font-bold">🎰 부여된 미션</p>
-            <p className="text-[9px] opacity-80">회사에서 부여한 미션을 선택하세요</p>
+            <p className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f4d03f]">
+              미션 룰렛 🎲
+            </p>
+            <p className="text-[10px] text-[#d4af37]/60">
+              오늘의 미션을 선택하세요
+            </p>
           </div>
         </div>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3 }}
         >
-          <ChevronDown className="w-5 h-5" />
+          <ChevronDown className="w-5 h-5" style={{ color: "#d4af37" }} />
         </motion.div>
       </button>
 
-      {/* Slot Machine Content */}
+      {/* 슬롯머신 콘텐츠 */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -172,57 +264,58 @@ export function MissionSlotMachine({ onSelectMission }: MissionSlotMachineProps)
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <CardContent className="p-3">
+            <div className="p-4 space-y-4">
               {/* 선택된 미션 표시 */}
               {selectedMission && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-3 p-2.5 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-800"
+                  className="p-3 rounded-lg border-2 border-[#d4af37]/50 bg-gradient-to-r from-[#d4af37]/10 to-[#f4d03f]/5 backdrop-blur-sm"
                 >
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <div>
-                      <p className="text-[10px] text-green-600 font-bold">선택된 미션</p>
-                      <p className="text-xs font-semibold">{selectedMission.text}</p>
-                      <p className="text-[9px] text-muted-foreground">난이도: {selectedMission.difficulty}</p>
-                    </div>
-                  </div>
+                  <p className="text-[10px] text-[#d4af37]/60 uppercase tracking-widest font-light">
+                    ✓ 선택된 미션
+                  </p>
+                  <p className="text-sm font-bold text-[#d4af37] mt-1">
+                    {selectedMission.text}
+                  </p>
+                  <p className="text-[10px] text-[#d4af37]/70 mt-1">
+                    난이도: {selectedMission.difficulty}
+                  </p>
                 </motion.div>
               )}
 
               {/* 3칸 슬롯머신 */}
-              <div className="flex gap-2">
-                <SlotColumn
-                  missions={EASY_MISSIONS}
+              <div className="flex gap-3">
+                <LuxurySlotColumn
+                  missions={MISSION_CONFIG.low.missions}
                   speed={2500}
-                  label="쉬움"
-                  icon={Zap}
-                  color="from-green-400 to-emerald-500"
-                  onSelect={(m) => handleSelect(m, "쉬움")}
+                  difficulty="low"
+                  onSelect={(m) => handleSelect(m, "low")}
                 />
-                <SlotColumn
-                  missions={MEDIUM_MISSIONS}
+                <LuxurySlotColumn
+                  missions={MISSION_CONFIG.medium.missions}
                   speed={2000}
-                  label="보통"
-                  icon={Target}
-                  color="from-amber-400 to-orange-500"
-                  onSelect={(m) => handleSelect(m, "보통")}
+                  difficulty="medium"
+                  onSelect={(m) => handleSelect(m, "medium")}
                 />
-                <SlotColumn
-                  missions={HARD_MISSIONS}
+                <LuxurySlotColumn
+                  missions={MISSION_CONFIG.high.missions}
                   speed={1500}
-                  label="도전"
-                  icon={Flame}
-                  color="from-red-400 to-rose-600"
-                  onSelect={(m) => handleSelect(m, "도전")}
+                  difficulty="high"
+                  onSelect={(m) => handleSelect(m, "high")}
                 />
               </div>
 
-              <p className="text-[9px] text-center text-muted-foreground mt-2">
-                원하는 미션을 터치하여 선택하세요
+              {/* 안내 텍스트 */}
+              <p className="text-[10px] text-center text-[#d4af37]/60 font-light">
+                원하는 미션을 터치하여 선택하세요 • 난이도별 포인트 지급
               </p>
-            </CardContent>
+
+              {/* 액션 버튼 */}
+              <Button className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-black hover:shadow-lg hover:shadow-[#d4af37]/50 font-bold h-10">
+                🚀 선택한 미션 시작하기
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

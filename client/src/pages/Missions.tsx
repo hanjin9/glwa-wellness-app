@@ -222,7 +222,7 @@ export default function Missions() {
   return (
     <div className="space-y-5">
       {/* 부여된 미션 - 슬롯머신 */}
-      <MissionSlotMachine onSelectMission={(mission, difficulty) => {
+      <MissionSlotMachine onMissionSelect={(mission: string, difficulty: string) => {
         toast.success(`"${mission}" 미션을 선택했습니다! (${difficulty})`);
       }} />
 

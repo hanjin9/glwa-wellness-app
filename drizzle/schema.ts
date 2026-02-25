@@ -179,6 +179,25 @@ export const programProgress = mysqlTable("program_progress", {
 export type ProgramProgress = typeof programProgress.$inferSelect;
 export type InsertProgramProgress = typeof programProgress.$inferInsert;
 
+// ─── Workout Pose Analysis (운동 자세 분석) ──────────────────────────
+export const workoutPoseAnalysis = mysqlTable("workout_pose_analysis", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  exerciseName: varchar("exerciseName", { length: 100 }).notNull(),
+  targetPose: varchar("targetPose", { length: 50 }).notNull(),
+  accuracy: int("accuracy").notNull(), // 0-100
+  hanJinLevel: int("hanJinLevel").notNull(), // -10 ~ +10
+  feedback: text("feedback"),
+  isCorrect: boolean("isCorrect").default(false),
+  duration: int("duration"), // 초 단위
+  videoUrl: text("videoUrl"), // 운동 영상 저장 (선택)
+  aiAnalysis: text("aiAnalysis"), // AI 분석 결과
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WorkoutPoseAnalysis = typeof workoutPoseAnalysis.$inferSelect;
+export type InsertWorkoutPoseAnalysis = typeof workoutPoseAnalysis.$inferInsert;
+
 // ═══════════════════════════════════════════════════════════════════════
 // 쇼핑몰 (건강식품 몰)
 // ═══════════════════════════════════════════════════════════════════════

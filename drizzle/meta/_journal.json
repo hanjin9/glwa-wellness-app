@@ -134,6 +134,13 @@
       "when": 1771952977875,
       "tag": "0018_easy_whiplash",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1772041126924,
+      "tag": "0019_opposite_leopardon",
+      "breakpoints": true
     }
   ]
 }
