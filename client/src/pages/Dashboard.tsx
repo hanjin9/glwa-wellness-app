@@ -30,6 +30,8 @@ import LuxuryDashboard from "@/components/LuxuryDashboard";
 import WorkoutPoseAnalyzer from "@/components/WorkoutPoseAnalyzer";
 import BreathingAnalyzer from "@/components/BreathingAnalyzer";
 import RealtimeNotificationCenter from "@/components/RealtimeNotificationCenter";
+import QuickBioBar from "@/components/QuickBioBar";
+import LockScreenWidget from "@/components/LockScreenWidget";
 
 // 무지개 그라데이션 색상 (0~10 레벨에 따른 색상 반환)
 function rainbowColor(level: number): string {
@@ -122,6 +124,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-5">
       <RealtimeNotificationCenter userId={user?.id} />
+      <QuickBioBar />
+      <LockScreenWidget />
       {/* Welcome Banner - Luxury Black & Gold */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
