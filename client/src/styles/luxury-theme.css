@@ -1,0 +1,399 @@
+/**
+ * 🏛️ GLWA 럭셔리 블랙 & 골드 테마
+ * 
+ * 명품 브랜드 수준의 럭셔리 감성
+ * - 순검은색 배경
+ * - 황금색 강조
+ * - 은색 포인트
+ */
+
+:root {
+  /* 기본 색상 */
+  --color-black-primary: #0a0a0a;      /* 순검은색 */
+  --color-black-secondary: #1a1a1a;    /* 다크 그레이 */
+  --color-black-tertiary: #2a2a2a;     /* 라이트 그레이 */
+  
+  /* 골드 색상 */
+  --color-gold-primary: #FFD700;       /* 황금색 */
+  --color-gold-secondary: #FFC700;     /* 밝은 황금색 */
+  --color-gold-dark: #DAA520;          /* 어두운 황금색 */
+  
+  /* 포인트 색상 */
+  --color-silver: #C0C0C0;             /* 은색 */
+  --color-accent-blue: #1E90FF;        /* 포인트 파란색 */
+  --color-accent-cyan: #00CED1;        /* 포인트 시안 */
+  
+  /* 상태 색상 */
+  --color-success: #22C55E;            /* 성공 (초록색) */
+  --color-warning: #FB923C;            /* 경고 (주황색) */
+  --color-error: #EF4444;              /* 오류 (빨간색) */
+  
+  /* 투명도 */
+  --opacity-light: 0.1;
+  --opacity-medium: 0.3;
+  --opacity-dark: 0.5;
+}
+
+/* ============================================================================
+   배경 및 기본 레이아웃
+   ============================================================================ */
+
+body {
+  background: linear-gradient(135deg, var(--color-black-primary) 0%, var(--color-black-secondary) 100%);
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================================
+   텍스트 및 타이포그래피
+   ============================================================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-gold-primary);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+h1 {
+  font-size: 3rem;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+h2 {
+  font-size: 2rem;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+p {
+  color: #e0e0e0;
+  line-height: 1.6;
+}
+
+/* ============================================================================
+   버튼 및 인터랙티브 요소
+   ============================================================================ */
+
+button, .btn {
+  background: var(--color-black-secondary);
+  border: 2px solid var(--color-gold-primary);
+  color: var(--color-gold-primary);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.9rem;
+}
+
+button:hover, .btn:hover {
+  background: var(--color-gold-primary);
+  color: var(--color-black-primary);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+button:active, .btn:active {
+  transform: translateY(0);
+}
+
+/* 프라이머리 버튼 */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-gold-primary) 0%, var(--color-gold-secondary) 100%);
+  border: none;
+  color: var(--color-black-primary);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+}
+
+/* 세컨더리 버튼 */
+.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--color-silver);
+  color: var(--color-silver);
+}
+
+.btn-secondary:hover {
+  background: var(--color-silver);
+  color: var(--color-black-primary);
+}
+
+/* ============================================================================
+   카드 및 컨테이너
+   ============================================================================ */
+
+.card, .container {
+  background: rgba(26, 26, 26, 0.8);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.card:hover {
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 12px 48px rgba(255, 215, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* 프리미엄 카드 */
+.card-premium {
+  background: linear-gradient(135deg, rgba(42, 42, 42, 0.9) 0%, rgba(26, 26, 26, 0.9) 100%);
+  border: 2px solid var(--color-gold-primary);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+/* ============================================================================
+   입력 필드
+   ============================================================================ */
+
+input, textarea, select {
+  background: rgba(42, 42, 42, 0.5);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-gold-primary);
+  background: rgba(42, 42, 42, 0.8);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ============================================================================
+   배지 및 라벨
+   ============================================================================ */
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-gold {
+  background: var(--color-gold-primary);
+  color: var(--color-black-primary);
+}
+
+.badge-silver {
+  background: var(--color-silver);
+  color: var(--color-black-primary);
+}
+
+.badge-success {
+  background: var(--color-success);
+  color: white;
+}
+
+.badge-warning {
+  background: var(--color-warning);
+  color: white;
+}
+
+.badge-error {
+  background: var(--color-error);
+  color: white;
+}
+
+/* ============================================================================
+   구분선 및 디바이더
+   ============================================================================ */
+
+hr, .divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold-primary), transparent);
+  margin: 24px 0;
+}
+
+/* ============================================================================
+   애니메이션
+   ============================================================================ */
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 3s infinite;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* ============================================================================
+   스크롤바 커스터마이징
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-black-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-secondary);
+}
+
+/* ============================================================================
+   다크 테마 (기본)
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(135deg, var(--color-black-primary) 0%, var(--color-black-secondary) 100%);
+  }
+}
+
+/* ============================================================================
+   반응형 디자인
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .card, .container {
+    padding: 16px;
+  }
+
+  button, .btn {
+    padding: 10px 20px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ============================================================================
+   유틸리티 클래스
+   ============================================================================ */
+
+.text-gold {
+  color: var(--color-gold-primary);
+}
+
+.text-silver {
+  color: var(--color-silver);
+}
+
+.text-muted {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.bg-black-primary {
+  background: var(--color-black-primary);
+}
+
+.bg-black-secondary {
+  background: var(--color-black-secondary);
+}
+
+.border-gold {
+  border-color: var(--color-gold-primary);
+}
+
+.shadow-gold {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.shadow-lg-gold {
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+}
+
+/* ============================================================================
+   특수 효과
+   ============================================================================ */
+
+.glass-effect {
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.marble-effect {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
+  background-size: 200% 200%;
+  animation: marble 15s ease infinite;
+}
+
+@keyframes marble {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.gradient-gold {
+  background: linear-gradient(135deg, var(--color-gold-primary) 0%, var(--color-gold-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

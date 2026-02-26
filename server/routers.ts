@@ -13,6 +13,8 @@ import { createCheckoutSession } from "./stripe";
 import { TRPCError } from "@trpc/server";
 import { fetchBitcoinData, formatBitcoinData } from "./bitcoin";
 import { analyzeBitcoinMarket, formatBitcoinBrief } from "./bitcoinAnalysis";
+import { voiceRouter } from "./voiceRouter";
+import { contentCompressorRouter } from "./contentCompressorRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1439,5 +1441,7 @@ export const appRouter = router({
       }
     }),
   }),
+  globalVoice: voiceRouter,
+  content: contentCompressorRouter,
 });
 export type AppRouter = typeof appRouter;
