@@ -177,3 +177,48 @@
 - [ ] TypeScript 에러 0개
 - [ ] 모든 테스트 통과
 
+
+
+## 57차 업데이트 - 생체 데이터 실시간 연동 시스템 (완료)
+- [x] 생체 데이터 수집 아키텍처 설계 (센서/API/DB 통합)
+- [x] tRPC 백엔드 라우터 구현 (biodata.ts)
+  - [x] 수면 데이터 수집 (취침/기상 시간, 수면 질)
+  - [x] 식사 데이터 수집 (시간, 영양소, 칼로리)
+  - [x] 활동 데이터 수집 (보행 수, 운동시간, 칼로리)
+  - [x] 혈압/혈당 데이터 수집
+- [x] AI 분석 엔진 통합 (HanJin Level 자동 계산)
+- [x] 실시간 데이터 시각화 컴포넌트
+  - [x] CircularSleepGraph.tsx 데이터 연동
+  - [x] CircularMealGraph.tsx 데이터 연동
+  - [x] 실시간 업데이트 (WebSocket/polling)
+- [x] 글로벌 음성 피드백 자동 생성 (15개국)
+- [x] 데이터베이스 스키마 확장 (Prisma)
+- [x] TypeScript 에러 0개
+- [x] 모든 테스트 통과
+
+## 58차 업데이트 - 기능별 온보딩 가이드 영상 시스템 (진행 중)
+- [ ] 온보딩 영상 메타데이터 DB 스키마 (onboardingVideos)
+- [ ] 기능별 가이드 영상 매핑 시스템
+  - [ ] 건강 체크 → Healthcare Widget 영상 (4개 클립)
+  - [ ] VIP 등급 → Golden Slideshow 영상 (3개 클립)
+  - [ ] 투명 UI → Glass Infographic 영상
+  - [ ] 수면 기록 → CircularSleepGraph 데모 영상
+  - [ ] 식사 기록 → CircularMealGraph 데모 영상
+- [ ] 온보딩 영상 플레이어 컴포넌트 (OnboardingVideoPlayer.tsx)
+  - [ ] 자동 재생 (3~5초)
+  - [ ] 스킵 버튼
+  - [ ] 음소거 토글
+  - [ ] 진행률 표시
+- [ ] 앱 초기 실행 시 온보딩 플로우
+  - [ ] 신규 사용자 감지
+  - [ ] 첫 번째 가이드 영상 자동 재생
+  - [ ] 스킵 옵션 제공
+- [ ] 기능 진입 시 가이드 영상 자동 재생
+  - [ ] 건강 체크 진입 → Healthcare Widget 영상
+  - [ ] VIP 페이지 진입 → Golden Slideshow 영상
+  - [ ] 수면 기록 진입 → CircularSleepGraph 데모
+  - [ ] 식사 기록 진입 → CircularMealGraph 데모
+- [ ] 사용자 설정 (가이드 영상 반복 재생 여부)
+- [ ] 가이드 영상 스킵 이력 저장
+- [ ] TypeScript 에러 0개
+- [ ] 모든 테스트 통과
