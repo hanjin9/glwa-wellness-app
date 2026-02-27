@@ -15,6 +15,7 @@ import { fetchBitcoinData, formatBitcoinData } from "./bitcoin";
 import { analyzeBitcoinMarket, formatBitcoinBrief } from "./bitcoinAnalysis";
 import { voiceRouter } from "./voiceRouter";
 import { contentCompressorRouter } from "./contentCompressorRouter";
+import { onboardingRouter } from "./onboardingRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1443,5 +1444,6 @@ export const appRouter = router({
   }),
   globalVoice: voiceRouter,
   content: contentCompressorRouter,
+  onboarding: onboardingRouter,
 });
 export type AppRouter = typeof appRouter;
